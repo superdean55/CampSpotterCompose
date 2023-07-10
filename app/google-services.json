@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "551746863096",
+    "project_id": "camp-spotter-compose",
+    "storage_bucket": "camp-spotter-compose.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551746863096:android:a702dce8e2c757d07d200d",
+        "android_client_info": {
+          "package_name": "hr.ferit.dejanmihic.campspottercompose"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551746863096-l93j6e4gn2nifd3s1sjuks83a8c0dmsf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD27WFtgXPQx211EXexBiuJEV09GfEzsNQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551746863096-l93j6e4gn2nifd3s1sjuks83a8c0dmsf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
