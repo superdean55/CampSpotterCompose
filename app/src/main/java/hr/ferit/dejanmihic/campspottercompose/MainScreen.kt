@@ -62,6 +62,11 @@ fun MainScreen(
             )
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = viewModel.user.value)
+            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
         }
 
     }

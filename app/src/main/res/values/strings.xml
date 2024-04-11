@@ -1,3 +1,31 @@
 <resources>
     <string name="app_name">Camp Spotter Compose</string>
+
+    <string name="camp_spot_title_1">Kamp Borovik</string>
+    <string name="label_location">Location:</string>
+    <string name="label_date">Date:</string>
+    <string name="label_username">Username:</string>
+    <string name="label_firstname">First name:</string>
+    <string name="label_lastname">Last name:</string>
+    <string name="label_registration_date">Registration date:</string>
+    <string name="label_date_of_birth">Date of birth:</string>
+    <string name="label_numb_of_people">Numb. of people:</string>
+    <string name="label_description">Description:</string>
+    <string name="label_gps_coordinates">Coordinates:</string>
+    <string name="label_reviews">Reviews:</string>
+    <string name="label_gps">GPS</string>
+    <string name="label_latitude">Latitude:</string>
+    <string name="label_longitude">Longitude:</string>
+    <string name="label_title">Title:</string>
+    <string name="label_publish">Publish</string>
+    <string name="label_save_sketch">Save sketch</string>
+    <string name="label_date_of_publication">Date of publication:</string>
+    <string name="label_date_of_event">Date of event:</string>
+    <string name="label_from">From:</string>
+    <string name="label_to">To:</string>
+    <string name="label_event_starts">Events starts:</string>
+    <string name="label_event_ends">Event ends:</string>
+    <string name="label_pick_date">Pick date</string>
+
+    <string name="username_1">Deos</string>
 </resources>
