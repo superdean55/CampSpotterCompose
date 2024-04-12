@@ -21,6 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,13 +36,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import hr.ferit.dejanmihic.campspottercompose.R
+import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
+import hr.ferit.dejanmihic.campspottercompose.ui.graphs.HomeNavGraph
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    viewModel: CampSpotterViewModel,
+    modifier: Modifier = Modifier
+){
+    Scaffold(
+        modifier = modifier
+    ) {
+        HomeNavGraph(
+            navController = rememberNavController(),
+            viewModel = viewModel,
+            modifier = Modifier.padding(it)
+        )
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

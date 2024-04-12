@@ -1,4 +1,4 @@
-package hr.ferit.dejanmihic.campspottercompose
+package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -45,6 +45,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import hr.ferit.dejanmihic.campspottercompose.AppActions
+import hr.ferit.dejanmihic.campspottercompose.BeckgroundScreen
+import hr.ferit.dejanmihic.campspottercompose.R
+import hr.ferit.dejanmihic.campspottercompose.Screen
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.DarkBlue
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.MediumBlue

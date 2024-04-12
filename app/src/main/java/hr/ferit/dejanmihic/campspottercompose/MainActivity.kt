@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.LoginScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 
 class MainActivity : ComponentActivity() {

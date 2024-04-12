@@ -6,6 +6,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.LoginScreen
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.RegisterScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
