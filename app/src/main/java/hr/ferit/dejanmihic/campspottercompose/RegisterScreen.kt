@@ -1,6 +1,5 @@
 package hr.ferit.dejanmihic.campspottercompose
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -44,10 +43,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.auth.FirebaseAuth
+import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.DarkBlue
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.MediumBlue
 
@@ -55,7 +53,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.theme.MediumBlue
 @Composable
 fun RegisterScreen(
     navController: NavController,
-    viewModel: AppViewModel
+    viewModel: CampSpotterViewModel
 ){
     //val viewModel = viewModel<AppViewModel>()
     viewModel.context = LocalContext.current
@@ -236,5 +234,5 @@ fun RegisterScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewRegisterScreen(){
-    BeckgroundScreen({ RegisterScreen(navController = rememberNavController(), viewModel = AppViewModel()) })
+    BeckgroundScreen({ RegisterScreen(navController = rememberNavController(), viewModel = CampSpotterViewModel()) })
 }

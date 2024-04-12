@@ -1,7 +1,12 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
@@ -22,20 +27,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -47,6 +56,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,15 +67,27 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import com.vanpra.composematerialdialogs.MaterialDialog
 import com.vanpra.composematerialdialogs.MaterialDialogState
 import com.vanpra.composematerialdialogs.datetime.date.datepicker
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import hr.ferit.dejanmihic.campspottercompose.R
+import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.rememberImagePainter
+import hr.ferit.dejanmihic.campspottercompose.BuildConfig
+import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
+import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
+import java.io.File
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Objects
 
 @Composable
 fun DetailCampSpotCard(
@@ -261,38 +283,74 @@ fun UsernameAndImage(
         )
     }
 }
-
+@Composable
+fun TestAppComponent(
+    viewModel: CampSpotterViewModel = viewModel(),
+    modifier : Modifier = Modifier
+){
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+    CampSpotForm(
+        campSpot = uiState.campSpot,
+        onStartDateSelected = { viewModel.updatePickedStartDate(it) },
+        onEndDateSelected = { viewModel.updatePickedEndDate(it, context) },
+        onTitleChanged = { viewModel.updateCampSpotTitle(it) },
+        onDescriptionChanged = { viewModel.updateCampSpotDescription(it) },
+        onNumberOfPeopleChanged = { viewModel.updateCampSpotNumberOfPeople(it, context) },
+        onSaveSketchClicked = { viewModel.saveCampSpot(context)},
+        onPublishClicked = {},
+        viewModel = viewModel
+    )
+}
 @Composable
 fun CampSpotForm(
-    modifier: Modifier = Modifier
+    campSpot: CampSpot,
+    errorColor: Color = MaterialTheme.colorScheme.error,
+    onStartDateSelected: (LocalDate) -> Unit,
+    onEndDateSelected: (LocalDate) -> Unit,
+    onTitleChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onNumberOfPeopleChanged: (String) -> Unit,
+    onSaveSketchClicked: () -> Unit,
+    onPublishClicked: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: CampSpotterViewModel
 ){
-    var startDate by remember {
-        mutableStateOf(LocalDate.now())
-    }
-    val formattedStartDate by remember {
-        derivedStateOf {
-            DateTimeFormatter
-                .ofPattern("dd.MM.yyyy")
-                .format(startDate)
-        }
-    }
-    var endDate by remember {
-        mutableStateOf(LocalDate.now())
-    }
-    val formattedEndDate by remember {
-        derivedStateOf {
-            DateTimeFormatter
-                .ofPattern("dd.MM.yyyy")
-                .format(endDate)
-        }
-    }
+
     val startDateDialogState = rememberMaterialDialogState()
     val endDateDialogState = rememberMaterialDialogState()
-    var value by rememberSaveable { mutableStateOf("") }
-    var description by rememberSaveable { mutableStateOf("") }
-    var numbOfPeople by rememberSaveable {
-        mutableStateOf("1")
+
+    val context = LocalContext.current
+
+    val file = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        Objects.requireNonNull(context),
+        BuildConfig.APPLICATION_ID + ".provider", file
+    )
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
+            viewModel.updateUri(uri)
+        }
+
+    val launcherMultiplePermissions = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissionsMap ->
+        val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
+        if (areGranted) {
+            cameraLauncher.launch(uri)
+            viewModel.startLocationUpdates(context)
+            Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
+        }
     }
+
+    val permissions = arrayOf(
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.CAMERA
+    )
     Card (
         elevation = CardDefaults.cardElevation(),
         shape = RoundedCornerShape(
@@ -305,102 +363,172 @@ fun CampSpotForm(
                 .fillMaxWidth()
                 .padding(dimensionResource(R.dimen.padding_small))
         ) {
-            Box(
-                modifier = Modifier.fillMaxWidth()) {
-                CampSpotImageItem(
-                    imageId = R.drawable.camp_spot_image_1,
-                    modifier = Modifier
-                        .fillMaxWidth(0.7f)
-                        .align(Alignment.Center)
-                )
-            }
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-            TitleAndTwoDataInRow(
-                titleId = R.string.label_gps,
-                firstLabel = R.string.label_latitude,
-                firstData = "4.448948",
-                secondLabel = R.string.label_longitude,
-                secondData = "5.94949",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = dimensionResource(R.dimen.padding_small))
-            )
-            Divider()
-            UserInputField(
-                text = value,
-                labelId = R.string.label_title,
-                onValueChanged = { value = it },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                )
-            )
-            UserInputField(
-                text = description,
-                labelId = R.string.label_description,
-                onValueChanged = { description = it },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
-                )
-            )
-            UserInputField(
-                text = dataToString(numbOfPeople),
-                labelId = R.string.label_numb_of_people,
-                onValueChanged = { numbOfPeople = it },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
-                )
-            )
-            ChooseDate(
-                dateDialogState = startDateDialogState,
-                labelId = R.string.label_event_starts,
-                buttonLabelId = R.string.label_pick_date,
-                date = formattedStartDate,
-                onDateSelected = {
-                    startDate = it
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_small))
-            )
-            Divider()
-            ChooseDate(
-                dateDialogState = endDateDialogState,
-                labelId = R.string.label_event_ends,
-                buttonLabelId = R.string.label_pick_date,
-                date = formattedEndDate,
-                onDateSelected = {
-                    endDate = it
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_small))
-            )
-            Divider()
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = if(campSpot.campSpotFormErrors.isImageUriError)Modifier.fillMaxWidth().background(errorColor) else Modifier.fillMaxWidth()
+            ) {
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            if (permissions.all {
+                                    ContextCompat.checkSelfPermission(
+                                        context,
+                                        it
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                }) {
+                                cameraLauncher.launch(uri)
+                            } else {
+                                launcherMultiplePermissions.launch(permissions)
+                            }
+                        }
+                ) {
+                    if (campSpot.imageUri.path?.isNotEmpty() == true) {
+                        Image(
+                            modifier = Modifier
+                                .fillMaxWidth(0.7f)
+                                .align(Alignment.Center),
+                            painter = rememberImagePainter(campSpot.imageUri),
+                            contentDescription = null
+                        )
+                    } else {
+                        CampSpotImageItem(
+                            imageId = R.drawable.touch_screen_image,
+                            modifier = Modifier
+                                .fillMaxWidth(0.7f)
+                                .align(Alignment.Center)
+                        )
+                    }
+                }
+            }
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_small))
+                    .verticalScroll(rememberScrollState())
             ) {
-                CustomButton(
-                    onButtonClick = { /*TODO*/ },
-                    textId = R.string.label_save_sketch
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                TextButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        if (permissions.all {
+                                ContextCompat.checkSelfPermission(
+                                    context,
+                                    it
+                                ) == PackageManager.PERMISSION_GRANTED
+                            }) {
+                            viewModel.startLocationUpdates(context)
+                        } else {
+                            launcherMultiplePermissions.launch(permissions)
+                        }
+                    }
+                ) {
+                    Text(
+                        text = "get location",
+                        textAlign = TextAlign.Center
+                    )
+                }
+                TitleAndTwoDataInRow(
+                    isError = campSpot.campSpotFormErrors.isLocationDetailsError,
+                    errorColor = errorColor,
+                    titleId = R.string.label_gps,
+                    firstLabel = R.string.label_latitude,
+                    firstData = campSpot.locationDetails.latitude,
+                    secondLabel = R.string.label_longitude,
+                    secondData = campSpot.locationDetails.longitude,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = dimensionResource(R.dimen.padding_small))
                 )
-                CustomButton(
-                    onButtonClick = { /*TODO*/ },
-                    textId = R.string.label_publish
+                Divider()
+                UserInputField(
+                    text = campSpot.title,
+                    labelId = R.string.label_title,
+                    onValueChanged = onTitleChanged,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = campSpot.campSpotFormErrors.isTitleError
                 )
+                UserInputField(
+                    text = campSpot.description,
+                    labelId = R.string.label_description,
+                    onValueChanged = onDescriptionChanged,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = campSpot.campSpotFormErrors.isDescriptionError
+                )
+                UserInputField(
+                    text = campSpot.numberOfPeople,
+                    labelId = R.string.label_numb_of_people,
+                    onValueChanged = onNumberOfPeopleChanged,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = campSpot.campSpotFormErrors.isNumberOfPeopleError
+                )
+                ChooseDate(
+                    dateDialogState = startDateDialogState,
+                    labelId = R.string.label_event_starts,
+                    buttonLabelId = R.string.label_pick_date,
+                    date = localDateToString(campSpot.startEventDate),
+                    onDateSelected = onStartDateSelected,
+                    property = DateType.EVENT_DATE,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_small))
+                )
+                Divider()
+                ChooseDate(
+                    dateDialogState = endDateDialogState,
+                    labelId = R.string.label_event_ends,
+                    buttonLabelId = R.string.label_pick_date,
+                    date = localDateToString(campSpot.endEventDate),
+                    onDateSelected = onEndDateSelected,
+                    property = DateType.EVENT_DATE,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_small))
+                )
+                Divider()
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_small))
+                ) {
+                    CustomButton(
+                        onButtonClick = onSaveSketchClicked,
+                        textId = R.string.label_save_sketch
+                    )
+                    CustomButton(
+                        onButtonClick = onPublishClicked,
+                        textId = R.string.label_publish
+                    )
+                }
             }
         }
     }
 }
 
-
+fun Context.createImageFile(): File {
+    // Create an image file name
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    val imageFileName = "JPEG_" + timeStamp + "_"
+    val image = File.createTempFile(
+        imageFileName, /* prefix */
+        ".jpg", /* suffix */
+        externalCacheDir      /* directory */
+    )
+    return image
+}
 @Composable
 fun <T>TitleAndTwoDataInRow(
+    isError: Boolean = false,
+    errorColor: Color = MaterialTheme.colorScheme.error,
     @StringRes titleId: Int,
     @StringRes firstLabel: Int,
     firstData: T,
@@ -419,6 +547,8 @@ fun <T>TitleAndTwoDataInRow(
             modifier = Modifier.fillMaxWidth()
         )
         AdditionalItemData(
+            isError = isError,
+            errorColor = errorColor,
             firstLabel = firstLabel,
             firstData = firstData,
             secondLabel = secondLabel,
@@ -435,6 +565,7 @@ fun ChooseDate(
     onDateSelected: (LocalDate) -> Unit,
     @StringRes labelId: Int,
     @StringRes buttonLabelId: Int,
+    property: DateType,
     modifier: Modifier = Modifier
 ){
     Row(
@@ -473,7 +604,11 @@ fun ChooseDate(
                 initialDate = LocalDate.now(),
                 title = "Pick a date",
                 allowedDateValidator = {
-                    it.dayOfMonth % 2 == 1
+                    if(property == DateType.BIRTH_DATE){
+                        it.isBefore(LocalDate.now())
+                    }else {
+                        it.isAfter(LocalDate.now())
+                    }
                 }
             ) {
                 onDateSelected(it)
@@ -488,7 +623,6 @@ fun CustomButton(
     modifier: Modifier = Modifier
 ){
     Button(
-
         onClick = onButtonClick,
         modifier = modifier
     ) {
@@ -503,6 +637,7 @@ fun CustomButton(
 fun UserInputField(
     text: String,
     labelId: Int,
+    isError: Boolean,
     onValueChanged: (String) -> Unit,
     keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier.fillMaxWidth()
@@ -510,6 +645,7 @@ fun UserInputField(
     TextField(
         modifier = modifier,
         value = text,
+        isError = isError,
         onValueChange = onValueChanged,
         label = {
             Text(
@@ -524,6 +660,8 @@ fun UserInputField(
 }
 @Composable
 fun <T>AdditionalItemData(
+    isError: Boolean = false,
+    errorColor: Color = MaterialTheme.colorScheme.error,
     @StringRes firstLabel: Int,
     firstData: T,
     @StringRes secondLabel: Int,
@@ -531,7 +669,7 @@ fun <T>AdditionalItemData(
     modifier: Modifier = Modifier
 ){
     Row(
-        modifier = modifier
+        modifier = if(isError)modifier.background(errorColor) else modifier
     ) {
         Column(
             modifier = Modifier.weight(1f),
@@ -577,11 +715,29 @@ fun DetailCampSpotCardPreview(){
 
 @Preview(showBackground = true)
 @Composable
+fun TestPreview(){
+    CampSpotterComposeTheme {
+        Surface {
+            TestAppComponent()
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
 fun CampSpotFormPreview(){
     CampSpotterComposeTheme {
         Surface {
             CampSpotForm(
-                modifier = Modifier.fillMaxWidth()
+                campSpot = LocalCampSpotDataProvider.DefaultCampSpot,
+                onStartDateSelected = {},
+                onEndDateSelected = {},
+                onTitleChanged = {},
+                onDescriptionChanged = {},
+                onNumberOfPeopleChanged = {},
+                onSaveSketchClicked = {},
+                onPublishClicked = {},
+                viewModel = CampSpotterViewModel()
             )
         }
     }

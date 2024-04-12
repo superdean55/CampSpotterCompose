@@ -5,12 +5,13 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
-    viewModel: AppViewModel,
+    viewModel: CampSpotterViewModel,
     startDestination: String
 ){
     NavHost(

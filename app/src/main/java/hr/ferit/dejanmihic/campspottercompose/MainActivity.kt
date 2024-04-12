@@ -5,7 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -13,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 
 class MainActivity : ComponentActivity() {
@@ -28,7 +28,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
 
 
-                val viewModel = viewModel<AppViewModel>()
+                val viewModel : CampSpotterViewModel = viewModel()
                 navController = rememberNavController()
                 this.navController = navController
                 var startDestination: String = if(auth.currentUser != null){

@@ -19,6 +19,7 @@
     <string name="label_title">Title:</string>
     <string name="label_publish">Publish</string>
     <string name="label_save_sketch">Save sketch</string>
+    <string name="label_save">Save</string>
     <string name="label_date_of_publication">Date of publication:</string>
     <string name="label_date_of_event">Date of event:</string>
     <string name="label_from">From:</string>

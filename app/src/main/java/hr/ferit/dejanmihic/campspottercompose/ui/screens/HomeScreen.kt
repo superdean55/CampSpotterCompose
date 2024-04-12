@@ -39,6 +39,7 @@ import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
@@ -156,18 +157,23 @@ fun CampSpotImageItem(
 
 fun <T>dataToString(data: T) :String{
     val text = when(data){
+        is LocalDate -> localDateToString(data)
         is Date -> dateToString(data)
         is Int -> data.toString()
         is Float -> data.toString()
+        is Double -> data.toString()
         is String -> data
         else -> "unknown"
     }
     return text
 }
 
-fun dateToString(date: Date, format: String = "dd.MM.yyyy"): String {
+fun dateToString(date: Date, format: String = "dd.MM.yyyy."): String {
     val dateFormat = SimpleDateFormat(format, Locale.getDefault())
     return dateFormat.format(date)
+}
+fun localDateToString(localDate: LocalDate, format: String = "dd.MM.yyyy."): String{
+    return DateTimeFormatter.ofPattern("dd.MM.yyyy.").format(localDate)
 }
 
 @Preview(showBackground = true)
