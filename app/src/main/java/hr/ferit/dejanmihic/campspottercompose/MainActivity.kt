@@ -68,6 +68,6 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun GreetingPreview() {
     CampSpotterComposeTheme {
-        BeckgroundScreen({ LoginScreen(navController = rememberNavController(), viewModel = viewModel()) })
+        BackgroundScreen({ LoginScreen(navController = rememberNavController(), viewModel = viewModel()) })
     }
 }

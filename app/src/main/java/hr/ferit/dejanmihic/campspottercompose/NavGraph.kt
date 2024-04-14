@@ -23,21 +23,21 @@ fun SetupNavGraph(
         composable(
             route = Screen.LoginScreen.route
         ){
-            BeckgroundScreen {
+            BackgroundScreen {
                 LoginScreen(navController, viewModel)
             }
         }
         composable(
             route = Screen.RegisterScreen.route
         ){
-            BeckgroundScreen {
+            BackgroundScreen {
                 RegisterScreen(navController, viewModel)
             }
         }
         composable(
             route = Screen.MainScreen.route
         ){
-            BeckgroundScreen {
+            BackgroundScreen {
                 MainScreen(navController, viewModel)
             }
         }

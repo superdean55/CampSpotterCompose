@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import hr.ferit.dejanmihic.campspottercompose.AppActions
-import hr.ferit.dejanmihic.campspottercompose.BeckgroundScreen
+import hr.ferit.dejanmihic.campspottercompose.BackgroundScreen
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.Screen
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
@@ -238,5 +238,5 @@ fun RegisterScreen(
 @Preview(showBackground = true)
 @Composable
 fun PreviewRegisterScreen(){
-    BeckgroundScreen({ RegisterScreen(navController = rememberNavController(), viewModel = CampSpotterViewModel()) })
+    BackgroundScreen({ RegisterScreen(navController = rememberNavController(), viewModel = CampSpotterViewModel()) })
 }

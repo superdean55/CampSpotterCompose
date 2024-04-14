@@ -20,9 +20,9 @@ import hr.ferit.dejanmihic.campspottercompose.ui.theme.LightBlue
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.MediumBlue
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun BeckgroundScreen(
+fun BackgroundScreen(
     anyComposable: @Composable () -> Unit
 ){
     BoxWithConstraints(

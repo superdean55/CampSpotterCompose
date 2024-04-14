@@ -28,5 +28,18 @@
     <string name="label_event_ends">Event ends:</string>
     <string name="label_pick_date">Pick date</string>
 
+    <string name="auth_title_app">Camp Spotter</string>
+    <string name="auth_label_email">Email</string>
+    <string name="auth_label_password">Password</string>
+    <string name="auth_log_in_label_confirm">Sign in</string>
+    <string name="auth_log_in_message_title">Welcome Back</string>
+    <string name="auth_log_in_bottom_message">you don\'t have an account?</string>
+    <string name="auth_log_in_label_navigate">Create one</string>
+
+    <string name="auth_sign_up_label_confirm">Sign up</string>
+    <string name="auth_sign_up_message_title">Create account</string>
+    <string name="auth_sign_up_bottom_message">you have an account?</string>
+    <string name="auth_sign_up_label_navigate">Log in</string>
+
     <string name="username_1">Deos</string>
 </resources>

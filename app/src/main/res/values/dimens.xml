@@ -13,5 +13,7 @@
     <dimen name="horizontal_data_row_height">30dp</dimen>
 
     <dimen name="spacer_small">5dp</dimen>
+    <dimen name="spacer_medium">10dp</dimen>
+    <dimen name="spacer_extra_large">40dp</dimen>
 
 </resources>
