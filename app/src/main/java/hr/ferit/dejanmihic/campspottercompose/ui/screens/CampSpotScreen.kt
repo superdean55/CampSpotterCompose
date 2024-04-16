@@ -3,7 +3,6 @@ package hr.ferit.dejanmihic.campspottercompose.ui.screens
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.widget.DatePicker
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -38,18 +37,15 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -77,12 +73,11 @@ import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.rememberImagePainter
 import hr.ferit.dejanmihic.campspottercompose.BuildConfig
 import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
-import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
+import hr.ferit.dejanmihic.campspottercompose.model.CampSpotForm
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
 import java.io.File
 import java.text.SimpleDateFormat
@@ -304,7 +299,7 @@ fun TestAppComponent(
 }
 @Composable
 fun CampSpotForm(
-    campSpot: CampSpot,
+    campSpot: CampSpotForm,
     errorColor: Color = MaterialTheme.colorScheme.error,
     onStartDateSelected: (LocalDate) -> Unit,
     onEndDateSelected: (LocalDate) -> Unit,

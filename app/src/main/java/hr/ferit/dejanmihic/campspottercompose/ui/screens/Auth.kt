@@ -41,10 +41,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import hr.ferit.dejanmihic.campspottercompose.BackgroundScreen
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.DarkBlue
@@ -64,7 +63,7 @@ fun Auth(
     onPasswordValueChanged: (String) -> Unit,
     onPasswordVisibilityChanged: () -> Unit,
     isPasswordVisible: Boolean,
-    visibleTransformation: PasswordVisualTransformation,
+    visibleTransformation: VisualTransformation,
     onConfirmClicked: () -> Unit,
     onNavigateClicked: () -> Unit,
     isLoading: Boolean,
@@ -223,7 +222,7 @@ fun AuthEmailAndPasswordInput(
     onPasswordValueChanged: (String) -> Unit,
     onPasswordVisibilityChanged: () -> Unit,
     isPasswordVisible: Boolean,
-    visibleTransformation: PasswordVisualTransformation,
+    visibleTransformation: VisualTransformation,
     color: Color = Color.White,
     modifier: Modifier = Modifier
 ){
@@ -315,7 +314,7 @@ fun AuthEmailAndPasswordInput(
 fun AuthPreview(){
     CampSpotterComposeTheme {
         Surface {
-            BackgroundScreen {
+            Background {
                 Auth(
                     messageTitleId = R.string.auth_log_in_message_title,
                     confirmLabelId = R.string.auth_log_in_label_confirm,

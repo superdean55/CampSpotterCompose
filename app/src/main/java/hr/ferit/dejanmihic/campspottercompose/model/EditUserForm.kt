@@ -11,5 +11,5 @@ data class EditUserForm(
     val lastName: String,
     val birthDate: LocalDate,
     val creationDate: LocalDate,
-    val editUserFormErrors: EditUserFormErrors,
+    val editUserFormErrors: UserFormErrors,
 )

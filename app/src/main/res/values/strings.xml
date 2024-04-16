@@ -41,5 +41,7 @@
     <string name="auth_sign_up_bottom_message">you have an account?</string>
     <string name="auth_sign_up_label_navigate">Log in</string>
 
+    <string name="top_app_bar_navigation_back">Navigation back</string>
+
     <string name="username_1">Deos</string>
 </resources>

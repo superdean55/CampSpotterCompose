@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -68,8 +69,40 @@ fun MainScreen(
 
     }
 }
+@Composable
+fun MainScreenV2(
+    onLogOutClicked: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+    ){
+        Column(modifier = Modifier
+            .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Button(
+                    onClick = onLogOutClicked
+            ) {
+                Text(text = "LogOut")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "Main Screen",
+                textAlign = TextAlign.Center,
+                fontSize = 30.sp
+            )
+        }
+
+    }
+}
 @Preview(showBackground = true)
 @Composable
 fun PreviewMainScreen(){
-    MainScreen(navController = rememberNavController(), viewModel = CampSpotterViewModel())
+    MainScreenV2(
+        onLogOutClicked = {},
+        modifier = Modifier.fillMaxSize()
+    )
 }

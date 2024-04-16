@@ -1,4 +1,4 @@
-package hr.ferit.dejanmihic.campspottercompose
+package hr.ferit.dejanmihic.campspottercompose.ui.utils
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path

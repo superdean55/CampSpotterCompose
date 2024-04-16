@@ -26,7 +26,9 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import hr.ferit.dejanmihic.campspottercompose.AppActions
 import hr.ferit.dejanmihic.campspottercompose.Screen
+import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
+import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -304,10 +306,10 @@ class CampSpotterViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 user = it.user.copy(
-                    firstName = firstName,
-                    editUserFormErrors = it.user.editUserFormErrors.copy(
-                        isFirstNameError = false
-                    )
+                    firstName = firstName
+                    ),
+                    userFormErrors = it.userFormErrors.copy(
+                    isFirstNameError = false
                 )
             )
         }
@@ -316,10 +318,10 @@ class CampSpotterViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 user = it.user.copy(
-                    lastName = lastName,
-                    editUserFormErrors = it.user.editUserFormErrors.copy(
-                        isLastNameError = false
-                    )
+                    lastName = lastName
+                ),
+                userFormErrors = it.userFormErrors.copy(
+                    isLastNameError = false
                 )
             )
         }
@@ -328,21 +330,19 @@ class CampSpotterViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 user = it.user.copy(
-                    imageUri = imageUri
+                    image = imageUri ?: Uri.EMPTY
                 )
             )
         }
     }
-    fun saveEditedUser(context: Context){
+    fun saveEditedUser(user: User,context: Context): Boolean{
         var errors = ""
         if(!isTextInputNotEmpty(uiState.value.user.firstName)){
             errors += "First Name is empty\n"
             _uiState.update {
                 it.copy(
-                    user = it.user.copy(
-                        editUserFormErrors = it.user.editUserFormErrors.copy(
-                            isFirstNameError = true
-                        )
+                    userFormErrors = it.userFormErrors.copy(
+                        isFirstNameError = true
                     )
                 )
             }
@@ -351,10 +351,8 @@ class CampSpotterViewModel : ViewModel() {
             errors += "Last Name is empty"
             _uiState.update {
                 it.copy(
-                    user = it.user.copy(
-                        editUserFormErrors = it.user.editUserFormErrors.copy(
-                            isLastNameError = true
-                        )
+                    userFormErrors = it.userFormErrors.copy(
+                        isLastNameError = true
                     )
                 )
             }
@@ -366,6 +364,17 @@ class CampSpotterViewModel : ViewModel() {
             val text = view!!.findViewById<TextView>(message)
             text.setTextColor(Color.BLACK)
             toast.show()
+            return false
+        }else{
+            val users = LocalUserDataProvider.getUsersData()
+            val userToUpdate = users.find { it.id == user.id  }
+            userToUpdate?.apply {
+                firstName = uiState.value.user.firstName
+                lastName = uiState.value.user.lastName
+                birthDate = uiState.value.user.birthDate
+                image = uiState.value.user.image
+            }
+            return true
         }
     }
 

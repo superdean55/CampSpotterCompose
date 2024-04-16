@@ -6,8 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.LoginScreen
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.RegisterScreen
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.Background
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,21 +22,17 @@ fun SetupNavGraph(
         composable(
             route = Screen.LoginScreen.route
         ){
-            BackgroundScreen {
-                LoginScreen(navController, viewModel)
-            }
+
         }
         composable(
             route = Screen.RegisterScreen.route
         ){
-            BackgroundScreen {
-                RegisterScreen(navController, viewModel)
-            }
+
         }
         composable(
             route = Screen.MainScreen.route
         ){
-            BackgroundScreen {
+            Background {
                 MainScreen(navController, viewModel)
             }
         }

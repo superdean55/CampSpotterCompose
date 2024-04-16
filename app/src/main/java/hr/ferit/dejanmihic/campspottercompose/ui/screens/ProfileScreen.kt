@@ -47,6 +47,8 @@ import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.EditUserForm
+import hr.ferit.dejanmihic.campspottercompose.model.User
+import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
@@ -54,6 +56,9 @@ import java.time.LocalDate
 
 @Composable
 fun DetailProfileCard(
+    user: User,
+    onLogOutClicked: () -> Unit,
+    onEditClicked: () -> Unit,
     modifier: Modifier = Modifier
 ){
     Card (
@@ -74,40 +79,40 @@ fun DetailProfileCard(
                     .fillMaxWidth()
                     .padding(dimensionResource(R.dimen.spacer_small))
             ) {
-                CampSpotImageItem(
-                    imageId = R.drawable.person,
+                UserImageItem(
+                    userImageUri = user.image,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.card_image_height))
                         .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
                 )
                 VerticalLabelTextInfo(
                     labelId = R.string.label_username,
-                    data = "deos",
+                    data = user.username,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
             Divider()
             HorizontalLabelTextInfo(
                 labelId = R.string.label_firstname,
-                data = "Dejan",
+                data = user.firstName,
                 modifier = Modifier.fillMaxWidth()
             )
             Divider()
             HorizontalLabelTextInfo(
                 labelId = R.string.label_lastname,
-                data = "Mihić",
+                data = user.lastName,
                 modifier = Modifier.fillMaxWidth()
             )
             Divider()
             HorizontalLabelTextInfo(
                 labelId = R.string.label_date_of_birth,
-                data = "26.01.1990",
+                data = user.birthDate,
                 modifier = Modifier.fillMaxWidth()
             )
             Divider()
             HorizontalLabelTextInfo(
                 labelId = R.string.label_registration_date,
-                data = "26.01.2022",
+                data = user.creationDate,
                 modifier = Modifier.fillMaxWidth()
             )
             Divider()
@@ -120,14 +125,14 @@ fun DetailProfileCard(
             ){
                 Button(
                     modifier = Modifier.weight(1f),
-                    onClick = { /*TODO*/ }
+                    onClick = onLogOutClicked
                 ) {
                     Text(text = "Log out")
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     modifier = Modifier.weight(1f),
-                    onClick = { /*TODO*/ }
+                    onClick = onEditClicked
                 ) {
                     Text(text = "Edit")
                 }
@@ -164,12 +169,13 @@ fun <T>HorizontalLabelTextInfo(
 }
 @Composable
 fun EditProfileCard(
-    user: EditUserForm,
+    user: User,
+    userFormErrors: UserFormErrors,
     onResultUpdateImage: (Uri?) -> Unit,
     onBirthDateSelected: (LocalDate) -> Unit,
     onFirstNameChanged: (String) -> Unit,
     onLastNameChanged: (String) -> Unit,
-    onSaveClicked: () -> Unit,
+    onSaveClicked: (User) -> Unit,
     modifier: Modifier = Modifier
 ){
     val birthDateDialogState = rememberMaterialDialogState()
@@ -202,9 +208,9 @@ fun EditProfileCard(
                         )
                     }
             ){
-                if(user.imageUri?.path?.isNotEmpty() == true){
+                if(user.image?.path?.isNotEmpty() == true){
                     AsyncImage(
-                        model = user.imageUri,
+                        model = user.image,
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -222,7 +228,7 @@ fun EditProfileCard(
             UserInputField(
                 text = user.firstName,
                 labelId = R.string.label_firstname,
-                isError = user.editUserFormErrors.isFirstNameError,
+                isError = userFormErrors.isFirstNameError,
                 onValueChanged = onFirstNameChanged,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -232,7 +238,7 @@ fun EditProfileCard(
             UserInputField(
                 text = user.lastName,
                 labelId = R.string.label_lastname,
-                isError = user.editUserFormErrors.isLastNameError,
+                isError = userFormErrors.isLastNameError,
                 onValueChanged = onLastNameChanged,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -255,7 +261,7 @@ fun EditProfileCard(
                     .padding(dimensionResource(R.dimen.padding_small))
             ){
                 CustomButton(
-                    onButtonClick = onSaveClicked,
+                    onButtonClick = { onSaveClicked(user) },
                     textId = R.string.label_save
                 )
             }
@@ -293,6 +299,9 @@ fun DetailProfileCardPreview(){
     CampSpotterComposeTheme {
         Surface {
             DetailProfileCard(
+                user = LocalUserDataProvider.getUsersData()[0],
+                onLogOutClicked = {},
+                onEditClicked = {},
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -306,7 +315,8 @@ fun EditProfileCardPreview(){
     CampSpotterComposeTheme {
         Surface {
             EditProfileCard(
-                user = LocalUserDataProvider.defaultUser,
+                user = LocalUserDataProvider.getUsersData()[0],
+                userFormErrors = UserFormErrors(),
                 onBirthDateSelected = {},
                 onFirstNameChanged = {},
                 onLastNameChanged = {},
@@ -330,10 +340,11 @@ fun TestEditProfileCard(){
 
             EditProfileCard(
                 user = uiState.user,
+                userFormErrors = uiState.userFormErrors,
                 onBirthDateSelected = { viewModel.updateBirthDate(it) },
                 onFirstNameChanged = { viewModel.updateFirstName(it) },
                 onLastNameChanged = { viewModel.updateLastName(it) },
-                onSaveClicked = { viewModel.saveEditedUser(context) },
+                onSaveClicked = { viewModel.saveEditedUser(it, context) },
                 onResultUpdateImage = { viewModel.updateUserImageUri(it) }
             )
         }

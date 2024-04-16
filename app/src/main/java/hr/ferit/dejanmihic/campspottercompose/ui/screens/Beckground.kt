@@ -1,29 +1,24 @@
-package hr.ferit.dejanmihic.campspottercompose
+package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.tooling.preview.Preview
+import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.DarkerBlue
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.LightBlue
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.MediumBlue
-
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.standardQuadFromTo
 
 
 @Composable
-fun BackgroundScreen(
-    anyComposable: @Composable () -> Unit
+fun Background(
+    anyComposable: @Composable () -> Unit,
 ){
     BoxWithConstraints(
         modifier = Modifier
@@ -85,13 +80,12 @@ fun BackgroundScreen(
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-fun AnyComposable(
-    anyComposable: @Composable () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        anyComposable()
+fun BackgroundPreview(){
+    CampSpotterComposeTheme {
+        Background {
+
+        }
     }
 }
