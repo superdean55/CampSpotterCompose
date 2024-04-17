@@ -20,6 +20,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Drafts
+import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
@@ -60,7 +64,9 @@ import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.Graph
+import hr.ferit.dejanmihic.campspottercompose.ui.graphs.HomeScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.LightBlue
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotterBottomNavigationBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,9 +76,26 @@ fun HomeScreen(
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
 ){
+    val uiState by campSpotViewModel.uiState.collectAsState()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val canNavigateBack = if(backStackEntry != null) backStackEntry!!.arguments != null else false
-
+    val navigationItemContentList = listOf(
+        NavigationItemContent(
+            campSpotType = CampSpotType.ALL_CAMP_SPOTS,
+            icon = Icons.Default.Inbox,
+            text = stringResource(id = R.string.nav_all_camp_spots)
+        ),
+        NavigationItemContent(
+            campSpotType = CampSpotType.MY_CAMP_SPOTS,
+            icon = Icons.Default.Send,
+            text = stringResource(id = R.string.nav_my_camp_spots)
+        ),
+        NavigationItemContent(
+            campSpotType = CampSpotType.SKETCHES,
+            icon = Icons.Default.Drafts,
+            text = stringResource(id = R.string.nav_my_sketches)
+        ),
+    )
     Scaffold(
         topBar = {
                  TopAppBar(
@@ -88,6 +111,27 @@ fun HomeScreen(
                          .height(70.dp)
                          .background(LightBlue)
                  )
+        },
+        bottomBar = {
+                CampSpotterBottomNavigationBar(
+                    currentTab = uiState.currentlySelectedNavType,
+                    onTabPressed = {
+                            campSpotViewModel.updateCurrentCampSpotType(it)
+                            when(it){
+                                   CampSpotType.ALL_CAMP_SPOTS -> {
+
+                                   }
+                                   CampSpotType.MY_CAMP_SPOTS ->{
+
+                                   }
+                                   CampSpotType.SKETCHES ->{
+
+                                   }
+                            }
+                    },
+                    navigationItemContentList = navigationItemContentList,
+                    modifier = Modifier.height(60.dp)
+                )
         },
         modifier = modifier
     ) {

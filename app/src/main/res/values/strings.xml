@@ -43,5 +43,9 @@
 
     <string name="top_app_bar_navigation_back">Navigation back</string>
 
+    <string name="nav_all_camp_spots">All Camp Spots</string>
+    <string name="nav_my_camp_spots">My Camp Spots</string>
+    <string name="nav_my_sketches">My Sketches</string>
+
     <string name="username_1">Deos</string>
 </resources>

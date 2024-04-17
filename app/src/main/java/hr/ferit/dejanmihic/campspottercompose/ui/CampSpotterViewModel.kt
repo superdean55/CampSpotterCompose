@@ -29,6 +29,7 @@ import hr.ferit.dejanmihic.campspottercompose.Screen
 import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -375,6 +376,14 @@ class CampSpotterViewModel : ViewModel() {
                 image = uiState.value.user.image
             }
             return true
+        }
+    }
+
+    fun updateCurrentCampSpotType(campSpotType: CampSpotType){
+        _uiState.update {
+            it.copy(
+                currentlySelectedNavType = campSpotType
+            )
         }
     }
 
