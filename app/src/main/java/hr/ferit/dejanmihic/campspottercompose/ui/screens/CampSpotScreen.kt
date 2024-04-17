@@ -3,10 +3,10 @@ package hr.ferit.dejanmihic.campspottercompose.ui.screens
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -74,10 +74,14 @@ import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import java.time.LocalDate
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
 import coil.compose.rememberImagePainter
 import hr.ferit.dejanmihic.campspottercompose.BuildConfig
 import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
-import hr.ferit.dejanmihic.campspottercompose.model.CampSpotForm
+import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
+import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
+import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
 import java.io.File
 import java.text.SimpleDateFormat
@@ -86,6 +90,9 @@ import java.util.Objects
 
 @Composable
 fun DetailCampSpotCard(
+    campSpot: CampSpot,
+    user: User,
+    onEditClicked: (CampSpot) -> Unit,
     imageHeight: Dp = 100.dp,
     modifier: Modifier = Modifier
 ){
@@ -113,17 +120,31 @@ fun DetailCampSpotCard(
                         .fillMaxWidth()
 
                 ) {
-                    Image(
-                        painter = painterResource(R.drawable.camp_spot_image_1),
-                        contentDescription = null,
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.FillWidth,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                imageIsClicked = !imageIsClicked
-                            }
-                    )
+                    if(campSpot.imageUri != Uri.EMPTY){
+                        AsyncImage(
+                            model = campSpot.imageUri,
+                            contentDescription = null,
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    imageIsClicked = !imageIsClicked
+                                }
+                        )
+                    }else{
+                        Image(
+                            painter = painterResource(R.drawable.no_image_available),
+                            contentDescription = null,
+                            alignment = Alignment.Center,
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    imageIsClicked = !imageIsClicked
+                                }
+                        )
+                    }
                     androidx.compose.animation.AnimatedVisibility(
                         visible = !imageIsClicked,
                         enter = fadeIn(initialAlpha = 0.3f)+ slideInHorizontally(),
@@ -135,8 +156,7 @@ fun DetailCampSpotCard(
                                 .padding(dimensionResource(R.dimen.padding_small))
                         ) {
                             UsernameAndImage(
-                                imageId = R.drawable.person,
-                                usernameId =  R.string.username_1,
+                                user = user,
                                 modifier = Modifier
                                     .align(Alignment.TopEnd)
                             )
@@ -155,7 +175,7 @@ fun DetailCampSpotCard(
             ){
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.camp_spot_title_1),
+                    text = campSpot.title,
                     style = MaterialTheme.typography.titleMedium,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2,
@@ -171,8 +191,7 @@ fun DetailCampSpotCard(
                 ) {
                     Column {
                         UsernameAndImage(
-                            imageId = R.drawable.person,
-                            usernameId =  R.string.username_1,
+                            user = user,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
@@ -182,9 +201,9 @@ fun DetailCampSpotCard(
                 TitleAndTwoDataInRow(
                     titleId = R.string.label_gps,
                     firstLabel = R.string.label_latitude,
-                    firstData = "4.448948",
+                    firstData = campSpot.locationDetails.latitude,
                     secondLabel = R.string.label_longitude,
-                    secondData = "5.94949",
+                    secondData = campSpot.locationDetails.longitude,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.padding_small))
@@ -193,9 +212,9 @@ fun DetailCampSpotCard(
                 TitleAndTwoDataInRow(
                     titleId = R.string.label_date_of_event,
                     firstLabel = R.string.label_from,
-                    firstData = "12.01.2024.",
+                    firstData = campSpot.startEventDate,
                     secondLabel = R.string.label_to,
-                    secondData = "17.01.2024",
+                    secondData = campSpot.endEventDate,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = dimensionResource(R.dimen.padding_small))
@@ -203,7 +222,7 @@ fun DetailCampSpotCard(
                 Divider()
                 HorizontalLabelTextInfo(
                     labelId = R.string.label_numb_of_people,
-                    data = 12,
+                    data = campSpot.numberOfPeople,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Divider()
@@ -218,7 +237,7 @@ fun DetailCampSpotCard(
                     )
                     Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
                     Text(
-                        text = dataToString("Kampiranje za prvi maj, bit će ludo"),
+                        text = campSpot.description,
                         style = MaterialTheme.typography.bodySmall,
                         overflow = TextOverflow.Ellipsis,
                         maxLines = 3
@@ -237,7 +256,7 @@ fun DetailCampSpotCard(
                     modifier = Modifier.fillMaxWidth()
                 ){
                     Button(
-                        onClick = { /*TODO*/ }
+                        onClick = { onEditClicked(campSpot) }
                     ) {
                         Text(
                             text = "Edit"
@@ -253,8 +272,7 @@ fun DetailCampSpotCard(
 
 @Composable
 fun UsernameAndImage(
-    @DrawableRes imageId: Int,
-    @StringRes usernameId: Int,
+    user: User,
     modifier: Modifier = Modifier
 ){
     Row(
@@ -264,14 +282,14 @@ fun UsernameAndImage(
     ){
         Text(
             modifier = Modifier.background(Color.LightGray),
-            text = stringResource(usernameId),
+            text = user.username,
             style = MaterialTheme.typography.bodyMedium,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
-        CampSpotImageItem(
-            imageId = imageId,
+        UserImageItem(
+            userImageUri = user.image,
             modifier = Modifier
                 .size(dimensionResource(R.dimen.card_account_image_height))
                 .clip(CircleShape)
@@ -286,7 +304,8 @@ fun TestAppComponent(
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     CampSpotForm(
-        campSpot = uiState.campSpot,
+        campSpot = uiState.campSpotForm,
+        campSpotFormErrors = uiState.campSpotFormErrors,
         onStartDateSelected = { viewModel.updatePickedStartDate(it) },
         onEndDateSelected = { viewModel.updatePickedEndDate(it, context) },
         onTitleChanged = { viewModel.updateCampSpotTitle(it) },
@@ -299,7 +318,8 @@ fun TestAppComponent(
 }
 @Composable
 fun CampSpotForm(
-    campSpot: CampSpotForm,
+    campSpot: CampSpot,
+    campSpotFormErrors: CampSpotFormErrors,
     errorColor: Color = MaterialTheme.colorScheme.error,
     onStartDateSelected: (LocalDate) -> Unit,
     onEndDateSelected: (LocalDate) -> Unit,
@@ -359,7 +379,9 @@ fun CampSpotForm(
                 .padding(dimensionResource(R.dimen.padding_small))
         ) {
             Row(
-                modifier = if(campSpot.campSpotFormErrors.isImageUriError)Modifier.fillMaxWidth().background(errorColor) else Modifier.fillMaxWidth()
+                modifier = if(campSpotFormErrors.isImageUriError) Modifier
+                    .fillMaxWidth()
+                    .background(errorColor) else Modifier.fillMaxWidth()
             ) {
 
                 Box(
@@ -388,7 +410,7 @@ fun CampSpotForm(
                         )
                     } else {
                         CampSpotImageItem(
-                            imageId = R.drawable.touch_screen_image,
+                            imageUri = campSpot.imageUri,
                             modifier = Modifier
                                 .fillMaxWidth(0.7f)
                                 .align(Alignment.Center)
@@ -423,7 +445,7 @@ fun CampSpotForm(
                     )
                 }
                 TitleAndTwoDataInRow(
-                    isError = campSpot.campSpotFormErrors.isLocationDetailsError,
+                    isError = campSpotFormErrors.isLocationDetailsError,
                     errorColor = errorColor,
                     titleId = R.string.label_gps,
                     firstLabel = R.string.label_latitude,
@@ -443,7 +465,7 @@ fun CampSpotForm(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
-                    isError = campSpot.campSpotFormErrors.isTitleError
+                    isError = campSpotFormErrors.isTitleError
                 )
                 UserInputField(
                     text = campSpot.description,
@@ -453,7 +475,7 @@ fun CampSpotForm(
                         keyboardType = KeyboardType.Text,
                         imeAction = ImeAction.Next
                     ),
-                    isError = campSpot.campSpotFormErrors.isDescriptionError
+                    isError = campSpotFormErrors.isDescriptionError
                 )
                 UserInputField(
                     text = campSpot.numberOfPeople,
@@ -463,7 +485,7 @@ fun CampSpotForm(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
                     ),
-                    isError = campSpot.campSpotFormErrors.isNumberOfPeopleError
+                    isError = campSpotFormErrors.isNumberOfPeopleError
                 )
                 ChooseDate(
                     dateDialogState = startDateDialogState,
@@ -702,6 +724,9 @@ fun DetailCampSpotCardPreview(){
     CampSpotterComposeTheme {
         Surface {
             DetailCampSpotCard(
+                campSpot = LocalCampSpotDataProvider.getCampSpots()[0],
+                user = LocalUserDataProvider.getUsersData()[0],
+                onEditClicked = {},
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -725,6 +750,7 @@ fun CampSpotFormPreview(){
         Surface {
             CampSpotForm(
                 campSpot = LocalCampSpotDataProvider.DefaultCampSpot,
+                campSpotFormErrors = CampSpotFormErrors(),
                 onStartDateSelected = {},
                 onEndDateSelected = {},
                 onTitleChanged = {},

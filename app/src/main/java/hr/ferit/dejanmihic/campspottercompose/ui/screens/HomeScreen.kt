@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Drafts
 import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Send
@@ -28,8 +29,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -66,7 +69,6 @@ import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.Graph
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.HomeScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.LightBlue
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotterBottomNavigationBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,21 +83,26 @@ fun HomeScreen(
     val canNavigateBack = if(backStackEntry != null) backStackEntry!!.arguments != null else false
     val navigationItemContentList = listOf(
         NavigationItemContent(
-            campSpotType = CampSpotType.ALL_CAMP_SPOTS,
+            campSpotType = CampSpotNavigationType.ALL_CAMP_SPOTS,
             icon = Icons.Default.Inbox,
             text = stringResource(id = R.string.nav_all_camp_spots)
         ),
         NavigationItemContent(
-            campSpotType = CampSpotType.MY_CAMP_SPOTS,
+            campSpotType = CampSpotNavigationType.MY_CAMP_SPOTS,
             icon = Icons.Default.Send,
             text = stringResource(id = R.string.nav_my_camp_spots)
         ),
         NavigationItemContent(
-            campSpotType = CampSpotType.SKETCHES,
+            campSpotType = CampSpotNavigationType.SKETCHES,
             icon = Icons.Default.Drafts,
             text = stringResource(id = R.string.nav_my_sketches)
         ),
     )
+    println("CURRENT BACK STACK")
+    println(backStackEntry?.destination?.route)
+    when(backStackEntry?.destination?.route){
+        HomeScreen.AllCampSpots.route -> campSpotViewModel.updateBottomNavigationVisibility(true)
+    }
     Scaffold(
         topBar = {
                  TopAppBar(
@@ -103,35 +110,56 @@ fun HomeScreen(
                      navigateBack = { navController.popBackStack() },
                      onUserIconClicked = {
                             navController.navigate(route = Graph.USER_DETAILS)
+                            campSpotViewModel.updateBottomNavigationVisibility(false)
                      },
                      titleId = R.string.auth_title_app,
-                     userImageUri = Uri.EMPTY,
+                     user = uiState.users[0],
                      modifier = Modifier
                          .fillMaxWidth()
                          .height(70.dp)
                          .background(LightBlue)
                  )
         },
+
+        floatingActionButton = {
+            if (uiState.isBottomNavigationVisible) {
+                AddCampSpot(onClick = {
+                    campSpotViewModel.updateBottomNavigationVisibility(false)
+                    campSpotViewModel.updateCurrentCampSpot(LocalCampSpotDataProvider.DefaultCampSpot)
+                    navController.navigate(route = HomeScreen.AddCampSpot.route)
+                }
+                )
+            }
+        },
         bottomBar = {
+            if (uiState.isBottomNavigationVisible) {
                 CampSpotterBottomNavigationBar(
                     currentTab = uiState.currentlySelectedNavType,
                     onTabPressed = {
-                            campSpotViewModel.updateCurrentCampSpotType(it)
-                            when(it){
-                                   CampSpotType.ALL_CAMP_SPOTS -> {
+                        campSpotViewModel.updateCurrentCampSpotType(it)
+                        when (it) {
+                            CampSpotNavigationType.ALL_CAMP_SPOTS -> {
 
-                                   }
-                                   CampSpotType.MY_CAMP_SPOTS ->{
-
-                                   }
-                                   CampSpotType.SKETCHES ->{
-
-                                   }
                             }
+
+                            CampSpotNavigationType.MY_CAMP_SPOTS -> {
+
+                                navController.navigate(route = HomeScreen.MyCampSpots.route){
+                                    popUpTo(route = HomeScreen.AllCampSpots.route){
+                                        inclusive = true
+                                    }
+                                }
+                            }
+
+                            CampSpotNavigationType.SKETCHES -> {
+
+                            }
+                        }
                     },
                     navigationItemContentList = navigationItemContentList,
                     modifier = Modifier.height(60.dp)
                 )
+            }
         },
         modifier = modifier
     ) {
@@ -147,7 +175,20 @@ fun HomeScreen(
 
     }
 }
-
+@Composable
+fun AddCampSpot(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SmallFloatingActionButton(
+        onClick = { onClick() },
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.secondary,
+        modifier = modifier
+    ) {
+        Icon(Icons.Filled.Add, "Small floating action button.")
+    }
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CampSpotItem(
@@ -171,7 +212,7 @@ fun CampSpotItem(
                 .size(dimensionResource(R.dimen.card_image_height))
         ) {
             CampSpotImageItem(
-                imageId = campSpot.imageId,
+                imageUri = campSpot.imageUri,
                 modifier = Modifier.size(dimensionResource(R.dimen.card_image_height))
             )
             Column(
@@ -248,17 +289,44 @@ fun CampSpotItem(
 }
 @Composable
 fun CampSpotImageItem(
-    @DrawableRes imageId: Int,
+    imageUri: Uri,
+    modifier: Modifier = Modifier
+){
+    ImageItem(
+        staticImageId = R.drawable.no_image_available,
+        imageUri = imageUri,
+        modifier = modifier
+    )
+}
+@Composable
+fun PickImageItem(
+    imageUri: Uri,
+    modifier: Modifier = Modifier
+){
+    ImageItem(
+        staticImageId = R.drawable.touch_screen_image,
+        imageUri = imageUri,
+        modifier = modifier
+    )
+}
+@Composable
+fun ImageItem(
+    @DrawableRes staticImageId: Int,
+    imageUri: Uri,
     modifier: Modifier = Modifier
 ){
     Box(modifier = modifier){
-        Image(
-            painter = painterResource(imageId),
-            contentDescription = null,
-            alignment = Alignment.Center,
-            contentScale = ContentScale.FillWidth,
-            modifier = Modifier.align(Alignment.Center)
-        )
+        if (imageUri != Uri.EMPTY){
+            AsyncImage(model = imageUri, contentDescription = null)
+        }else {
+            Image(
+                painter = painterResource(staticImageId),
+                contentDescription = null,
+                alignment = Alignment.Center,
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
     }
 }
 @Composable
@@ -317,7 +385,7 @@ fun CampSpotsList(
         items(campSpots, key = { campSpot -> campSpot.id }) { campSpot ->
             CampSpotItem(
                 campSpot = campSpot,
-                user = getUserById(users = users, campSpot.userId) ?: LocalUserDataProvider.getUsersData()[0],
+                user = getUserById(users, campSpot.userId) ?: LocalUserDataProvider.getUsersData()[0],
                 onCardClick = { onCampSpotClick(campSpot) }
             )
         }

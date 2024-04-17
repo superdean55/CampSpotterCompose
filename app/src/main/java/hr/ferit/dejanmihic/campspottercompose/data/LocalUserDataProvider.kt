@@ -1,20 +1,19 @@
 package hr.ferit.dejanmihic.campspottercompose.data
 
 import android.net.Uri
-import hr.ferit.dejanmihic.campspottercompose.model.EditUserForm
 import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import java.time.LocalDate
 
 object LocalUserDataProvider {
-    val defaultUser = EditUserForm(
+    val defaultUser = User(
         id = 1L,
+        image = Uri.EMPTY,
         username = "deos",
-        firstName = "",
-        lastName = "",
+        firstName = "Dejan",
+        lastName = "Mihić",
         birthDate = LocalDate.now(),
-        creationDate = LocalDate.now(),
-        editUserFormErrors = UserFormErrors()
+        creationDate = LocalDate.now()
     )
     fun getUsersData(): MutableList<User>{
         return mutableListOf(

@@ -11,8 +11,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun CampSpotterNavigationRail(
-    currentTab: CampSpotType,
-    onTabPressed: ((CampSpotType) -> Unit),
+    currentTab: CampSpotNavigationType,
+    onTabPressed: ((CampSpotNavigationType) -> Unit),
     navigationItemContentList: List<NavigationItemContent>,
     modifier: Modifier = Modifier
 ) {
@@ -33,8 +33,8 @@ fun CampSpotterNavigationRail(
 }
 @Composable
 fun CampSpotterBottomNavigationBar(
-    currentTab: CampSpotType,
-    onTabPressed: ((CampSpotType) -> Unit),
+    currentTab: CampSpotNavigationType,
+    onTabPressed: ((CampSpotNavigationType) -> Unit),
     navigationItemContentList: List<NavigationItemContent>,
     modifier: Modifier = Modifier
 ) {
@@ -55,11 +55,15 @@ fun CampSpotterBottomNavigationBar(
 }
 
 data class NavigationItemContent(
-    val campSpotType: CampSpotType,
+    val campSpotType: CampSpotNavigationType,
     val icon: ImageVector,
     val text: String
 )
 
-enum class CampSpotType{
+enum class CampSpotNavigationType{
     ALL_CAMP_SPOTS, MY_CAMP_SPOTS, SKETCHES
+}
+
+enum class CampSpotType{
+    SKETCH, PUBLISHED
 }

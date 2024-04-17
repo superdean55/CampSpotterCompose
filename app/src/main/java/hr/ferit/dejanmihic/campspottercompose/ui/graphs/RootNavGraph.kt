@@ -110,6 +110,7 @@ object Graph {
     const val AUTHENTICATION = "auth_graph"
     const val HOME = "home_graph"
     const val USER_DETAILS = "user_details_graph"
+    const val CAMP_SPOT_DETAILS = "camp_spot_details"
 }
 sealed class AuthScreen(val route: String) {
     object Login : AuthScreen(route = "LOGIN")

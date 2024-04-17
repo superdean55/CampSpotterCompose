@@ -3,27 +3,31 @@ package hr.ferit.dejanmihic.campspottercompose.data
 import android.net.Uri
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
-import hr.ferit.dejanmihic.campspottercompose.model.CampSpotForm
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotForm
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import java.time.LocalDate
 
 object LocalCampSpotDataProvider {
-    val DefaultCampSpot = CampSpotForm(
+    val DefaultCampSpot = CampSpot(
+        id = 4L,
+        imageUri = Uri.EMPTY,
+        userId = 1L,
         title = "",
         description = "",
-        locationDetails = LocationDetails(0.toDouble(), 0.toDouble()),
+        locationDetails = LocationDetails(0.toDouble(),0.toDouble()),
         numberOfPeople = "",
-        startEventDate =  LocalDate.now(),
-        endEventDate =  LocalDate.now(),
-        imageUri = Uri.EMPTY,
-        campSpotFormErrors = CampSpotFormErrors()
+        startEventDate = LocalDate.now(),
+        endEventDate = LocalDate.now(),
+        publishDate = LocalDate.now(),
+        campSpotType = CampSpotType.SKETCH
     )
     fun getCampSpots(): MutableList<CampSpot>{
         return mutableListOf(
             CampSpot(
                 id = 1L,
-                imageId = R.drawable.camp_spot_image_1,
+                imageUri = Uri.EMPTY,
                 userId = 1L,
                 title = "Kamp Borovik",
                 description = "Nešto",
@@ -31,11 +35,12 @@ object LocalCampSpotDataProvider {
                 numberOfPeople = "2",
                 startEventDate = LocalDate.now(),
                 endEventDate = LocalDate.now(),
-                publishDate = LocalDate.now()
+                publishDate = LocalDate.now(),
+                campSpotType = CampSpotType.PUBLISHED
             ),
             CampSpot(
                 id = 2L,
-                imageId = R.drawable.camp_spot_image_1,
+                imageUri = Uri.EMPTY,
                 userId = 2L,
                 title = "Jošava",
                 description = "Zabavljamo se",
@@ -43,7 +48,8 @@ object LocalCampSpotDataProvider {
                 numberOfPeople = "12",
                 startEventDate = LocalDate.now(),
                 endEventDate = LocalDate.now(),
-                publishDate = LocalDate.now()
+                publishDate = LocalDate.now(),
+                campSpotType = CampSpotType.PUBLISHED
             )
         )
     }

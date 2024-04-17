@@ -26,10 +26,10 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import hr.ferit.dejanmihic.campspottercompose.AppActions
 import hr.ferit.dejanmihic.campspottercompose.Screen
-import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,7 +57,7 @@ class CampSpotterViewModel : ViewModel() {
             for (lo in p0.locations) {
                 _uiState.update {
                     it.copy(
-                        campSpot = it.campSpot.copy(
+                        campSpotForm = it.campSpotForm.copy(
                             locationDetails = LocationDetails(lo.latitude, lo.longitude)
                         )
                     )
@@ -69,11 +69,11 @@ class CampSpotterViewModel : ViewModel() {
     fun updateUri(uri: Uri){
         _uiState.update {
             it.copy(
-                campSpot = it.campSpot.copy(
+                campSpotForm = it.campSpotForm.copy(
                     imageUri = uri,
-                    campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                        isImageUriError = false
-                    )
+                ),
+                campSpotFormErrors = it.campSpotFormErrors.copy(
+                    isImageUriError = false
                 )
             )
         }
@@ -111,19 +111,23 @@ class CampSpotterViewModel : ViewModel() {
         locationCallback?.let { fusedLocationClient?.removeLocationUpdates(it) }
         _uiState.update {
             it.copy(
-                campSpot = it.campSpot.copy(
-                    campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                        isLocationDetailsError = false
-                    )
+                campSpotFormErrors = it.campSpotFormErrors.copy(
+                    isLocationDetailsError = false
                 )
             )
         }
     }
-
+    fun updateCampSpotForm(campSpot: CampSpot){
+        _uiState.update {
+            it.copy(
+                campSpotForm = campSpot
+            )
+        }
+    }
     fun updatePickedStartDate(date: LocalDate){
         _uiState.update {
             it.copy(
-                campSpot = it.campSpot.copy(
+                campSpotForm = it.campSpotForm.copy(
                     startEventDate = date,
                     endEventDate = date
                 )
@@ -132,7 +136,7 @@ class CampSpotterViewModel : ViewModel() {
     }
     fun updatePickedEndDate(endEventDate: LocalDate, context: Context){
 
-        if(_uiState.value.campSpot.startEventDate > endEventDate){
+        if(_uiState.value.campSpotForm.startEventDate > endEventDate){
             Toast.makeText(
                 context,
                 "Event must end after Event is Started",
@@ -142,7 +146,7 @@ class CampSpotterViewModel : ViewModel() {
         }
         _uiState.update {
             it.copy(
-                campSpot = it.campSpot.copy(
+                campSpotForm = it.campSpotForm.copy(
                     endEventDate = endEventDate
                 )
             )
@@ -152,11 +156,11 @@ class CampSpotterViewModel : ViewModel() {
     fun updateCampSpotTitle(title: String){
         _uiState.update {
             it.copy(
-                campSpot = it.campSpot.copy(
+                campSpotForm = it.campSpotForm.copy(
                     title = title,
-                    campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                        isTitleError = false
-                    )
+                ),
+                campSpotFormErrors = it.campSpotFormErrors.copy(
+                    isTitleError = false
                 )
             )
         }
@@ -164,7 +168,7 @@ class CampSpotterViewModel : ViewModel() {
     fun updateCampSpotDescription(description: String){
         _uiState.update {
             it.copy(
-                campSpot = it.campSpot.copy(
+                campSpotForm = it.campSpotForm.copy(
                     description = description
                 )
             )
@@ -174,11 +178,11 @@ class CampSpotterViewModel : ViewModel() {
         if(numberOfPeople == ""){
             _uiState.update {
                 it.copy(
-                    campSpot = it.campSpot.copy(
+                    campSpotForm = it.campSpotForm.copy(
                         numberOfPeople = numberOfPeople,
-                        campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                            isNumberOfPeopleError = false
-                        )
+                    ),
+                    campSpotFormErrors = it.campSpotFormErrors.copy(
+                        isNumberOfPeopleError = false
                     )
                 )
             }
@@ -198,70 +202,61 @@ class CampSpotterViewModel : ViewModel() {
             if(parsedInt > 0) {
                 _uiState.update {
                     it.copy(
-                        campSpot = it.campSpot.copy(
+                        campSpotForm = it.campSpotForm.copy(
                             numberOfPeople = numberOfPeople,
-                            campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                                isNumberOfPeopleError = false
-                            )
+                        ),
+                        campSpotFormErrors = it.campSpotFormErrors.copy(
+                            isNumberOfPeopleError = false
                         )
+
                     )
                 }
             }
         }
 
     }
-
-    fun saveCampSpot(context: Context){
+    private fun isValidCampSpotFormData(context: Context): Boolean{
         var errors = ""
-        if(!isGpsLocationNotEmpty(uiState.value.campSpot.locationDetails)){
+        if(!isGpsLocationNotEmpty(uiState.value.campSpotForm.locationDetails)){
             errors += "update Location, press get location\n"
             _uiState.update {
                 it.copy(
-                    campSpot = it.campSpot.copy(
-                        campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                            isLocationDetailsError = true
-                        )
+                    campSpotFormErrors = it.campSpotFormErrors.copy(
+                        isLocationDetailsError = true
                     )
                 )
             }
         }
-        if(!isImageUriNotEmpty(uiState.value.campSpot.imageUri)){
+        if(!isImageUriNotEmpty(uiState.value.campSpotForm.imageUri)){
             errors += "You need teak a picture\n"
             _uiState.update {
                 it.copy(
-                    campSpot = it.campSpot.copy(
-                        campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                            isImageUriError = true
-                        )
+                    campSpotFormErrors = it.campSpotFormErrors.copy(
+                        isImageUriError = true
                     )
                 )
             }
         }
-        if(!isTextInputNotEmpty(uiState.value.campSpot.numberOfPeople)){
+        if(!isTextInputNotEmpty(uiState.value.campSpotForm.numberOfPeople)){
             errors += "Enter number of People\n"
             _uiState.update {
                 it.copy(
-                    campSpot = it.campSpot.copy(
-                        campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                            isNumberOfPeopleError = true
-                        )
+                    campSpotFormErrors = it.campSpotFormErrors.copy(
+                        isNumberOfPeopleError = true
                     )
                 )
             }
         }
-        if(!isTextInputNotEmpty(uiState.value.campSpot.title)){
+        if(!isTextInputNotEmpty(uiState.value.campSpotForm.title)){
             errors += "Enter title\n"
             _uiState.update {
                 it.copy(
-                    campSpot = it.campSpot.copy(
-                        campSpotFormErrors = it.campSpot.campSpotFormErrors.copy(
-                            isTitleError = true
-                        )
+                    campSpotFormErrors = it.campSpotFormErrors.copy(
+                        isTitleError = true
                     )
                 )
             }
         }
-
         if(errors != "") {
             val toast = Toast.makeText(context, errors, Toast.LENGTH_LONG)
             val view = toast.view
@@ -269,8 +264,47 @@ class CampSpotterViewModel : ViewModel() {
             val text = view!!.findViewById<TextView>(message)
             text.setTextColor(Color.BLACK)
             toast.show()
+            return false
+        }else {
+            return true
         }
-
+    }
+    fun saveCampSpot(context: Context): Boolean {
+        if (isValidCampSpotFormData(context)) {
+            _uiState.update { uiState ->
+                val updatedCampSpot = uiState.campSpots.map {
+                    if (it.id == this.uiState.value.campSpotForm.id) {
+                        it.copy(
+                            imageUri = this.uiState.value.campSpotForm.imageUri,
+                            title = this.uiState.value.campSpotForm.title,
+                            description = this.uiState.value.campSpotForm.description,
+                            locationDetails = this.uiState.value.campSpotForm.locationDetails,
+                            numberOfPeople = this.uiState.value.campSpotForm.numberOfPeople,
+                            startEventDate = this.uiState.value.campSpotForm.startEventDate,
+                            endEventDate = this.uiState.value.campSpotForm.endEventDate
+                        )
+                    } else {
+                        it
+                    }
+                }
+                uiState.copy(campSpots = updatedCampSpot.toMutableList())
+            }
+            return true
+        }
+        return false
+    }
+    fun addCampSpot(context: Context) :Boolean{
+        if(isValidCampSpotFormData(context)){
+            val campSpots = uiState.value.campSpots.toMutableList()
+            campSpots.add(uiState.value.campSpotForm)
+            _uiState.update {
+                it.copy(
+                    campSpots = campSpots
+                )
+            }
+            return true
+        }
+        return false
     }
 
     private fun isTextInputNotEmpty(text: String): Boolean {
@@ -367,6 +401,24 @@ class CampSpotterViewModel : ViewModel() {
             toast.show()
             return false
         }else{
+            _uiState.update { uiState ->
+                val updatedUsers = uiState.users.map {
+                    if (it.id == user.id) {
+                        // Ažuriramo samo određene vrijednosti korisnika
+                        it.copy(
+                            firstName = this.uiState.value.user.firstName,
+                            lastName = this.uiState.value.user.lastName,
+                            birthDate = this.uiState.value.user.birthDate,
+                            image = this.uiState.value.user.image
+                        )
+                    } else {
+                        it
+                    }
+                }
+                uiState.copy(users = updatedUsers.toMutableList())
+            }
+
+            /*
             val users = LocalUserDataProvider.getUsersData()
             val userToUpdate = users.find { it.id == user.id  }
             userToUpdate?.apply {
@@ -374,19 +426,25 @@ class CampSpotterViewModel : ViewModel() {
                 lastName = uiState.value.user.lastName
                 birthDate = uiState.value.user.birthDate
                 image = uiState.value.user.image
-            }
+            }*/
             return true
         }
     }
 
-    fun updateCurrentCampSpotType(campSpotType: CampSpotType){
+    fun updateCurrentCampSpotType(campSpotType: CampSpotNavigationType){
         _uiState.update {
             it.copy(
                 currentlySelectedNavType = campSpotType
             )
         }
     }
-
+    fun updateCurrentlySelectedCampSpot(campSpot: CampSpot){
+        _uiState.update {
+            it.copy(
+                currentlySelectedCampSpot = campSpot
+            )
+        }
+    }
     fun onAction(action: AppActions) {
         when(action) {
             is AppActions.LogIn -> logIn(email = email, password = password)
@@ -407,6 +465,21 @@ class CampSpotterViewModel : ViewModel() {
         email.value = ""
         password.value = ""
         navController.navigate(route = Screen.LoginScreen.route)
+    }
+
+    fun updateBottomNavigationVisibility(visible : Boolean){
+        _uiState.update {
+            it.copy(
+                isBottomNavigationVisible = visible
+            )
+        }
+    }
+    fun updateCurrentCampSpot(campSpot: CampSpot){
+        _uiState.update {
+            it.copy(
+                campSpotForm = campSpot
+            )
+        }
     }
 
     private fun createAccount(email: MutableState<String>, password: MutableState<String>) {

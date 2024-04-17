@@ -1,11 +1,9 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
 import android.net.Uri
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,8 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,15 +34,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import hr.ferit.dejanmihic.campspottercompose.R
+import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 
 @Composable
 fun TopAppBar(
     canNavigateBack: Boolean,
     navigateBack: () -> Unit,
-    onUserIconClicked: () -> Unit,
+    onUserIconClicked: (User) -> Unit,
     @StringRes titleId: Int,
-    userImageUri: Uri,
+    user: User,
     modifier: Modifier = Modifier
 ){
     Box(
@@ -79,8 +77,8 @@ fun TopAppBar(
                     style = MaterialTheme.typography.titleLarge
                 )
                 TopAppBarUserImage(
-                    imageUri = userImageUri,
-                    onUserIconClicked = onUserIconClicked,
+                    imageUri = user.image,
+                    onUserIconClicked = { onUserIconClicked(user) },
                     modifier = Modifier
                         .clip(CircleShape)
                 )
@@ -119,7 +117,7 @@ fun TopAppBarPreview(){
         Surface {
             TopAppBar(
                 titleId = R.string.auth_title_app,
-                userImageUri = Uri.EMPTY,
+                user = LocalUserDataProvider.defaultUser,
                 canNavigateBack = true,
                 navigateBack = {},
                 onUserIconClicked = {},

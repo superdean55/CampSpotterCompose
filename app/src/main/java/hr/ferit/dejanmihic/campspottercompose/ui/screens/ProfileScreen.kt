@@ -46,7 +46,6 @@ import coil.compose.AsyncImage
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
-import hr.ferit.dejanmihic.campspottercompose.model.EditUserForm
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
@@ -217,8 +216,8 @@ fun EditProfileCard(
                             .padding(horizontal = dimensionResource(R.dimen.padding_medium))
                     )
                 }else {
-                    CampSpotImageItem(
-                        imageId = R.drawable.touch_screen_image,
+                    PickImageItem(
+                        imageUri = user.image,
                         modifier = Modifier
                             .fillMaxWidth()
                     )
