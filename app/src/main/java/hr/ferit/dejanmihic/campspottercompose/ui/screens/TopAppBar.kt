@@ -41,6 +41,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 @Composable
 fun TopAppBar(
     canNavigateBack: Boolean,
+    isUserImageHidden: Boolean,
     navigateBack: () -> Unit,
     onUserIconClicked: (User) -> Unit,
     @StringRes titleId: Int,
@@ -76,12 +77,14 @@ fun TopAppBar(
                     text = stringResource(titleId),
                     style = MaterialTheme.typography.titleLarge
                 )
-                TopAppBarUserImage(
-                    imageUri = user.image,
-                    onUserIconClicked = { onUserIconClicked(user) },
-                    modifier = Modifier
-                        .clip(CircleShape)
-                )
+                if(isUserImageHidden) {
+                    TopAppBarUserImage(
+                        imageUri = user.image,
+                        onUserIconClicked = { onUserIconClicked(user) },
+                        modifier = Modifier
+                            .clip(CircleShape)
+                    )
+                }
             }
 
     }
@@ -119,6 +122,7 @@ fun TopAppBarPreview(){
                 titleId = R.string.auth_title_app,
                 user = LocalUserDataProvider.defaultUser,
                 canNavigateBack = true,
+                isUserImageHidden = false,
                 navigateBack = {},
                 onUserIconClicked = {},
                 modifier = Modifier

@@ -12,9 +12,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
-import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotForm
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotsList
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.DetailCampSpotCard
@@ -33,30 +33,46 @@ fun HomeNavGraph(
     NavHost(
         navController = navController,
         route = Graph.HOME,
-        startDestination = HomeScreen.AllCampSpots.route,
+        startDestination = HomeScreen.BottomNavigation.route,
         modifier = modifier
     ) {
-        composable(route = HomeScreen.AllCampSpots.route){
-            CampSpotsList(
-                campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED },
-                users = uiState.users,
-                onCampSpotClick = {
-                    campSpotterViewModel.updateBottomNavigationVisibility(false)
-                    campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
-                    navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+        composable(route = HomeScreen.BottomNavigation.route){
+            when (uiState.currentlySelectedNavType) {
+                CampSpotNavigationType.ALL_CAMP_SPOTS -> {
+                    CampSpotsList(
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED },
+                        users = uiState.users,
+                        onCampSpotClick = {
+                            campSpotterViewModel.updateBottomNavigationVisibility(false)
+                            campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                        }
+                    )
                 }
-            )
-        }
-        composable(route = HomeScreen.MyCampSpots.route){
-            CampSpotsList(
-                campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED && it.userId == LocalUserDataProvider.defaultUser.id },
-                users = uiState.users,
-                onCampSpotClick = {
-                    campSpotterViewModel.updateBottomNavigationVisibility(false)
-                    campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
-                    navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                CampSpotNavigationType.MY_CAMP_SPOTS -> {
+                    CampSpotsList(
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED && it.userId == LocalUserDataProvider.defaultUser.id },
+                        users = uiState.users,
+                        onCampSpotClick = {
+                            campSpotterViewModel.updateBottomNavigationVisibility(false)
+                            campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                        }
+                    )
                 }
-            )
+                CampSpotNavigationType.SKETCHES -> {
+                    CampSpotsList(
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.SKETCH && it.userId == LocalUserDataProvider.defaultUser.id },
+                        users = uiState.users,
+                        onCampSpotClick = {
+                            campSpotterViewModel.updateBottomNavigationVisibility(false)
+                            campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                        }
+                    )
+                }
+            }
+
         }
         composable(route = HomeScreen.AddCampSpot.route){
             CampSpotForm(
@@ -70,7 +86,6 @@ fun HomeNavGraph(
                 onSaveSketchClicked = {
                     if(campSpotterViewModel.addCampSpot(context)){
                         navController.popBackStack()
-
                     }
                 },
                 onPublishClicked = {},
@@ -145,9 +160,7 @@ fun HomeNavGraph(
 }
 
 sealed class HomeScreen(val route: String){
-    object AllCampSpots : HomeScreen(route = "ALL_CAMP_SPOTS")
-    object MyCampSpots: HomeScreen(route = "MY_CAMP_SPOTS")
-    object CampSpotSketches : HomeScreen(route = "CAMP_SPOT_SKETCHES")
+    object BottomNavigation : HomeScreen(route = "BOTTOM_NAVIGATION")
     object AddCampSpot : HomeScreen(route = "ADD_CAMP_SPOT")
 }
 

@@ -66,8 +66,10 @@ import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.User
+import hr.ferit.dejanmihic.campspottercompose.ui.graphs.CampSpotDetailScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.Graph
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.HomeScreen
+import hr.ferit.dejanmihic.campspottercompose.ui.graphs.UserDetailsScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.LightBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,17 +102,37 @@ fun HomeScreen(
     )
     println("CURRENT BACK STACK")
     println(backStackEntry?.destination?.route)
+    println(backStackEntry?.arguments)
     when(backStackEntry?.destination?.route){
-        HomeScreen.AllCampSpots.route -> campSpotViewModel.updateBottomNavigationVisibility(true)
+        HomeScreen.BottomNavigation.route -> {
+            campSpotViewModel.updateBottomNavigationVisibility(true)
+            campSpotViewModel.updateTopAppBarUserImageVisibility(true)
+        }
+        HomeScreen.AddCampSpot.route ->{
+            campSpotViewModel.updateBottomNavigationVisibility(false)
+            campSpotViewModel.updateTopAppBarUserImageVisibility(false)
+        }
+        UserDetailsScreen.UserDetails.route ->{
+            campSpotViewModel.updateBottomNavigationVisibility(false)
+            campSpotViewModel.updateTopAppBarUserImageVisibility(false)
+        }
+        CampSpotDetailScreen.CampSpotDetails.route ->{
+            campSpotViewModel.updateTopAppBarUserImageVisibility(true)
+        }
     }
     Scaffold(
         topBar = {
                  TopAppBar(
                      canNavigateBack = canNavigateBack,
+                     isUserImageHidden = uiState.isTopAppBarUserImageHidden,
                      navigateBack = { navController.popBackStack() },
                      onUserIconClicked = {
-                            navController.navigate(route = Graph.USER_DETAILS)
-                            campSpotViewModel.updateBottomNavigationVisibility(false)
+                         println("TOP_APP_BAR")
+                         println(backStackEntry?.destination?.route)
+
+                         navController.navigate(route = Graph.USER_DETAILS)
+
+
                      },
                      titleId = R.string.auth_title_app,
                      user = uiState.users[0],
@@ -137,24 +159,6 @@ fun HomeScreen(
                     currentTab = uiState.currentlySelectedNavType,
                     onTabPressed = {
                         campSpotViewModel.updateCurrentCampSpotType(it)
-                        when (it) {
-                            CampSpotNavigationType.ALL_CAMP_SPOTS -> {
-
-                            }
-
-                            CampSpotNavigationType.MY_CAMP_SPOTS -> {
-
-                                navController.navigate(route = HomeScreen.MyCampSpots.route){
-                                    popUpTo(route = HomeScreen.AllCampSpots.route){
-                                        inclusive = true
-                                    }
-                                }
-                            }
-
-                            CampSpotNavigationType.SKETCHES -> {
-
-                            }
-                        }
                     },
                     navigationItemContentList = navigationItemContentList,
                     modifier = Modifier.height(60.dp)

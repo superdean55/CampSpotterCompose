@@ -2,17 +2,11 @@ package hr.ferit.dejanmihic.campspottercompose.ui
 
 import android.content.Context
 import android.widget.Toast
-import androidx.compose.runtime.MutableState
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
-import hr.ferit.dejanmihic.campspottercompose.Screen
-import hr.ferit.dejanmihic.campspottercompose.ui.graphs.AuthScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.Graph
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,9 +17,7 @@ class AuthViewModel: ViewModel() {
     val uiState: StateFlow<AuthUiState> = _uiState
     private val firebaseAuth = FirebaseAuth.getInstance()
 
-
     fun logOut() {
-        println("AAAAAAAAAAAAAAAAAAAAAA")
         while (firebaseAuth.currentUser != null){
             firebaseAuth.signOut()
         }
@@ -37,6 +29,7 @@ class AuthViewModel: ViewModel() {
             )
         }
     }
+
     fun updateEmail(email: String){
         _uiState.update {
             it.copy(

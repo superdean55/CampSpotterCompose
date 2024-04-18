@@ -16,6 +16,7 @@ data class CampSpotterUiState(
     val userFormErrors: UserFormErrors = UserFormErrors(),
     val currentlySelectedNavType: CampSpotNavigationType = CampSpotNavigationType.ALL_CAMP_SPOTS,
     val isBottomNavigationVisible: Boolean = true,
+    val isTopAppBarUserImageHidden: Boolean = true,
     val users: MutableList<User> = LocalUserDataProvider.getUsersData(),
     val campSpots: MutableList<CampSpot> = LocalCampSpotDataProvider.getCampSpots()
 )

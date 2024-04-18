@@ -10,22 +10,17 @@ import android.net.Uri
 import android.os.Looper
 import android.widget.TextView
 import android.widget.Toast
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import androidx.navigation.NavHostController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import hr.ferit.dejanmihic.campspottercompose.AppActions
-import hr.ferit.dejanmihic.campspottercompose.Screen
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
@@ -37,19 +32,11 @@ import kotlinx.coroutines.flow.update
 import java.time.LocalDate
 
 
-
 class CampSpotterViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CampSpotterUiState())
     val uiState: StateFlow<CampSpotterUiState> = _uiState
+    private var database: DatabaseReference = Firebase.database.reference
 
-
-    val email = mutableStateOf("")
-    val password = mutableStateOf("")
-    lateinit var navController: NavHostController
-    var context: Context? = null
-    val user = mutableStateOf("")
-    private val firebaseAuth = FirebaseAuth.getInstance()
-    var loading = mutableStateOf(false)
 
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var locationCallback: LocationCallback = object : LocationCallback() {
@@ -117,6 +104,13 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
+    fun updateTopAppBarUserImageVisibility(visible: Boolean){
+        _uiState.update {
+            it.copy(
+                isTopAppBarUserImageHidden = visible
+            )
+        }
+    }
     fun updateCampSpotForm(campSpot: CampSpot){
         _uiState.update {
             it.copy(
@@ -134,6 +128,7 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
+
     fun updatePickedEndDate(endEventDate: LocalDate, context: Context){
 
         if(_uiState.value.campSpotForm.startEventDate > endEventDate){
@@ -445,27 +440,6 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
-    fun onAction(action: AppActions) {
-        when(action) {
-            is AppActions.LogIn -> logIn(email = email, password = password)
-            is AppActions.CreateAccount -> createAccount(email = email, password = password)
-            is AppActions.UserLogOut -> userLogOut()
-            is AppActions.NavigateToRegisterScreen -> navToRegisterScreen()
-        }
-    }
-
-    private fun navToRegisterScreen() {
-        navController.navigate(route = Screen.RegisterScreen.route)
-        email.value = ""
-        password.value = ""
-    }
-
-    private fun userLogOut() {
-        Firebase.auth.signOut()
-        email.value = ""
-        password.value = ""
-        navController.navigate(route = Screen.LoginScreen.route)
-    }
 
     fun updateBottomNavigationVisibility(visible : Boolean){
         _uiState.update {
@@ -481,68 +455,4 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
-
-    private fun createAccount(email: MutableState<String>, password: MutableState<String>) {
-        if (email.value.isEmpty() ||password.value.isEmpty()){
-            Toast.makeText(
-                context,
-                "email or password empty",
-                Toast.LENGTH_SHORT,
-            ).show()
-            return
-        }
-        firebaseAuth.createUserWithEmailAndPassword(email.value, password.value)
-            .addOnCompleteListener { task ->
-                //progressBar.visibility = View.GONE
-                if (task.isSuccessful) {
-                    val user = firebaseAuth.currentUser
-                    Toast.makeText(
-                        context,
-                        "Acount Created Successful",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                }
-            }
-    }
-
-    private fun logIn(email: MutableState<String>, password: MutableState<String>) {
-        if (email.value.isEmpty()||password.value.isEmpty()){
-            Toast.makeText(
-                context,
-                "email or password empty",
-                Toast.LENGTH_SHORT,
-            ).show()
-            return
-        }
-        loading.value = true
-        firebaseAuth.signInWithEmailAndPassword(email.value, password.value)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    user.value = firebaseAuth.currentUser?.email.toString()
-                    Toast.makeText(
-                        context,
-                        "Login Successful",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                    loading.value = false
-                    navController.navigate(route = Screen.MainScreen.route)
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Authentication failed.",
-                        Toast.LENGTH_SHORT,
-                    ).show()
-                    loading.value = false
-                }
-            }
-    }
-
-
 }
