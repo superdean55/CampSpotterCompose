@@ -1,7 +1,7 @@
 package hr.ferit.dejanmihic.campspottercompose.ui
 
-import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
-import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.User

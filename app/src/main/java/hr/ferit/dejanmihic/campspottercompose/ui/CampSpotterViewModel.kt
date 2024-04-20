@@ -18,9 +18,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.database.FirebaseDatabase
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
@@ -35,7 +33,6 @@ import java.time.LocalDate
 class CampSpotterViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CampSpotterUiState())
     val uiState: StateFlow<CampSpotterUiState> = _uiState
-    private var database: DatabaseReference = Firebase.database.reference
 
 
     private var fusedLocationClient: FusedLocationProviderClient? = null
@@ -399,7 +396,7 @@ class CampSpotterViewModel : ViewModel() {
             _uiState.update { uiState ->
                 val updatedUsers = uiState.users.map {
                     if (it.id == user.id) {
-                        // Ažuriramo samo određene vrijednosti korisnika
+
                         it.copy(
                             firstName = this.uiState.value.user.firstName,
                             lastName = this.uiState.value.user.lastName,
@@ -413,15 +410,6 @@ class CampSpotterViewModel : ViewModel() {
                 uiState.copy(users = updatedUsers.toMutableList())
             }
 
-            /*
-            val users = LocalUserDataProvider.getUsersData()
-            val userToUpdate = users.find { it.id == user.id  }
-            userToUpdate?.apply {
-                firstName = uiState.value.user.firstName
-                lastName = uiState.value.user.lastName
-                birthDate = uiState.value.user.birthDate
-                image = uiState.value.user.image
-            }*/
             return true
         }
     }

@@ -10,8 +10,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
-import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotForm
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType

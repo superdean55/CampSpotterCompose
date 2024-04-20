@@ -45,7 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import hr.ferit.dejanmihic.campspottercompose.R
-import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel

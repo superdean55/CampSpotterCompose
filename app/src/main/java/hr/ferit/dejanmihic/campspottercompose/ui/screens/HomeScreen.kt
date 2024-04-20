@@ -62,8 +62,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
-import hr.ferit.dejanmihic.campspottercompose.data.LocalCampSpotDataProvider
-import hr.ferit.dejanmihic.campspottercompose.data.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.CampSpotDetailScreen
@@ -148,6 +148,7 @@ fun HomeScreen(
                 AddCampSpot(onClick = {
                     campSpotViewModel.updateBottomNavigationVisibility(false)
                     campSpotViewModel.updateCurrentCampSpot(LocalCampSpotDataProvider.DefaultCampSpot)
+                    campSpotViewModel.addTestUserToDb()
                     navController.navigate(route = HomeScreen.AddCampSpot.route)
                 }
                 )

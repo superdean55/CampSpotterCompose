@@ -1,4 +1,4 @@
-package hr.ferit.dejanmihic.campspottercompose.data
+package hr.ferit.dejanmihic.campspottercompose.data.local
 
 import android.net.Uri
 import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
