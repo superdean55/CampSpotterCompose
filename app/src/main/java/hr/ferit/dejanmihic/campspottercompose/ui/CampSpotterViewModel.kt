@@ -4,6 +4,8 @@ import android.Manifest
 import android.R.id.message
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
@@ -27,6 +29,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import java.io.InputStream
 import java.time.LocalDate
 
 
@@ -442,5 +445,50 @@ class CampSpotterViewModel : ViewModel() {
                 campSpotForm = campSpot
             )
         }
+    }
+
+    private fun getBitmapFromImageUri(context: Context, imageUri: Uri): Bitmap?{
+        var inputStream: InputStream? = null
+        try {
+            inputStream = context.contentResolver.openInputStream(imageUri)
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+
+            if(bitmap != null){
+                return resizeImage(bitmap)
+            }
+            toastMessage("CAPTURED PHOTO BITMAP IS EMPTY",context)
+        } catch (e: Exception) {
+            toastMessage("CONVERTING IMAGE ERROR",context)
+            e.printStackTrace()
+        } finally {
+            inputStream?.close()
+        }
+        return null
+    }
+
+    private fun resizeImage(bitmap: Bitmap): Bitmap {
+        val width = bitmap.width.toFloat()
+        val height = bitmap.height.toFloat()
+        val aspectRatio: Float= width / height
+
+        var scaledWidth: Int
+        var scaledHeight: Int
+
+        if(width > height) {
+            scaledWidth = 100
+            scaledHeight = (scaledWidth * aspectRatio).toInt()
+        }else{
+            scaledHeight = 100
+            scaledWidth = (scaledHeight * aspectRatio).toInt()
+        }
+        return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false)
+    }
+
+    private fun toastMessage(message: String, context: Context){
+        Toast.makeText(
+            context,
+            message,
+            Toast.LENGTH_LONG,
+        ).show()
     }
 }
