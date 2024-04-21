@@ -76,6 +76,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.graphs.Graph
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.HomeScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.UserDetailsScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.LightBlue
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -232,7 +233,7 @@ fun CampSpotItem(
                 .size(dimensionResource(R.dimen.card_image_height))
         ) {
             CampSpotImageItem(
-                imageUri = campSpot.imageUri,
+                imageUrl = campSpot.imageUrl!!,
                 modifier = Modifier.size(dimensionResource(R.dimen.card_image_height))
             )
             Column(
@@ -243,7 +244,7 @@ fun CampSpotItem(
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = campSpot.title,
+                    text = campSpot.title!!,
                     style = MaterialTheme.typography.titleMedium,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
@@ -308,42 +309,49 @@ fun CampSpotItem(
 }
 @Composable
 fun CampSpotImageItem(
-    imageUri: Uri,
+    imageUrl: String,
     modifier: Modifier = Modifier
 ){
     ImageItem(
-        staticImageId = R.drawable.no_image_available,
-        imageUri = imageUri,
+        placeholderImageId = R.drawable.no_image_available,
+        imageUrl = imageUrl,
         modifier = modifier
     )
 }
 @Composable
 fun PickImageItem(
-    imageUri: Uri,
+    imageUrl: String,
     modifier: Modifier = Modifier
 ){
     ImageItem(
-        staticImageId = R.drawable.touch_screen_image,
-        imageUri = imageUri,
+        placeholderImageId = R.drawable.touch_screen_image,
+        imageUrl = imageUrl,
         modifier = modifier
     )
 }
 @Composable
 fun ImageItem(
-    @DrawableRes staticImageId: Int,
-    imageUri: Uri,
+    @DrawableRes placeholderImageId: Int,
+    imageUrl: String,
     modifier: Modifier = Modifier
 ){
     Box(modifier = modifier){
-        if (imageUri != Uri.EMPTY){
-            AsyncImage(model = imageUri, contentDescription = null)
+        if (imageUrl != ""){
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUrl)
+                    .crossfade(true)
+                    .build(),
+                placeholder = painterResource(placeholderImageId),
+                contentDescription = null
+            )
         }else {
             Image(
-                painter = painterResource(staticImageId),
+                painter = painterResource(placeholderImageId),
                 contentDescription = null,
                 alignment = Alignment.Center,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.align(Alignment.Center)
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
         }
     }
@@ -395,9 +403,7 @@ fun dateToString(date: Date, format: String = "dd.MM.yyyy."): String {
     val dateFormat = SimpleDateFormat(format, Locale.getDefault())
     return dateFormat.format(date)
 }
-fun localDateToString(localDate: LocalDate): String{
-    return DateTimeFormatter.ofPattern("dd.MM.yyyy.").format(localDate)
-}
+
 @Composable
 fun CampSpotsList(
     campSpots: List<CampSpot>,
@@ -411,7 +417,7 @@ fun CampSpotsList(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
         modifier = modifier,
     ){
-        items(campSpots, key = { campSpot -> campSpot.id }) { campSpot ->
+        items(campSpots, key = { campSpot -> campSpot.id!! }) { campSpot ->
             CampSpotItem(
                 campSpot = campSpot,
                 user = getUserById(users, campSpot.userId!!) ?: LocalUserDataProvider.getUsersData()[0],

@@ -12,6 +12,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
 data class CampSpotterUiState(
     val currentlySelectedCampSpot: CampSpot = LocalCampSpotDataProvider.getCampSpots()[0],
     val campSpotForm: CampSpot = LocalCampSpotDataProvider.DefaultCampSpot,
+    val campSpotImageUri: Uri = Uri.EMPTY,
     val campSpotFormErrors: CampSpotFormErrors = CampSpotFormErrors(),
 
     val user: User = LocalUserDataProvider.defaultUser,

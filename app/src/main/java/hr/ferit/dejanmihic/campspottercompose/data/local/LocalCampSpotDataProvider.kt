@@ -1,55 +1,55 @@
 package hr.ferit.dejanmihic.campspottercompose.data.local
 
-import android.net.Uri
-import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
-import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotForm
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import java.time.LocalDate
 
 object LocalCampSpotDataProvider {
     val DefaultCampSpot = CampSpot(
-        id = 4L,
-        imageUri = Uri.EMPTY,
+        id = "",
+        imageUrl = "",
+        imageName = "",
         userId = "",
         title = "",
         description = "",
-        locationDetails = LocationDetails(0.toDouble(),0.toDouble()),
+        locationDetails = LocationDetails("0","0").toMap().toMutableMap(),
         numberOfPeople = "",
-        startEventDate = LocalDate.now(),
-        endEventDate = LocalDate.now(),
-        publishDate = LocalDate.now(),
-        campSpotType = CampSpotType.SKETCH
+        startEventDate = localDateToString(LocalDate.now()),
+        endEventDate = localDateToString(LocalDate.now()),
+        publishDate = localDateToString(LocalDate.now()),
+        campSpotType = CampSpotType.Sketch.text
     )
     fun getCampSpots(): MutableList<CampSpot>{
         return mutableListOf(
             CampSpot(
-                id = 1L,
-                imageUri = Uri.EMPTY,
+                id = "1",
+                imageUrl = "",
+                imageName = "",
                 userId = "1",
                 title = "Kamp Borovik",
                 description = "Nešto",
-                locationDetails = LocationDetails(1.745.toDouble(),4.456.toDouble()),
+                locationDetails = LocationDetails("1.745","4.456").toMap().toMutableMap(),
                 numberOfPeople = "2",
-                startEventDate = LocalDate.now(),
-                endEventDate = LocalDate.now(),
-                publishDate = LocalDate.now(),
-                campSpotType = CampSpotType.PUBLISHED
+                startEventDate = localDateToString(LocalDate.now()),
+                endEventDate = localDateToString(LocalDate.now()),
+                publishDate = localDateToString(LocalDate.now()),
+                campSpotType = CampSpotType.Published.text
             ),
             CampSpot(
-                id = 2L,
-                imageUri = Uri.EMPTY,
+                id = "2",
+                imageUrl = "",
+                imageName = "",
                 userId = "2",
                 title = "Jošava",
                 description = "Zabavljamo se",
-                locationDetails = LocationDetails(34.745.toDouble(),45.456.toDouble()),
+                locationDetails = LocationDetails("34.745","45.456").toMap().toMutableMap(),
                 numberOfPeople = "12",
-                startEventDate = LocalDate.now(),
-                endEventDate = LocalDate.now(),
-                publishDate = LocalDate.now(),
-                campSpotType = CampSpotType.PUBLISHED
+                startEventDate = localDateToString(LocalDate.now()),
+                endEventDate = localDateToString(LocalDate.now()),
+                publishDate = localDateToString(LocalDate.now()),
+                campSpotType = CampSpotType.Published.text
             )
         )
     }

@@ -8,7 +8,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import hr.ferit.dejanmihic.campspottercompose.model.User
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.localDateToString
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

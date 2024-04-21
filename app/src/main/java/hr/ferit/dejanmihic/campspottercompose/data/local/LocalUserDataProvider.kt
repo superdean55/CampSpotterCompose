@@ -1,7 +1,7 @@
 package hr.ferit.dejanmihic.campspottercompose.data.local
 
 import hr.ferit.dejanmihic.campspottercompose.model.User
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.localDateToString
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import java.time.LocalDate
 
 object LocalUserDataProvider {

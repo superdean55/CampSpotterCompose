@@ -1,21 +1,37 @@
 package hr.ferit.dejanmihic.campspottercompose.model
 
+import com.google.firebase.database.Exclude
 
-import android.net.Uri
-import androidx.annotation.DrawableRes
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
-import java.time.LocalDate
 
 data class CampSpot(
-    val id: Long,
-    val imageUri: Uri,
-    val userId: String?,
-    val title: String,
-    val description: String,
-    val locationDetails: LocationDetails,
-    val numberOfPeople: String,
-    val startEventDate: LocalDate,
-    val endEventDate: LocalDate,
-    val publishDate: LocalDate,
-    val campSpotType: CampSpotType
-    )
+    val id: String? = null,
+    val imageUrl: String? = null,
+    val imageName: String? = null,
+    val userId: String? = null,
+    val title: String? = null,
+    val description: String? = null,
+    val numberOfPeople: String? = null,
+    val startEventDate: String? = null,
+    val endEventDate: String? = null,
+    val publishDate: String? = null,
+    val campSpotType: String? = null,
+    val locationDetails: MutableMap<String,String?> = mutableMapOf("latitude" to "", "longitude" to ""),
+    ){
+    @Exclude
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "id" to id,
+            "imageUrl" to imageUrl,
+            "imageName" to imageName,
+            "userId" to userId,
+            "title" to title,
+            "description" to description,
+            "numberOfPeople" to numberOfPeople,
+            "startEventDate" to startEventDate,
+            "endEventDate" to endEventDate,
+            "publishDate" to publishDate,
+            "campSpotType" to campSpotType,
+            "locationDetails" to locationDetails,
+        )
+    }
+}

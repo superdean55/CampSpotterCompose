@@ -8,6 +8,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import hr.ferit.dejanmihic.campspottercompose.ui.graphs.AuthScreen
 
 @Composable
 fun CampSpotterNavigationRail(
@@ -64,6 +65,7 @@ enum class CampSpotNavigationType{
     ALL_CAMP_SPOTS, MY_CAMP_SPOTS, SKETCHES
 }
 
-enum class CampSpotType{
-    SKETCH, PUBLISHED
+sealed class CampSpotType(val text: String) {
+    object Sketch : CampSpotType(text = "SKETCH")
+    object Published : CampSpotType(text = "PUBLISHED")
 }

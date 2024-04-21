@@ -42,7 +42,7 @@ fun HomeNavGraph(
             when (uiState.currentlySelectedNavType) {
                 CampSpotNavigationType.ALL_CAMP_SPOTS -> {
                     CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED },
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.Published.text },
                         users = uiState.users,
                         onCampSpotClick = {
                             campSpotterViewModel.updateBottomNavigationVisibility(false)
@@ -53,7 +53,7 @@ fun HomeNavGraph(
                 }
                 CampSpotNavigationType.MY_CAMP_SPOTS -> {
                     CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED && it.userId == LocalUserDataProvider.defaultUser.uid },
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.Published.text && it.userId == LocalUserDataProvider.defaultUser.uid },
                         users = uiState.users,
                         onCampSpotClick = {
                             campSpotterViewModel.updateBottomNavigationVisibility(false)
@@ -64,7 +64,7 @@ fun HomeNavGraph(
                 }
                 CampSpotNavigationType.SKETCHES -> {
                     CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.SKETCH && it.userId == LocalUserDataProvider.defaultUser.uid },
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.Sketch.text && it.userId == LocalUserDataProvider.defaultUser.uid },
                         users = uiState.users,
                         onCampSpotClick = {
                             campSpotterViewModel.updateBottomNavigationVisibility(false)
@@ -79,6 +79,7 @@ fun HomeNavGraph(
         composable(route = HomeScreen.AddCampSpot.route){
             CampSpotForm(
                 campSpot = uiState.campSpotForm,
+                campSpotImageUri = uiState.campSpotImageUri,
                 campSpotFormErrors = uiState.campSpotFormErrors,
                 onStartDateSelected = { campSpotterViewModel.updatePickedStartDate(it) },
                 onEndDateSelected = { campSpotterViewModel.updatePickedEndDate(it, context) },
@@ -112,6 +113,7 @@ fun HomeNavGraph(
             composable(route = CampSpotDetailScreen.EditCampSpot.route){
                 CampSpotForm(
                     campSpot = uiState.campSpotForm,
+                    campSpotImageUri = uiState.campSpotImageUri,
                     campSpotFormErrors = uiState.campSpotFormErrors,
                     onStartDateSelected = { campSpotterViewModel.updatePickedStartDate(it) },
                     onEndDateSelected = { campSpotterViewModel.updatePickedEndDate(it, context) },

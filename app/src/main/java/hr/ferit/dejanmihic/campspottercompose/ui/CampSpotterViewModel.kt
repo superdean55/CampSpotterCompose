@@ -26,8 +26,9 @@ import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
-import hr.ferit.dejanmihic.campspottercompose.ui.screens.localDateToString
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.stringToLocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -48,10 +49,11 @@ class CampSpotterViewModel : ViewModel() {
     private var locationCallback: LocationCallback = object : LocationCallback() {
         override fun onLocationResult(p0: LocationResult) {
             for (lo in p0.locations) {
+                var locationDetails = LocationDetails(lo.latitude.toString(), lo.longitude.toString()).toMap().toMutableMap()
                 _uiState.update {
                     it.copy(
                         campSpotForm = it.campSpotForm.copy(
-                            locationDetails = LocationDetails(lo.latitude, lo.longitude)
+                            locationDetails = locationDetails
                         )
                     )
                 }
@@ -59,17 +61,16 @@ class CampSpotterViewModel : ViewModel() {
             }
         }
     }
-    fun updateUri(uri: Uri){
+    fun updateUri(uri: Uri?, context: Context){
         _uiState.update {
             it.copy(
-                campSpotForm = it.campSpotForm.copy(
-                    imageUri = uri,
-                ),
+                campSpotImageUri = uri ?: Uri.EMPTY,
                 campSpotFormErrors = it.campSpotFormErrors.copy(
                     isImageUriError = false
                 )
             )
         }
+        startLocationUpdates(context)
     }
     fun startLocationUpdates(
         context: Context
@@ -123,21 +124,23 @@ class CampSpotterViewModel : ViewModel() {
                 campSpotForm = campSpot
             )
         }
+        println("CAMP_SPOT_FORM_VALUES")
+        println(uiState.value.campSpotForm)
     }
     fun updatePickedStartDate(date: LocalDate){
         _uiState.update {
             it.copy(
                 campSpotForm = it.campSpotForm.copy(
-                    startEventDate = date,
-                    endEventDate = date
+                    startEventDate = localDateToString(date),
+                    endEventDate = localDateToString(date)
                 )
             )
         }
     }
 
     fun updatePickedEndDate(endEventDate: LocalDate, context: Context){
-
-        if(_uiState.value.campSpotForm.startEventDate > endEventDate){
+        val startEventDate = stringToLocalDate(_uiState.value.campSpotForm.startEventDate!!)
+        if(startEventDate > endEventDate){
             Toast.makeText(
                 context,
                 "Event must end after Event is Started",
@@ -148,7 +151,7 @@ class CampSpotterViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 campSpotForm = it.campSpotForm.copy(
-                    endEventDate = endEventDate
+                    endEventDate = localDateToString(endEventDate)
                 )
             )
         }
@@ -228,7 +231,7 @@ class CampSpotterViewModel : ViewModel() {
                 )
             }
         }
-        if(!isImageUriNotEmpty(uiState.value.campSpotForm.imageUri)){
+        if(!isImageUriNotEmpty(uiState.value.campSpotImageUri)){
             errors += "You need teak a picture\n"
             _uiState.update {
                 it.copy(
@@ -238,7 +241,7 @@ class CampSpotterViewModel : ViewModel() {
                 )
             }
         }
-        if(!isTextInputNotEmpty(uiState.value.campSpotForm.numberOfPeople)){
+        if(!isTextInputNotEmpty(uiState.value.campSpotForm.numberOfPeople!!)){
             errors += "Enter number of People\n"
             _uiState.update {
                 it.copy(
@@ -248,7 +251,7 @@ class CampSpotterViewModel : ViewModel() {
                 )
             }
         }
-        if(!isTextInputNotEmpty(uiState.value.campSpotForm.title)){
+        if(!isTextInputNotEmpty(uiState.value.campSpotForm.title!!)){
             errors += "Enter title\n"
             _uiState.update {
                 it.copy(
@@ -276,7 +279,7 @@ class CampSpotterViewModel : ViewModel() {
                 val updatedCampSpot = uiState.campSpots.map {
                     if (it.id == this.uiState.value.campSpotForm.id) {
                         it.copy(
-                            imageUri = this.uiState.value.campSpotForm.imageUri,
+                            imageUrl = this.uiState.value.campSpotForm.imageUrl,
                             title = this.uiState.value.campSpotForm.title,
                             description = this.uiState.value.campSpotForm.description,
                             locationDetails = this.uiState.value.campSpotForm.locationDetails,
@@ -322,8 +325,8 @@ class CampSpotterViewModel : ViewModel() {
         return false
     }
 
-    private fun isGpsLocationNotEmpty(locationDetails: LocationDetails) :Boolean{
-        if(locationDetails.latitude == 0.toDouble() || locationDetails.longitude == 0.toDouble()){
+    private fun isGpsLocationNotEmpty(locationDetails: MutableMap<String, String?>) :Boolean{
+        if(locationDetails["latitude"] == "" || locationDetails["longitude"] == ""){
             return false
         }
         return true
