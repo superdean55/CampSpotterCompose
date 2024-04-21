@@ -1,16 +1,31 @@
 package hr.ferit.dejanmihic.campspottercompose.model
 
+import com.google.firebase.database.Exclude
+import com.google.firebase.database.IgnoreExtraProperties
 
-import android.net.Uri
-import androidx.annotation.DrawableRes
-import java.time.LocalDate
-
+@IgnoreExtraProperties
 data class User(
-    var id: Long,
-    var image: Uri,
-    var username: String,
-    var firstName: String,
-    var lastName: String,
-    var birthDate: LocalDate,
-    var creationDate: LocalDate,
-)
+    val uid: String? = null,
+    val imageUrl: String? = null,
+    val username: String? = null,
+    val firstName: String? = null,
+    val lastName: String? = null,
+    val email: String? = null,
+    val birthDate: String? = null,
+    val creationDate: String? = null,
+){
+    constructor() : this(null,null,null,null,null,null,null,null)
+    @Exclude
+    fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "uid" to uid,
+            "imageUrl" to imageUrl,
+            "username" to username,
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "email" to email,
+            "birthDate" to birthDate,
+            "creationDate" to creationDate
+        )
+    }
+}

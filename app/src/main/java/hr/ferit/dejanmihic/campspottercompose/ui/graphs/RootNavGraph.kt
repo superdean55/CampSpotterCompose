@@ -15,6 +15,7 @@ import androidx.navigation.compose.navigation
 import com.google.firebase.auth.FirebaseAuth
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.Background
 import hr.ferit.dejanmihic.campspottercompose.R
+import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.ui.AuthViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.HomeScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.LoginScreenV2
@@ -29,6 +30,7 @@ fun RootNavigationGraph(
     val context = LocalContext.current
     var starDestination = Graph.AUTHENTICATION
     if (FirebaseAuth.getInstance().currentUser != null){
+        SingleUserRepository.getUserDataByUid(FirebaseAuth.getInstance().uid!!)
         starDestination = Graph.HOME
     }
     NavHost(

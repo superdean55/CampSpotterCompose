@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -27,6 +28,7 @@ import androidx.compose.material.icons.filled.Inbox
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -62,8 +65,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.CampSpotDetailScreen
@@ -82,6 +87,8 @@ fun HomeScreen(
 ){
     val uiState by campSpotViewModel.uiState.collectAsState()
     val backStackEntry by navController.currentBackStackEntryAsState()
+    val campSpotRepositoryState by SingleUserRepository.repositoryState.collectAsState()
+
     val canNavigateBack = if(backStackEntry != null) backStackEntry!!.arguments != null else false
     val navigationItemContentList = listOf(
         NavigationItemContent(
@@ -120,61 +127,69 @@ fun HomeScreen(
             campSpotViewModel.updateTopAppBarUserImageVisibility(true)
         }
     }
-    Scaffold(
-        topBar = {
-                 TopAppBar(
-                     canNavigateBack = canNavigateBack,
-                     isUserImageHidden = uiState.isTopAppBarUserImageHidden,
-                     navigateBack = { navController.popBackStack() },
-                     onUserIconClicked = {
-                         println("TOP_APP_BAR")
-                         println(backStackEntry?.destination?.route)
+    if (campSpotRepositoryState.isUserDataRetrieved) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    canNavigateBack = canNavigateBack,
+                    isUserImageHidden = uiState.isTopAppBarUserImageHidden,
+                    navigateBack = { navController.popBackStack() },
+                    onUserIconClicked = {
+                        println("TOP_APP_BAR")
+                        println(backStackEntry?.destination?.route)
 
-                         navController.navigate(route = Graph.USER_DETAILS)
+                        navController.navigate(route = Graph.USER_DETAILS)
 
 
-                     },
-                     titleId = R.string.auth_title_app,
-                     user = uiState.users[0],
-                     modifier = Modifier
-                         .fillMaxWidth()
-                         .height(70.dp)
-                         .background(LightBlue)
-                 )
-        },
-
-        floatingActionButton = {
-            if (uiState.isBottomNavigationVisible) {
-                AddCampSpot(onClick = {
-                    campSpotViewModel.updateBottomNavigationVisibility(false)
-                    campSpotViewModel.updateCurrentCampSpot(LocalCampSpotDataProvider.DefaultCampSpot)
-                    campSpotViewModel.addTestUserToDb()
-                    navController.navigate(route = HomeScreen.AddCampSpot.route)
-                }
-                )
-            }
-        },
-        bottomBar = {
-            if (uiState.isBottomNavigationVisible) {
-                CampSpotterBottomNavigationBar(
-                    currentTab = uiState.currentlySelectedNavType,
-                    onTabPressed = {
-                        campSpotViewModel.updateCurrentCampSpotType(it)
                     },
-                    navigationItemContentList = navigationItemContentList,
-                    modifier = Modifier.height(60.dp)
+                    titleId = R.string.auth_title_app,
+                    user = campSpotRepositoryState.user!!,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(70.dp)
+                        .background(LightBlue)
+                )
+            },
+
+            floatingActionButton = {
+                if (uiState.isBottomNavigationVisible) {
+                    AddCampSpot(onClick = {
+                        campSpotViewModel.updateBottomNavigationVisibility(false)
+                        campSpotViewModel.updateCurrentCampSpot(LocalCampSpotDataProvider.DefaultCampSpot)
+                        navController.navigate(route = HomeScreen.AddCampSpot.route)
+                    }
+                    )
+                }
+            },
+            bottomBar = {
+                if (uiState.isBottomNavigationVisible) {
+                    CampSpotterBottomNavigationBar(
+                        currentTab = uiState.currentlySelectedNavType,
+                        onTabPressed = {
+                            campSpotViewModel.updateCurrentCampSpotType(it)
+                        },
+                        navigationItemContentList = navigationItemContentList,
+                        modifier = Modifier.height(60.dp)
+                    )
+                }
+            },
+            modifier = modifier
+        ) {
+            Column {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                HomeNavGraph(
+                    onLogOutClicked = onLogOutClicked,
+                    navController = navController,
+                    campSpotterViewModel = campSpotViewModel,
+                    modifier = Modifier.padding(it)
                 )
             }
-        },
-        modifier = modifier
-    ) {
-        Column {
-            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-            HomeNavGraph(
-                onLogOutClicked = onLogOutClicked,
-                navController = navController,
-                campSpotterViewModel = campSpotViewModel,
-                modifier = Modifier.padding(it)
+
+        }
+    }else{
+        Box(modifier = Modifier.fillMaxSize()){
+            CircularProgressIndicator(
+                modifier = modifier.align(Alignment.Center)
             )
         }
 
@@ -276,14 +291,13 @@ fun CampSpotItem(
                     .fillMaxHeight()
             ) {
                 UserImageItem(
-                    userImageUri = user.image,
+                    userImageUrl = user.imageUrl,
                     modifier = Modifier
-
                         .size(dimensionResource(R.dimen.card_account_image_height))
                         .clip(CircleShape)
                 )
                 Text(
-                    text = user.username,
+                    text = user.username!!,
                     style = MaterialTheme.typography.bodySmall,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
@@ -336,20 +350,30 @@ fun ImageItem(
 }
 @Composable
 fun UserImageItem(
-    userImageUri: Uri,
+    userImageUrl: String?,
     modifier: Modifier = Modifier
 ){
     Box(modifier = modifier){
-        if(userImageUri != Uri.EMPTY) {
-            AsyncImage(model = userImageUri, contentDescription = null)
+        if(userImageUrl != "") {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(userImageUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                placeholder = painterResource(R.drawable.blank_profile_picture),
+                alignment = Alignment.Center,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().align(Alignment.Center)
+            )
         }else{
             Image(
                 painter = painterResource(R.drawable.blank_profile_picture),
                 contentDescription = null,
                 alignment = Alignment.Center,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.align(Alignment.Center)
-            )
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().align(Alignment.Center)
+                )
         }
     }
 }
@@ -371,7 +395,7 @@ fun dateToString(date: Date, format: String = "dd.MM.yyyy."): String {
     val dateFormat = SimpleDateFormat(format, Locale.getDefault())
     return dateFormat.format(date)
 }
-fun localDateToString(localDate: LocalDate, format: String = "dd.MM.yyyy."): String{
+fun localDateToString(localDate: LocalDate): String{
     return DateTimeFormatter.ofPattern("dd.MM.yyyy.").format(localDate)
 }
 @Composable
@@ -390,14 +414,14 @@ fun CampSpotsList(
         items(campSpots, key = { campSpot -> campSpot.id }) { campSpot ->
             CampSpotItem(
                 campSpot = campSpot,
-                user = getUserById(users, campSpot.userId) ?: LocalUserDataProvider.getUsersData()[0],
+                user = getUserById(users, campSpot.userId!!) ?: LocalUserDataProvider.getUsersData()[0],
                 onCardClick = { onCampSpotClick(campSpot) }
             )
         }
     }
 }
-fun getUserById(users: List<User>, userId: Long): User? {
-    return users.find { it.id == userId }
+fun getUserById(users: List<User>, userId: String): User? {
+    return users.find { it.uid == userId }
 }
 @Preview(showBackground = true)
 @Composable

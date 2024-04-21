@@ -7,12 +7,13 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.Graph
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-class AuthViewModel: ViewModel() {
+class AuthViewModel(): ViewModel() {
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState
     private val firebaseAuth = FirebaseAuth.getInstance()
@@ -47,11 +48,18 @@ class AuthViewModel: ViewModel() {
             .addOnCompleteListener { task ->
                 //progressBar.visibility = View.GONE
                 if (task.isSuccessful) {
-                    val user = firebaseAuth.currentUser
+
                     toastMessage("Account Created Successful",context)
                     isSuccess = true
-                    updateLoadingIndicator(false)
+
                     setUiStateToDefault()
+                    val email = task.result.user?.email
+                    val uid = task.result.user?.uid
+                    if (email != null && uid != null){
+                        SingleUserRepository.createUserData(email = email, uid = uid, context)
+                    }
+                    firebaseAuth.signOut()
+                    updateLoadingIndicator(false)
                 } else {
                     toastMessage("Authentication failed.",context)
                     isSuccess = false
@@ -71,11 +79,17 @@ class AuthViewModel: ViewModel() {
         firebaseAuth.signInWithEmailAndPassword(uiState.value.email, uiState.value.password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    toastMessage("Login Successful",context)
-                    setUiStateToDefault()
-                    updateLoadingIndicator(false)
-                    navController.navigate(route = Graph.HOME){
-                        popUpTo(navController.graph.startDestinationId) //removes login back stack
+                    val uid = task.result.user?.uid
+                    if (uid != null){
+                        SingleUserRepository.getUserDataByUid(uid)
+                        toastMessage("Login Successful",context)
+                        setUiStateToDefault()
+                        updateLoadingIndicator(false)
+                        navController.navigate(route = Graph.HOME){
+                            popUpTo(navController.graph.startDestinationId) //removes login back stack
+                        }
+                    }else{
+                        firebaseAuth.signOut()
                     }
                 } else {
                     toastMessage("Authentication failed.",context)

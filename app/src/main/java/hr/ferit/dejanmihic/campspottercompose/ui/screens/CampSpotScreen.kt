@@ -282,14 +282,14 @@ fun UsernameAndImage(
     ){
         Text(
             modifier = Modifier.background(Color.LightGray),
-            text = user.username,
+            text = user.username!!,
             style = MaterialTheme.typography.bodyMedium,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1
         )
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
         UserImageItem(
-            userImageUri = user.image,
+            userImageUrl = user.imageUrl,
             modifier = Modifier
                 .size(dimensionResource(R.dimen.card_account_image_height))
                 .clip(CircleShape)

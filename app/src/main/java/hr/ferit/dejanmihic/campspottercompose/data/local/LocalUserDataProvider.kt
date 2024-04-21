@@ -1,39 +1,41 @@
 package hr.ferit.dejanmihic.campspottercompose.data.local
 
-import android.net.Uri
-import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.User
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.localDateToString
 import java.time.LocalDate
 
 object LocalUserDataProvider {
     val defaultUser = User(
-        id = 1L,
-        image = Uri.EMPTY,
-        username = "deos",
-        firstName = "Dejan",
-        lastName = "Mihić",
-        birthDate = LocalDate.now(),
-        creationDate = LocalDate.now()
+        uid = "",
+        email = "",
+        imageUrl = "",
+        username = "",
+        firstName = "",
+        lastName = "",
+        birthDate = localDateToString(LocalDate.now()),
+        creationDate = localDateToString(LocalDate.now()),
     )
     fun getUsersData(): MutableList<User>{
         return mutableListOf(
             User(
-                id = 1L,
-                image = Uri.EMPTY,
+                uid = "1",
+                email = "dejan@gmail.com",
+                imageUrl = "",
                 username = "deos",
                 firstName = "Dejan",
                 lastName = "Mihić",
-                birthDate = LocalDate.now(),
-                creationDate = LocalDate.now()
+                birthDate = localDateToString(LocalDate.now()),
+                creationDate = localDateToString(LocalDate.now()),
             ),
             User(
-                id = 2L,
-                image = Uri.EMPTY,
+                uid = "2",
+                email = "marko@gmail.com",
+                imageUrl = "",
                 username = "maki",
                 firstName = "Marko",
                 lastName = "Dalić",
-                birthDate = LocalDate.now(),
-                creationDate = LocalDate.now()
+                birthDate = localDateToString(LocalDate.now()),
+                creationDate = localDateToString(LocalDate.now()),
             )
         )
     }

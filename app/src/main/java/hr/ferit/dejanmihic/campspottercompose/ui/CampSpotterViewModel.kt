@@ -15,22 +15,28 @@ import android.widget.Toast
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.database.FirebaseDatabase
+import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.localDateToString
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.io.InputStream
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.util.Date
+import java.util.Locale
 
 
 class CampSpotterViewModel : ViewModel() {
@@ -327,7 +333,7 @@ class CampSpotterViewModel : ViewModel() {
         _uiState.update {
             it.copy(
                 user = it.user.copy(
-                    birthDate = date
+                    birthDate = localDateToString(date)
                 )
             )
         }
@@ -356,18 +362,24 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
+    fun updateEditUserForm(user: User){
+        _uiState.update {
+            it.copy(
+                user = user,
+                userImageUri = Uri.EMPTY
+            )
+        }
+    }
     fun updateUserImageUri(imageUri: Uri?){
         _uiState.update {
             it.copy(
-                user = it.user.copy(
-                    image = imageUri ?: Uri.EMPTY
-                )
+                userImageUri = imageUri ?: Uri.EMPTY
             )
         }
     }
     fun saveEditedUser(user: User,context: Context): Boolean{
         var errors = ""
-        if(!isTextInputNotEmpty(uiState.value.user.firstName)){
+        if(!isTextInputNotEmpty(uiState.value.user.firstName!!)){
             errors += "First Name is empty\n"
             _uiState.update {
                 it.copy(
@@ -377,7 +389,7 @@ class CampSpotterViewModel : ViewModel() {
                 )
             }
         }
-        if(!isTextInputNotEmpty(uiState.value.user.lastName)){
+        if(!isTextInputNotEmpty(uiState.value.user.lastName!!)){
             errors += "Last Name is empty"
             _uiState.update {
                 it.copy(
@@ -396,15 +408,31 @@ class CampSpotterViewModel : ViewModel() {
             toast.show()
             return false
         }else{
-            _uiState.update { uiState ->
+            println("SAVING_USER_CHECK")
+            println(uiState.value.user)
+            viewModelScope.launch {
+                try {
+                    if(uiState.value.userImageUri != Uri.EMPTY){
+                        val imageName = generateFileNameForBitmap()
+                        val imageBitmap = getBitmapFromImageUri(context,uiState.value.userImageUri)
+                        SingleUserRepository.updateUser(user,imageBitmap,imageName)
+                    }else {
+                        SingleUserRepository.updateUser(user)
+                    }
+                } catch (e: Exception) {
+                    println("UPDATE_USER_EXCEPTION: ${e.message}")
+                }
+            }
+
+            /*_uiState.update { uiState ->
                 val updatedUsers = uiState.users.map {
-                    if (it.id == user.id) {
+                    if (it.uid == user.uid) {
 
                         it.copy(
                             firstName = this.uiState.value.user.firstName,
                             lastName = this.uiState.value.user.lastName,
                             birthDate = this.uiState.value.user.birthDate,
-                            image = this.uiState.value.user.image
+                            imageUrl = this.uiState.value.user.imageUrl
                         )
                     } else {
                         it
@@ -412,7 +440,7 @@ class CampSpotterViewModel : ViewModel() {
                 }
                 uiState.copy(users = updatedUsers.toMutableList())
             }
-
+            */
             return true
         }
     }
@@ -483,7 +511,10 @@ class CampSpotterViewModel : ViewModel() {
         }
         return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false)
     }
-
+    private fun generateFileNameForBitmap(): String {
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        return "bitmap_$timeStamp.jpg"
+    }
     private fun toastMessage(message: String, context: Context){
         Toast.makeText(
             context,

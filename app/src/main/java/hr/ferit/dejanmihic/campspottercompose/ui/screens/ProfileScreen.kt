@@ -5,11 +5,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,8 +35,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,6 +48,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
@@ -79,7 +85,7 @@ fun DetailProfileCard(
                     .padding(dimensionResource(R.dimen.spacer_small))
             ) {
                 UserImageItem(
-                    userImageUri = user.image,
+                    userImageUrl = user.imageUrl,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.card_image_height))
                         .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
@@ -90,6 +96,12 @@ fun DetailProfileCard(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+            Divider()
+            HorizontalLabelTextInfo(
+                labelId = R.string.label_email,
+                data = user.email,
+                modifier = Modifier.fillMaxWidth()
+            )
             Divider()
             HorizontalLabelTextInfo(
                 labelId = R.string.label_firstname,
@@ -169,6 +181,7 @@ fun <T>HorizontalLabelTextInfo(
 @Composable
 fun EditProfileCard(
     user: User,
+    userImageUri: Uri,
     userFormErrors: UserFormErrors,
     onResultUpdateImage: (Uri?) -> Unit,
     onBirthDateSelected: (LocalDate) -> Unit,
@@ -199,33 +212,52 @@ fun EditProfileCard(
                 .verticalScroll(rememberScrollState())
         ) {
             Row(
+                horizontalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        singlePhoto.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            ){
+                Box(
+                    modifier = Modifier
+                        .size(200.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .clickable {
+                            singlePhoto.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                ){
+                    if(userImageUri != Uri.EMPTY){
+                        AsyncImage(
+                            model = userImageUri,
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }else if(user.imageUrl != ""){
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(user.imageUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(R.drawable.blank_profile_picture),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }else {
+                        Image(
+                            painter = painterResource(R.drawable.blank_profile_picture),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
                         )
                     }
-            ){
-                if(user.image?.path?.isNotEmpty() == true){
-                    AsyncImage(
-                        model = user.image,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = dimensionResource(R.dimen.padding_medium))
-                    )
-                }else {
-                    PickImageItem(
-                        imageUri = user.image,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    )
                 }
+                
             }
 
             UserInputField(
-                text = user.firstName,
+                text = user.firstName!!,
                 labelId = R.string.label_firstname,
                 isError = userFormErrors.isFirstNameError,
                 onValueChanged = onFirstNameChanged,
@@ -235,7 +267,7 @@ fun EditProfileCard(
                 ),
             )
             UserInputField(
-                text = user.lastName,
+                text = user.lastName!!,
                 labelId = R.string.label_lastname,
                 isError = userFormErrors.isLastNameError,
                 onValueChanged = onLastNameChanged,
@@ -315,6 +347,7 @@ fun EditProfileCardPreview(){
         Surface {
             EditProfileCard(
                 user = LocalUserDataProvider.getUsersData()[0],
+                userImageUri = Uri.EMPTY,
                 userFormErrors = UserFormErrors(),
                 onBirthDateSelected = {},
                 onFirstNameChanged = {},
@@ -339,6 +372,7 @@ fun TestEditProfileCard(){
 
             EditProfileCard(
                 user = uiState.user,
+                userImageUri = Uri.EMPTY,
                 userFormErrors = uiState.userFormErrors,
                 onBirthDateSelected = { viewModel.updateBirthDate(it) },
                 onFirstNameChanged = { viewModel.updateFirstName(it) },

@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotForm
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
@@ -29,6 +30,7 @@ fun HomeNavGraph(
     modifier: Modifier = Modifier
 ) {
     val uiState by campSpotterViewModel.uiState.collectAsState()
+    val campSpotRepositoryState by SingleUserRepository.repositoryState.collectAsState()
     val context = LocalContext.current
     NavHost(
         navController = navController,
@@ -51,7 +53,7 @@ fun HomeNavGraph(
                 }
                 CampSpotNavigationType.MY_CAMP_SPOTS -> {
                     CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED && it.userId == LocalUserDataProvider.defaultUser.id },
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.PUBLISHED && it.userId == LocalUserDataProvider.defaultUser.uid },
                         users = uiState.users,
                         onCampSpotClick = {
                             campSpotterViewModel.updateBottomNavigationVisibility(false)
@@ -62,7 +64,7 @@ fun HomeNavGraph(
                 }
                 CampSpotNavigationType.SKETCHES -> {
                     CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.SKETCH && it.userId == LocalUserDataProvider.defaultUser.id },
+                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.SKETCH && it.userId == LocalUserDataProvider.defaultUser.uid },
                         users = uiState.users,
                         onCampSpotClick = {
                             campSpotterViewModel.updateBottomNavigationVisibility(false)
@@ -99,7 +101,7 @@ fun HomeNavGraph(
             composable(route = CampSpotDetailScreen.CampSpotDetails.route){
                 DetailCampSpotCard(
                     campSpot = uiState.campSpots.find { it.id == uiState.currentlySelectedCampSpot.id } ?: LocalCampSpotDataProvider.DefaultCampSpot,
-                    user = uiState.users.find { it.id == uiState.currentlySelectedCampSpot.userId } ?: LocalUserDataProvider.defaultUser,
+                    user = uiState.users.find { it.uid == uiState.currentlySelectedCampSpot.userId } ?: LocalUserDataProvider.defaultUser,
                     onEditClicked = {
                         campSpotterViewModel.updateCampSpotForm(it)
                         navController.navigate(route = CampSpotDetailScreen.EditCampSpot.route)
@@ -133,14 +135,18 @@ fun HomeNavGraph(
         ) {
             composable(route = UserDetailsScreen.UserDetails.route){
                 DetailProfileCard(
-                    user = uiState.user,
+                    user = campSpotRepositoryState.user!!,
                     onLogOutClicked = onLogOutClicked,
-                    onEditClicked = { navController.navigate(route = UserDetailsScreen.EditUser.route)}
+                    onEditClicked = {
+                        campSpotterViewModel.updateEditUserForm(campSpotRepositoryState.user!!)
+                        navController.navigate(route = UserDetailsScreen.EditUser.route)
+                    }
                 )
             }
             composable(route = UserDetailsScreen.EditUser.route){
                 EditProfileCard(
                     user = uiState.user,
+                    userImageUri = uiState.userImageUri,
                     userFormErrors = uiState.userFormErrors,
                     onResultUpdateImage = { campSpotterViewModel.updateUserImageUri(it) },
                     onBirthDateSelected = { campSpotterViewModel.updateBirthDate(it) },

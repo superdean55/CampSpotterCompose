@@ -9,7 +9,7 @@ import java.time.LocalDate
 data class CampSpot(
     val id: Long,
     val imageUri: Uri,
-    val userId: Long,
+    val userId: String?,
     val title: String,
     val description: String,
     val locationDetails: LocationDetails,

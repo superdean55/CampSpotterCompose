@@ -5,6 +5,7 @@
     <string name="label_location">Location:</string>
     <string name="label_date">Date:</string>
     <string name="label_username">Username:</string>
+    <string name="label_email">Email:</string>
     <string name="label_firstname">First name:</string>
     <string name="label_lastname">Last name:</string>
     <string name="label_registration_date">Registration date:</string>

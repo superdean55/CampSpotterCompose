@@ -13,7 +13,7 @@ object LocalCampSpotDataProvider {
     val DefaultCampSpot = CampSpot(
         id = 4L,
         imageUri = Uri.EMPTY,
-        userId = 1L,
+        userId = "",
         title = "",
         description = "",
         locationDetails = LocationDetails(0.toDouble(),0.toDouble()),
@@ -28,7 +28,7 @@ object LocalCampSpotDataProvider {
             CampSpot(
                 id = 1L,
                 imageUri = Uri.EMPTY,
-                userId = 1L,
+                userId = "1",
                 title = "Kamp Borovik",
                 description = "Nešto",
                 locationDetails = LocationDetails(1.745.toDouble(),4.456.toDouble()),
@@ -41,7 +41,7 @@ object LocalCampSpotDataProvider {
             CampSpot(
                 id = 2L,
                 imageUri = Uri.EMPTY,
-                userId = 2L,
+                userId = "2",
                 title = "Jošava",
                 description = "Zabavljamo se",
                 locationDetails = LocationDetails(34.745.toDouble(),45.456.toDouble()),
