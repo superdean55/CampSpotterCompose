@@ -39,6 +39,7 @@ object SingleUserRepository{
         val user = User(
             uid = uid,
             imageUrl = "",
+            imageName = "",
             username = username,
             firstName = "",
             lastName = "",
@@ -96,7 +97,7 @@ object SingleUserRepository{
         if (
             user.uid != null && user.imageUrl != null && user.username != null &&
             user.firstName != null && user.lastName != null && user.email != null &&
-            user.birthDate != null && user.creationDate != null
+            user.birthDate != null && user.creationDate != null && user.imageName != null
         ) {
             val postValues = user.toMap()
             val childUpdates = hashMapOf<String, Any>(
@@ -137,21 +138,39 @@ object SingleUserRepository{
         println("images/$imageName")
         val pathReference = storage.reference.child("images/$imageName")
 
-        pathReference.downloadUrl.addOnSuccessListener { uri ->
-            val userUpdate = User(
-                uid = user.uid,
-                imageUrl = uri.toString(),
-                username = user.username,
-                firstName = user.firstName,
-                lastName = user.lastName,
-                email = user.email,
-                birthDate = user.birthDate,
-                creationDate = user.creationDate
-            )
-            updateUserData(userUpdate)
-            println("IMAGE_URI = ${uri.toString()}")
-        }.addOnFailureListener { exception ->
-            println("IMAGE_URI_EXCEPTION: ${exception.message}")
+        pathReference.downloadUrl
+            .addOnSuccessListener { uri ->
+                val userUpdate = User(
+                    uid = user.uid,
+                    imageUrl = uri.toString(),
+                    imageName = imageName,
+                    username = user.username,
+                    firstName = user.firstName,
+                    lastName = user.lastName,
+                    email = user.email,
+                    birthDate = user.birthDate,
+                    creationDate = user.creationDate
+                )
+                if(user.imageName!! != ""){
+                    println("CALLING_USER_IMAGE_URL")
+                    println(user.imageUrl)
+
+                    deleteOldImageFromDb(user.imageName!!)
+                }
+                updateUserData(userUpdate)
+                println("IMAGE_URI = ${uri.toString()}")
+            }.addOnFailureListener { exception ->
+                    println("IMAGE_URI_EXCEPTION: ${exception.message}")
+            }
+    }
+
+    private fun deleteOldImageFromDb(imageName: String){
+        val storageRef = storage.reference
+        val desertRef = storageRef.child("images/$imageName")
+        desertRef.delete().addOnSuccessListener {
+            println("OLD_USER_IMAGE_SUCCESSFULLY_DELETED")
+        }.addOnFailureListener {
+            println("OLD_USER_IMAGE_DELETING_ERROR")
         }
     }
     private fun toastMessage(message: String, context: Context){
