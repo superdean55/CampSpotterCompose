@@ -1,6 +1,5 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
-import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -58,7 +57,6 @@ import hr.ferit.dejanmihic.campspottercompose.ui.graphs.HomeNavGraph
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -133,7 +131,7 @@ fun HomeScreen(
             topBar = {
                 TopAppBar(
                     canNavigateBack = canNavigateBack,
-                    isUserImageHidden = uiState.isTopAppBarUserImageHidden,
+                    isUserImageHidden = uiState.isTopAppBarUserImageVisible,
                     navigateBack = { navController.popBackStack() },
                     onUserIconClicked = {
                         println("TOP_APP_BAR")
@@ -156,7 +154,7 @@ fun HomeScreen(
                 if (uiState.isBottomNavigationVisible) {
                     AddCampSpot(onClick = {
                         campSpotViewModel.updateBottomNavigationVisibility(false)
-                        campSpotViewModel.updateCurrentCampSpot(LocalCampSpotDataProvider.DefaultCampSpot)
+                        campSpotViewModel.resetCampSpotValues()
                         navController.navigate(route = HomeScreen.AddCampSpot.route)
                     }
                     )
@@ -343,7 +341,9 @@ fun ImageItem(
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(placeholderImageId),
-                contentDescription = null
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
             )
         }else {
             Image(

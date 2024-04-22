@@ -8,6 +8,8 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import hr.ferit.dejanmihic.campspottercompose.model.User
+import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_REALTIME_DB_URL
+import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_STORAGE_URL
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,9 +28,17 @@ object SingleUserRepository{
     private val _repositoryState = MutableStateFlow(SingleUserRepositoryState())
     val repositoryState: StateFlow<SingleUserRepositoryState> = _repositoryState
 
-    private val database = FirebaseDatabase.getInstance("https://camp-spotter-compose-default-rtdb.europe-west1.firebasedatabase.app")
-    private val storage = Firebase.storage("gs://camp-spotter-compose.appspot.com")
+    private val database = FirebaseDatabase.getInstance(FIREBASE_REALTIME_DB_URL)
+    private val storage = Firebase.storage(FIREBASE_STORAGE_URL)
 
+    fun resetRepositoryToInitialState(){
+        _repositoryState.update {
+            it.copy(
+                isUserDataRetrieved = false,
+                user = User()
+            )
+        }
+    }
     fun createUserData(email: String, uid: String, context: Context){
         var username = ""
         var creationDate = ""

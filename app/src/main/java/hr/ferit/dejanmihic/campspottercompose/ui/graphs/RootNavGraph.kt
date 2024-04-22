@@ -15,7 +15,9 @@ import androidx.navigation.compose.navigation
 import com.google.firebase.auth.FirebaseAuth
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.Background
 import hr.ferit.dejanmihic.campspottercompose.R
+import hr.ferit.dejanmihic.campspottercompose.data.network.CampSpotsRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
+import hr.ferit.dejanmihic.campspottercompose.data.network.UsersRepository
 import hr.ferit.dejanmihic.campspottercompose.ui.AuthViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.HomeScreen
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.LoginScreenV2
@@ -30,9 +32,14 @@ fun RootNavigationGraph(
     val context = LocalContext.current
     var starDestination = Graph.AUTHENTICATION
     if (FirebaseAuth.getInstance().currentUser != null){
+        println("CURRENT_USER_IS: ${FirebaseAuth.getInstance().currentUser?.email}")
         SingleUserRepository.getUserDataByUid(FirebaseAuth.getInstance().uid!!)
+        UsersRepository.getUsers()
+        CampSpotsRepository.getPublishedCampSpots()
+        CampSpotsRepository.getMyCampSpotSketches()
         starDestination = Graph.HOME
     }
+
     NavHost(
         navController = navController,
         route = Graph.ROOT,
@@ -98,6 +105,7 @@ fun RootNavigationGraph(
         composable(route = Graph.HOME){
             HomeScreen(
                 onLogOutClicked = {
+                    viewModel.resetUiToInitialState()
                     viewModel.logOut()
                     navController.popBackStack(route = Graph.HOME, inclusive = true)
                     navController.navigate(route = Graph.AUTHENTICATION)

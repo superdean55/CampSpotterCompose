@@ -7,14 +7,14 @@ import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import java.time.LocalDate
 
 object LocalCampSpotDataProvider {
-    val DefaultCampSpot = CampSpot(
+    val defaultCampSpot = CampSpot(
         id = "",
         imageUrl = "",
         imageName = "",
         userId = "",
         title = "",
         description = "",
-        locationDetails = LocationDetails("0","0").toMap().toMutableMap(),
+        locationDetails = LocationDetails("","").toMap().toMutableMap(),
         numberOfPeople = "",
         startEventDate = localDateToString(LocalDate.now()),
         endEventDate = localDateToString(LocalDate.now()),
@@ -27,7 +27,7 @@ object LocalCampSpotDataProvider {
                 id = "1",
                 imageUrl = "",
                 imageName = "",
-                userId = "1",
+                userId = "gx0K33TXlUSRZ8zjcj9XGn6tDqq1",
                 title = "Kamp Borovik",
                 description = "Nešto",
                 locationDetails = LocationDetails("1.745","4.456").toMap().toMutableMap(),

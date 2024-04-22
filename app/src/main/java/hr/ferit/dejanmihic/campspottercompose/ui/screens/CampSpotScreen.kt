@@ -76,17 +76,14 @@ import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import java.time.LocalDate
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
 import hr.ferit.dejanmihic.campspottercompose.BuildConfig
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
-import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
-import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -361,7 +358,6 @@ fun CampSpotForm(
         val areGranted = permissionsMap.values.reduce { acc, next -> acc && next }
         if (areGranted) {
             cameraLauncher.launch(uri)
-            viewModel.startLocationUpdates(context)
             Toast.makeText(context, "Permission Granted", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(context, "Permission Denied", Toast.LENGTH_SHORT).show()
@@ -379,7 +375,6 @@ fun CampSpotForm(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-
 
         Card(
             elevation = CardDefaults.cardElevation(),
@@ -759,7 +754,7 @@ fun CampSpotFormPreview(){
     CampSpotterComposeTheme {
         Surface {
             CampSpotForm(
-                campSpot = LocalCampSpotDataProvider.DefaultCampSpot,
+                campSpot = LocalCampSpotDataProvider.defaultCampSpot,
                 campSpotImageUri = Uri.EMPTY,
                 campSpotFormErrors = CampSpotFormErrors(),
                 onStartDateSelected = {},

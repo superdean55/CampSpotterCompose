@@ -9,6 +9,7 @@ object LocalUserDataProvider {
         uid = "",
         email = "",
         imageUrl = "",
+        imageName = "",
         username = "",
         firstName = "",
         lastName = "",
@@ -18,9 +19,10 @@ object LocalUserDataProvider {
     fun getUsersData(): MutableList<User>{
         return mutableListOf(
             User(
-                uid = "1",
+                uid = "gx0K33TXlUSRZ8zjcj9XGn6tDqq1",
                 email = "dejan@gmail.com",
                 imageUrl = "",
+                imageName = "bitmap_20240421_170208.jpg",
                 username = "deos",
                 firstName = "Dejan",
                 lastName = "Mihić",

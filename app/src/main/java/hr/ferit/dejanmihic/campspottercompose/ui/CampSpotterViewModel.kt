@@ -21,11 +21,18 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.network.CampSpotsRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
+import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
 import hr.ferit.dejanmihic.campspottercompose.model.User
+import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.stringToLocalDate
@@ -59,6 +66,22 @@ class CampSpotterViewModel : ViewModel() {
                 }
                 stopLocationUpdates()
             }
+        }
+    }
+    fun resetUiToInitialState(){
+        _uiState.update {
+            it.copy(
+                currentlySelectedCampSpot = LocalCampSpotDataProvider.defaultCampSpot,
+                campSpotForm = LocalCampSpotDataProvider.defaultCampSpot,
+                campSpotImageUri = Uri.EMPTY,
+                campSpotFormErrors = CampSpotFormErrors(),
+                user = LocalUserDataProvider.defaultUser,
+                userImageUri = Uri.EMPTY,
+                userFormErrors = UserFormErrors(),
+                currentlySelectedNavType = CampSpotNavigationType.ALL_CAMP_SPOTS,
+                isBottomNavigationVisible = true,
+                isTopAppBarUserImageVisible = true
+            )
         }
     }
     fun updateUri(uri: Uri?, context: Context){
@@ -114,7 +137,7 @@ class CampSpotterViewModel : ViewModel() {
     fun updateTopAppBarUserImageVisibility(visible: Boolean){
         _uiState.update {
             it.copy(
-                isTopAppBarUserImageHidden = visible
+                isTopAppBarUserImageVisible = visible
             )
         }
     }
@@ -275,6 +298,9 @@ class CampSpotterViewModel : ViewModel() {
     }
     fun saveCampSpot(context: Context): Boolean {
         if (isValidCampSpotFormData(context)) {
+            println("CAMP_SPOT_AFTER_VALIDATION")
+            println(uiState.value.campSpotForm)
+            /*
             _uiState.update { uiState ->
                 val updatedCampSpot = uiState.campSpots.map {
                     if (it.id == this.uiState.value.campSpotForm.id) {
@@ -292,21 +318,43 @@ class CampSpotterViewModel : ViewModel() {
                     }
                 }
                 uiState.copy(campSpots = updatedCampSpot.toMutableList())
-            }
+            }*/
             return true
         }
         return false
     }
-    fun addCampSpot(context: Context) :Boolean{
+    fun addCampSpot(campSpotType: CampSpotType,context: Context) :Boolean{
         if(isValidCampSpotFormData(context)){
-            val campSpots = uiState.value.campSpots.toMutableList()
+            println("CAMP_SPOT_BEFORE_ADDING_USER_DATA")
+            println(uiState.value.campSpotForm)
+            var isSketch = false
+            var type = CampSpotType.Published.text
+            if (campSpotType == CampSpotType.Sketch){
+                type = CampSpotType.Sketch.text
+                isSketch = true
+            }
+            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+            _uiState.update {
+                it.copy(
+                    campSpotForm = it.campSpotForm.copy(
+                        userId = currentUserId,
+                        campSpotType = type
+                    )
+                )
+            }
+            val imageBitmap = getBitmapFromImageUri(context,uiState.value.campSpotImageUri)
+            val imageName = generateFileNameForBitmap()
+            if (imageBitmap != null && imageName != null){
+                CampSpotsRepository.addCampSpotInDB(uiState.value.campSpotForm,imageBitmap,imageName,isSketch,context)
+                return true
+            }
+            /*val campSpots = uiState.value.campSpots.toMutableList()
             campSpots.add(uiState.value.campSpotForm)
             _uiState.update {
                 it.copy(
                     campSpots = campSpots
                 )
-            }
-            return true
+            }*/
         }
         return false
     }
@@ -319,7 +367,7 @@ class CampSpotterViewModel : ViewModel() {
     }
 
     private fun isImageUriNotEmpty(imageUri: Uri) : Boolean{
-        if(imageUri.path?.isNotEmpty() == true){
+        if(imageUri != Uri.EMPTY){
             return true
         }
         return false
@@ -470,10 +518,12 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
-    fun updateCurrentCampSpot(campSpot: CampSpot){
+    fun resetCampSpotValues(){
         _uiState.update {
             it.copy(
-                campSpotForm = campSpot
+                campSpotForm = LocalCampSpotDataProvider.defaultCampSpot,
+                campSpotFormErrors = CampSpotFormErrors(),
+                campSpotImageUri = Uri.EMPTY
             )
         }
     }

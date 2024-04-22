@@ -11,7 +11,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
 
 data class CampSpotterUiState(
     val currentlySelectedCampSpot: CampSpot = LocalCampSpotDataProvider.getCampSpots()[0],
-    val campSpotForm: CampSpot = LocalCampSpotDataProvider.DefaultCampSpot,
+    val campSpotForm: CampSpot = LocalCampSpotDataProvider.defaultCampSpot,
     val campSpotImageUri: Uri = Uri.EMPTY,
     val campSpotFormErrors: CampSpotFormErrors = CampSpotFormErrors(),
 
@@ -21,8 +21,5 @@ data class CampSpotterUiState(
 
     val currentlySelectedNavType: CampSpotNavigationType = CampSpotNavigationType.ALL_CAMP_SPOTS,
     val isBottomNavigationVisible: Boolean = true,
-    val isTopAppBarUserImageHidden: Boolean = true,
-
-    val users: MutableList<User> = LocalUserDataProvider.getUsersData(),
-    val campSpots: MutableList<CampSpot> = LocalCampSpotDataProvider.getCampSpots()
+    val isTopAppBarUserImageVisible: Boolean = true,
 )

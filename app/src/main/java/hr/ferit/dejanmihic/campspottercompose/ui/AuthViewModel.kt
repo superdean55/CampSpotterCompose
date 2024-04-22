@@ -7,7 +7,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import hr.ferit.dejanmihic.campspottercompose.data.network.CampSpotsRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
+import hr.ferit.dejanmihic.campspottercompose.data.network.UsersRepository
 import hr.ferit.dejanmihic.campspottercompose.ui.graphs.Graph
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +22,30 @@ class AuthViewModel(): ViewModel() {
 
     fun logOut() {
         while (firebaseAuth.currentUser != null){
+            _uiState.update {
+                it.copy(
+                    isUserLoggedOutDuringRuntime = true
+                )
+            }
             firebaseAuth.signOut()
+        }
+    }
+    private fun updateIsUserLoggedOutDuringRuntime(){
+        _uiState.update {
+            it.copy(
+                isUserLoggedOutDuringRuntime = false
+            )
+        }
+    }
+    fun resetUiToInitialState(){
+        _uiState.update {
+            it.copy(
+                email = "",
+                password = "",
+                isPasswordVisible = false,
+                isLoadingData = false,
+                visualTransformation = PasswordVisualTransformation()
+            )
         }
     }
     fun updatePassword(password: String){
@@ -82,6 +107,12 @@ class AuthViewModel(): ViewModel() {
                     val uid = task.result.user?.uid
                     if (uid != null){
                         SingleUserRepository.getUserDataByUid(uid)
+                        if (uiState.value.isUserLoggedOutDuringRuntime){
+                            UsersRepository.getUsers()
+                            CampSpotsRepository.getPublishedCampSpots()
+                            CampSpotsRepository.getMyCampSpotSketches()
+                            updateIsUserLoggedOutDuringRuntime()
+                        }
                         toastMessage("Login Successful",context)
                         setUiStateToDefault()
                         updateLoadingIndicator(false)

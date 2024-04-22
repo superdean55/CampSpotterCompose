@@ -1,9 +1,13 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.graphs
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
@@ -12,7 +16,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.network.CampSpotsRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
+import hr.ferit.dejanmihic.campspottercompose.data.network.UsersRepository
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotForm
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
@@ -21,6 +27,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotsList
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.DetailCampSpotCard
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.DetailProfileCard
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.EditProfileCard
+import java.util.Locale.filter
 
 @Composable
 fun HomeNavGraph(
@@ -30,7 +37,9 @@ fun HomeNavGraph(
     modifier: Modifier = Modifier
 ) {
     val uiState by campSpotterViewModel.uiState.collectAsState()
-    val campSpotRepositoryState by SingleUserRepository.repositoryState.collectAsState()
+    val singleUserRepositoryState by SingleUserRepository.repositoryState.collectAsState()
+    val usersRepositoryState by UsersRepository.repositoryState.collectAsState()
+    val campSpotsRepositoryState by CampSpotsRepository.repositoryState.collectAsState()
     val context = LocalContext.current
     NavHost(
         navController = navController,
@@ -41,37 +50,58 @@ fun HomeNavGraph(
         composable(route = HomeScreen.BottomNavigation.route){
             when (uiState.currentlySelectedNavType) {
                 CampSpotNavigationType.ALL_CAMP_SPOTS -> {
-                    CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.Published.text },
-                        users = uiState.users,
-                        onCampSpotClick = {
-                            campSpotterViewModel.updateBottomNavigationVisibility(false)
-                            campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
-                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                    when(usersRepositoryState.isUsersDataRetrieved){
+                        false -> {
+                            LoadingData(modifier = Modifier.fillMaxSize())
                         }
-                    )
+                        true -> {
+                            CampSpotsList(
+                                campSpots = campSpotsRepositoryState.campSpots,
+                                users = usersRepositoryState.users,
+                                onCampSpotClick = {
+                                    campSpotterViewModel.updateBottomNavigationVisibility(false)
+                                    campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                                    navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                                }
+                            )
+                        }
+                    }
                 }
                 CampSpotNavigationType.MY_CAMP_SPOTS -> {
-                    CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.Published.text && it.userId == LocalUserDataProvider.defaultUser.uid },
-                        users = uiState.users,
-                        onCampSpotClick = {
-                            campSpotterViewModel.updateBottomNavigationVisibility(false)
-                            campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
-                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                    when(usersRepositoryState.isUsersDataRetrieved) {
+                        false -> {
+                            LoadingData(modifier = Modifier.fillMaxSize())
                         }
-                    )
+                        true -> {
+                            CampSpotsList(
+                                campSpots = campSpotsRepositoryState.myCampSpots,
+                                users = usersRepositoryState.users,
+                                onCampSpotClick = {
+                                    campSpotterViewModel.updateBottomNavigationVisibility(false)
+                                    campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                                    navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                                }
+                            )
+                        }
+                    }
                 }
                 CampSpotNavigationType.SKETCHES -> {
-                    CampSpotsList(
-                        campSpots = uiState.campSpots.filter { it.campSpotType == CampSpotType.Sketch.text && it.userId == LocalUserDataProvider.defaultUser.uid },
-                        users = uiState.users,
-                        onCampSpotClick = {
-                            campSpotterViewModel.updateBottomNavigationVisibility(false)
-                            campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
-                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                    when(usersRepositoryState.isUsersDataRetrieved) {
+                        false -> {
+                            LoadingData(modifier = Modifier.fillMaxSize())
                         }
-                    )
+                        true -> {
+                            CampSpotsList(
+                                campSpots = campSpotsRepositoryState.myCampSpotSketches,
+                                users = usersRepositoryState.users,
+                                onCampSpotClick = {
+                                    campSpotterViewModel.updateBottomNavigationVisibility(false)
+                                    campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                                    navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                                }
+                            )
+                        }
+                    }
                 }
             }
 
@@ -87,11 +117,15 @@ fun HomeNavGraph(
                 onDescriptionChanged = { campSpotterViewModel.updateCampSpotDescription(it) },
                 onNumberOfPeopleChanged = { campSpotterViewModel.updateCampSpotNumberOfPeople(it, context) },
                 onSaveSketchClicked = {
-                    if(campSpotterViewModel.addCampSpot(context)){
+                    if(campSpotterViewModel.addCampSpot(CampSpotType.Sketch,context)){
                         navController.popBackStack()
                     }
                 },
-                onPublishClicked = {},
+                onPublishClicked = {
+                    if(campSpotterViewModel.addCampSpot(CampSpotType.Published,context)){
+                        navController.popBackStack()
+                    }
+                },
                 viewModel = campSpotterViewModel
             )
         }
@@ -101,8 +135,8 @@ fun HomeNavGraph(
         ){
             composable(route = CampSpotDetailScreen.CampSpotDetails.route){
                 DetailCampSpotCard(
-                    campSpot = uiState.campSpots.find { it.id == uiState.currentlySelectedCampSpot.id } ?: LocalCampSpotDataProvider.DefaultCampSpot,
-                    user = uiState.users.find { it.uid == uiState.currentlySelectedCampSpot.userId } ?: LocalUserDataProvider.defaultUser,
+                    campSpot = campSpotsRepositoryState.campSpots.find { it.id == uiState.currentlySelectedCampSpot.id } ?: LocalCampSpotDataProvider.defaultCampSpot,
+                    user = usersRepositoryState.users.find { it.uid == uiState.currentlySelectedCampSpot.userId } ?: LocalUserDataProvider.defaultUser,
                     onEditClicked = {
                         campSpotterViewModel.updateCampSpotForm(it)
                         navController.navigate(route = CampSpotDetailScreen.EditCampSpot.route)
@@ -137,10 +171,16 @@ fun HomeNavGraph(
         ) {
             composable(route = UserDetailsScreen.UserDetails.route){
                 DetailProfileCard(
-                    user = campSpotRepositoryState.user!!,
-                    onLogOutClicked = onLogOutClicked,
+                    user = singleUserRepositoryState.user!!,
+                    onLogOutClicked = {
+                            campSpotterViewModel.resetUiToInitialState()
+                            CampSpotsRepository.resetRepositoryToInitialState()
+                            UsersRepository.resetRepositoryToInitialState()
+                            SingleUserRepository.resetRepositoryToInitialState()
+                            onLogOutClicked()
+                                      },
                     onEditClicked = {
-                        campSpotterViewModel.updateEditUserForm(campSpotRepositoryState.user!!)
+                        campSpotterViewModel.updateEditUserForm(singleUserRepositoryState.user!!)
                         navController.navigate(route = UserDetailsScreen.EditUser.route)
                     }
                 )
@@ -167,6 +207,16 @@ fun HomeNavGraph(
     }
 }
 
+@Composable
+fun LoadingData(
+    modifier: Modifier = Modifier
+){
+    Box(modifier = modifier){
+        CircularProgressIndicator(
+            modifier.align(Alignment.Center)
+        )
+    }
+}
 sealed class HomeScreen(val route: String){
     object BottomNavigation : HomeScreen(route = "BOTTOM_NAVIGATION")
     object AddCampSpot : HomeScreen(route = "ADD_CAMP_SPOT")
