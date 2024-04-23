@@ -10,6 +10,7 @@ import android.graphics.Color
 import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Looper
+import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.ui.graphics.toArgb
@@ -34,6 +35,7 @@ import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.stringToLocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,7 +52,7 @@ import java.util.Locale
 class CampSpotterViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(CampSpotterUiState())
     val uiState: StateFlow<CampSpotterUiState> = _uiState
-
+    private val TAG = "CAMP_SPOTTER_VIEW_MODEL"
 
     private var fusedLocationClient: FusedLocationProviderClient? = null
     private var locationCallback: LocationCallback = object : LocationCallback() {
@@ -144,11 +146,11 @@ class CampSpotterViewModel : ViewModel() {
     fun updateCampSpotForm(campSpot: CampSpot){
         _uiState.update {
             it.copy(
-                campSpotForm = campSpot
+                campSpotForm = campSpot,
+                campSpotImageUri = Uri.EMPTY
             )
         }
-        println("CAMP_SPOT_FORM_VALUES")
-        println(uiState.value.campSpotForm)
+        Log.d(TAG,"CAMP_SPOT_FORM_VALUES: ${uiState.value.campSpotForm}")
     }
     fun updatePickedStartDate(date: LocalDate){
         _uiState.update {
@@ -254,7 +256,7 @@ class CampSpotterViewModel : ViewModel() {
                 )
             }
         }
-        if(!isImageUriNotEmpty(uiState.value.campSpotImageUri)){
+        if(!isImageUriNotEmpty(uiState.value.campSpotImageUri) && uiState.value.campSpotForm.imageUrl == ""){
             errors += "You need teak a picture\n"
             _uiState.update {
                 it.copy(
@@ -323,38 +325,48 @@ class CampSpotterViewModel : ViewModel() {
         }
         return false
     }
-    fun addCampSpot(campSpotType: CampSpotType,context: Context) :Boolean{
+    fun deleteCampSpotFromDb(campSpot: CampSpot){
+        if (campSpot.id != null && campSpot.campSpotType != null && campSpot.id != "") {
+            CampSpotsRepository.removeCampSpot(campSpot.id, campSpot.campSpotType)
+        }
+        if (campSpot.imageName != null && campSpot.imageName != "") {
+            CampSpotsRepository.deleteImageFromStorage(campSpot.imageName)
+        }
+    }
+    fun addAndUpdateCampSpot(campSpotType: String, context: Context, campSpotFormMode: CampSpotFormMode, isTransfer: Boolean = false) :Boolean{
         if(isValidCampSpotFormData(context)){
-            println("CAMP_SPOT_BEFORE_ADDING_USER_DATA")
-            println(uiState.value.campSpotForm)
-            var isSketch = false
-            var type = CampSpotType.Published.text
-            if (campSpotType == CampSpotType.Sketch){
-                type = CampSpotType.Sketch.text
-                isSketch = true
-            }
-            val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
-            _uiState.update {
-                it.copy(
-                    campSpotForm = it.campSpotForm.copy(
-                        userId = currentUserId,
-                        campSpotType = type
+            Log.d(TAG,"CAMP SPOT BEFORE ADDING USER DATA: ${uiState.value.campSpotForm}")
+
+            if(campSpotFormMode == CampSpotFormMode.Add) {
+                val currentUserId = FirebaseAuth.getInstance().currentUser?.uid
+                _uiState.update {
+                    it.copy(
+                        campSpotForm = it.campSpotForm.copy(
+                            userId = currentUserId,
+                            campSpotType = campSpotType
+                        )
                     )
-                )
+                }
             }
-            val imageBitmap = getBitmapFromImageUri(context,uiState.value.campSpotImageUri)
-            val imageName = generateFileNameForBitmap()
-            if (imageBitmap != null && imageName != null){
-                CampSpotsRepository.addCampSpotInDB(uiState.value.campSpotForm,imageBitmap,imageName,isSketch,context)
-                return true
+            if(isTransfer){
+                _uiState.update {
+                    it.copy(
+                        campSpotForm = it.campSpotForm.copy(
+                            campSpotType = CampSpotType.Published.text
+                        )
+                    )
+                }
             }
-            /*val campSpots = uiState.value.campSpots.toMutableList()
-            campSpots.add(uiState.value.campSpotForm)
-            _uiState.update {
-                it.copy(
-                    campSpots = campSpots
-                )
-            }*/
+            var imageBitmap: Bitmap? = null
+            var imageName: String? = null
+            if(uiState.value.campSpotImageUri != Uri.EMPTY) {
+                imageBitmap = getBitmapFromImageUri(context, uiState.value.campSpotImageUri)
+                imageName = generateFileNameForBitmap()
+            }
+            Log.d(TAG, "campSpotType: ${campSpotType}\nmode: ${campSpotFormMode.mode}\ncamSpotForm: ${uiState.value.campSpotForm}")
+            Log.d(TAG,"imageURI: ${uiState.value.campSpotImageUri}\nimageBitmap: $imageBitmap \nimageName: $imageName")
+            CampSpotsRepository.addCampSpotInDB(uiState.value.campSpotForm, imageBitmap, imageName, isTransfer, context)
+            return true
         }
         return false
     }
@@ -556,10 +568,10 @@ class CampSpotterViewModel : ViewModel() {
         var scaledHeight: Int
 
         if(width > height) {
-            scaledWidth = 100
+            scaledWidth = 400
             scaledHeight = (scaledWidth * aspectRatio).toInt()
         }else{
-            scaledHeight = 100
+            scaledHeight = 400
             scaledWidth = (scaledHeight * aspectRatio).toInt()
         }
         return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false)

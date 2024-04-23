@@ -16,6 +16,7 @@ import com.google.firebase.storage.ktx.storage
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_REALTIME_DB_URL
 import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_STORAGE_URL
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -24,7 +25,8 @@ import java.io.ByteArrayOutputStream
 data class CampSpotsRepositoryState(
     val campSpots: MutableList<CampSpot> = mutableListOf(),
     val myCampSpots: MutableList<CampSpot> = mutableListOf(),
-    val myCampSpotSketches: MutableList<CampSpot> = mutableListOf()
+    val myCampSpotSketches: MutableList<CampSpot> = mutableListOf(),
+    val latestChangedCampSpot: CampSpot = CampSpot()
 )
 object CampSpotsRepository{
     private const val TAG = "CAMP SPOT REPOSITORY"
@@ -59,6 +61,34 @@ object CampSpotsRepository{
             Log.d(TAG,"CAMP_SPOTS_LISTENER_REMOVED")
         }
     }
+    fun updateLatestChangedCampSpot(campSpot: CampSpot){
+        _repositoryState.update {
+            it.copy(
+                latestChangedCampSpot = campSpot
+            )
+        }
+    }
+    fun updateCampSpots(campSpots: MutableList<CampSpot>){
+        _repositoryState.update { repoState ->
+            repoState.copy(
+                campSpots = campSpots
+            )
+        }
+    }
+    fun updateMyCampSpots(campSpots: MutableList<CampSpot>){
+        _repositoryState.update { repoState ->
+            repoState.copy(
+                myCampSpots = campSpots
+            )
+        }
+    }
+    fun updateMyCampSpotsSketches(campSpots: MutableList<CampSpot>){
+        _repositoryState.update { repoState ->
+            repoState.copy(
+                myCampSpotSketches = campSpots
+            )
+        }
+    }
 
     fun getMyCampSpotSketches(){
         Log.d(TAG,"GET_MY_CAMP_SPOT_SKETCHES")
@@ -66,50 +96,41 @@ object CampSpotsRepository{
             override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 val campSpot = dataSnapshot.getValue<CampSpot>()
                 if (campSpot?.userId == FirebaseAuth.getInstance().currentUser?.uid) {
-                    println(campSpot)
                     var campSpots = repositoryState.value.myCampSpotSketches.toMutableList()
-                    campSpot?.let {
-                        campSpots.add(it)
-                    }
-                    _repositoryState.update { repoState ->
-                        repoState.copy(
-                            myCampSpotSketches = campSpots
-                        )
-                    }
+                    campSpot?.let { campSpots.add(it) }
+                    updateMyCampSpotsSketches(campSpots)
                     Log.d(TAG,"CHILD_ADDED_IN_MY_CAMP_SPOT_SKETCHES_LIST")
                 }
-
             }
-
             override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 val campSpot = dataSnapshot.getValue<CampSpot>()
-                println("CHILD_CHANGED_IN_LIST")
+                campSpot?.let {
+                    updateLatestChangedCampSpot(campSpot)
+                }
+                if (campSpot?.userId == FirebaseAuth.getInstance().currentUser?.uid) {
+                    var campSpots = repositoryState.value.myCampSpotSketches.toMutableList()
+                    val oldCampSpot = campSpots.find { it.id == campSpot?.id }
+                    oldCampSpot?.let { campSpots.remove(it) }
+                    campSpot?.let { campSpots.add(it) }
+                    updateMyCampSpotsSketches(campSpots)
+                }
             }
-
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                Log.d(ContentValues.TAG, "onChildRemoved:" + dataSnapshot.key!!)
-
-                // A comment has changed, use the key to determine if we are displaying this
-                // comment and if so remove it.
-                val commentKey = dataSnapshot.key
-
-                println("CHILD_REMOVED_FROM_LIST")
+                val myCampSpotSketches = repositoryState.value.myCampSpotSketches.toMutableList()
+                val sketch = myCampSpotSketches.find { it.id == dataSnapshot.key }
+                sketch?.let { myCampSpotSketches.remove(it) }
+                updateMyCampSpotsSketches(myCampSpotSketches)
+                Log.d(TAG,"CHILD_REMOVED_FROM_MY_CAMP_SPOT_SKETCHES_LIST")
             }
 
             override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 Log.d(ContentValues.TAG, "onChildMoved:" + dataSnapshot.key!!)
-
-                // A comment has changed position, use the key to determine if we are
-                // displaying this comment and if so move it.
                 val movedComment = dataSnapshot.getValue<CampSpot>()
                 val commentKey = dataSnapshot.key
-
                 println("CHILD_MOVED_IN_LIST")
             }
-
             override fun onCancelled(databaseError: DatabaseError) {
                 println("DB_ERROR")
-
             }
         }
         myCampSpotSketchesReference.addChildEventListener(myCampSpotSketchesListener as ChildEventListener)
@@ -126,70 +147,83 @@ object CampSpotsRepository{
                         myCampSpots.add(it)
                         campSpots.add(it)
                     }
-                    _repositoryState.update { repoState ->
-                        repoState.copy(
-                            myCampSpots = myCampSpots,
-                            campSpots = campSpots
-                        )
-                    }
-                    println("CHILD_ADDED_IN_MY_PUBLISHED_LIST")
+                    updateMyCampSpots(myCampSpots)
+                    updateCampSpots(campSpots)
+                    Log.d(TAG,"CHILD ADDED IN MY PUBLISHED LIST\nCHILD ADDED IN CAMP SPOTS LIST")
                 }else{
                     val campSpots = repositoryState.value.campSpots.toMutableList()
-                    campSpot?.let {
-                        campSpots.add(it)
-                    }
-                    _repositoryState.update { repoState ->
-                        repoState.copy(
-                            campSpots = campSpots
-                        )
-                    }
-
-                    println("CHILD_ADDED_IN_CAMP_SPOTS_LIST")
+                    campSpot?.let { campSpots.add(it) }
+                    updateCampSpots(campSpots)
+                    Log.d(TAG,"CHILD ADDED IN CAMP SPOTS LIST")
                 }
-
             }
-
             override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 val campSpot = dataSnapshot.getValue<CampSpot>()
-                println("CHILD_CHANGED_IN_LIST")
+                campSpot?.let { updateLatestChangedCampSpot(campSpot) }
+                if (campSpot?.userId == FirebaseAuth.getInstance().currentUser?.uid) {
+                    val myCampSpots = repositoryState.value.myCampSpots.toMutableList()
+                    val campSpots = repositoryState.value.campSpots.toMutableList()
+                    val myOldCampSpot = myCampSpots.find { it.id == campSpot?.id }
+                    val oldCampSpot = campSpots.find { it.id == campSpot?.id }
+                    myOldCampSpot?.let { myCampSpots.remove(it) }
+                    oldCampSpot?.let { campSpots.remove(it) }
+                    campSpot?.let {
+                        myCampSpots.add(it)
+                        campSpots.add(it)
+                    }
+                    updateMyCampSpots(myCampSpots)
+                    updateCampSpots(campSpots)
+                    Log.d(TAG,"CHILD CHANGED IN MY PUBLISHED LIST\nCHILD CHANGED IN CAMP SPOTS LIST")
+                }else{
+                    val campSpots = repositoryState.value.campSpots.toMutableList()
+                    val oldCampSpot = campSpots.find { it.id == campSpot?.id }
+                    oldCampSpot?.let { campSpots.remove(it) }
+                    campSpot?.let { campSpots.add(it) }
+                    updateCampSpots(campSpots)
+                    Log.d(TAG,"CHILD CHANGED IN CAMP SPOTS LIST")
+                }
             }
-
             override fun onChildRemoved(dataSnapshot: DataSnapshot) {
-                Log.d(ContentValues.TAG, "onChildRemoved:" + dataSnapshot.key!!)
-
-                // A comment has changed, use the key to determine if we are displaying this
-                // comment and if so remove it.
-                val commentKey = dataSnapshot.key
-
-                println("CHILD_REMOVED_FROM_LIST")
+                val myCampSpots = repositoryState.value.myCampSpots.toMutableList()
+                val campSpots = repositoryState.value.campSpots.toMutableList()
+                val myOldCampSpot = myCampSpots.find { it.id == dataSnapshot.key }
+                val oldCampSpot = campSpots.find { it.id == dataSnapshot.key }
+                myOldCampSpot?.let { myCampSpots.remove(it) }
+                oldCampSpot?.let { campSpots.remove(it) }
+                updateMyCampSpots(myCampSpots)
+                updateCampSpots(campSpots)
+                Log.d(TAG,"CHILD REMOVED FROM CAMP SPOTS LIST")
             }
-
             override fun onChildMoved(dataSnapshot: DataSnapshot, previousChildName: String?) {
                 Log.d(ContentValues.TAG, "onChildMoved:" + dataSnapshot.key!!)
-
-                // A comment has changed position, use the key to determine if we are
-                // displaying this comment and if so move it.
                 val movedComment = dataSnapshot.getValue<CampSpot>()
                 val commentKey = dataSnapshot.key
-
                 println("CHILD_MOVED_IN_LIST")
             }
-
             override fun onCancelled(databaseError: DatabaseError) {
                 println("DB_ERROR")
-
             }
         }
         campSpotsReference.addChildEventListener(campSpotsListener as ChildEventListener)
     }
 
-    fun addCampSpotInDB(campSpot: CampSpot, bitmap: Bitmap, imageName: String, isSketch: Boolean, context: Context){
-        var path = campSpotsPath
-        if (isSketch) {
-            path = sketchesPath
+    fun addCampSpotInDB(campSpot: CampSpot, bitmap: Bitmap?, imageName: String?, isTransfer: Boolean, context: Context){
+        var dataPath = campSpotsPath
+        if (!isTransfer) {
+            if (campSpot.campSpotType == CampSpotType.Sketch.text) {
+                dataPath = sketchesPath
+            }
         }
+        if(bitmap != null && imageName != null) {
+            Log.d(TAG, "SAVE IMAGE TO STORAGE $campSpot")
+            saveImageToStorage(campSpot, bitmap, imageName, dataPath, isTransfer, context)
+        }else{
+            Log.d(TAG, "JUMP TO PUSH CAMP SPOT DATA $campSpot")
+            pushCampSpotData(campSpot,campSpot.imageName!!,campSpot.imageUrl!!,dataPath, isTransfer, context)
+        }
+    }
+    private fun saveImageToStorage(campSpot: CampSpot, bitmap: Bitmap, imageName: String, dataPath: String, isTransfer: Boolean, context: Context){
         val imagePath = "$campSpotImages/$imageName"
-
         val pathRef = storage.reference.child(imagePath)
 
         val outputStream = ByteArrayOutputStream()
@@ -198,28 +232,41 @@ object CampSpotsRepository{
 
         pathRef.putBytes(data)
             .addOnSuccessListener {
-                println("CAMP_SPOT_IMAGE_IS_STORED_IN_STORAGE")
-                getImageUrl(campSpot, imageName, imagePath, path, context)
+                Log.d(TAG,"CAMP_SPOT_IMAGE_IS_STORED_IN_STORAGE")
+                getImageUrl(campSpot, imageName, imagePath, dataPath, isTransfer, context)
             }
             .addOnFailureListener {
-                println("CAMP_SPOT_IMAGE_STORAGE_ERROR")
+                Log.e(TAG,"CAMP_SPOT_IMAGE_STORAGE_ERROR")
             }
     }
-
-    private fun getImageUrl(campSpot: CampSpot,imageName: String, imagePath: String, path: String,context: Context){
-
+    private fun getImageUrl(campSpot: CampSpot, imageName: String, imagePath: String, dataPath: String, isTransfer: Boolean, context: Context){
         val pathReference = storage.reference.child(imagePath)
-
         pathReference.downloadUrl
             .addOnSuccessListener { uri ->
-                pushCampSpotData(campSpot, imageName, uri.toString(), path, context)
+                Log.d(TAG,"CAMP_SPOT_IMAGE_URL_SUCCESS: ${uri.toString()}")
+                if(campSpot.imageUrl != "" && campSpot.imageName != ""){
+                    deleteImageFromStorage(campSpot.imageName!!)
+                }
+                pushCampSpotData(campSpot, imageName, uri.toString(), dataPath, isTransfer, context)
             }.addOnFailureListener { exception ->
-                println("IMAGE_URI_EXCEPTION: ${exception.message}")
+                Log.e(TAG,"IMAGE_URI_EXCEPTION: ${exception.message}")
             }
     }
-
-    private fun pushCampSpotData(campSpot: CampSpot, imageName: String, imageUrl: String, path: String, context: Context){
-        val id = database.reference.child(path).push().key
+    fun removeCampSpot(id: String, campSpotType: String){
+        val dataPath = if (campSpotType == CampSpotType.Published.text) campSpotsPath else sketchesPath
+        database.getReference(dataPath).child(id).removeValue()
+            .addOnCompleteListener {
+                if(it.isSuccessful){
+                    Log.d(TAG,"CAMP SPOT DELETED")
+                }
+            }
+    }
+    private fun pushCampSpotData(campSpot: CampSpot, imageName: String, imageUrl: String, dataPath: String, isTransfer: Boolean, context: Context){
+        Log.d(TAG,"CAMP SPOT IN PUSH FUN: $campSpot")
+        if (isTransfer && campSpot.id != ""){
+            removeCampSpot(campSpot.id!!, sketchesPath)
+        }
+        val id = if ( isTransfer || campSpot.id == "" ) { database.reference.child(dataPath).push().key } else { campSpot.id }
         if (id != null) {
             val campSpot = CampSpot(
                 id = id,
@@ -235,17 +282,27 @@ object CampSpotsRepository{
                 campSpotType = campSpot.campSpotType,
                 locationDetails = campSpot.locationDetails
             )
+            Log.d(TAG,"CAMP_SPOT_TO_ADD_OR_UPDATE $campSpot")
             val postValues = campSpot.toMap()
 
             val childUpdates = hashMapOf<String, Any>(
-                "$path/$id" to postValues
+                "$dataPath/$id" to postValues
             )
             database.reference.updateChildren(childUpdates)
                 .addOnCompleteListener { task ->
                     if(task.isSuccessful) {
-                        toastMessage("CAMP_SPOT_FULLY_ADDED", context)
+                        toastMessage("CAMP SPOT FULLY ADDED OR UPDATED", context)
                     }
                 }
+        }
+    }
+
+    fun deleteImageFromStorage(imageName: String) {
+        val storageRef = storage.reference.child("$campSpotImages/$imageName")
+        storageRef.delete().addOnSuccessListener {
+            Log.d(TAG,"OLD_CAMP_SPOT_IMAGE_SUCCESSFULLY_DELETED")
+        }.addOnFailureListener {
+            Log.e(TAG,"OLD_CAMP_SPOT_IMAGE_DELETING_ERROR")
         }
     }
 

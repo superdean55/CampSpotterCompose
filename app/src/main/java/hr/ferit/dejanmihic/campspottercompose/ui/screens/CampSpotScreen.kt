@@ -33,11 +33,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -77,12 +79,14 @@ import java.time.LocalDate
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.firebase.auth.FirebaseAuth
 import hr.ferit.dejanmihic.campspottercompose.BuildConfig
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.User
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
 import java.io.File
 import java.text.SimpleDateFormat
@@ -94,6 +98,7 @@ fun DetailCampSpotCard(
     campSpot: CampSpot,
     user: User,
     onEditClicked: (CampSpot) -> Unit,
+    onDeleteClicked: (CampSpot) -> Unit,
     imageHeight: Dp = 100.dp,
     modifier: Modifier = Modifier
 ){
@@ -252,16 +257,13 @@ fun DetailCampSpotCard(
                 )
                 Divider()
                 Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                Row(
-                    horizontalArrangement = Arrangement.End,
-                    modifier = Modifier.fillMaxWidth()
-                ){
-                    Button(
-                        onClick = { onEditClicked(campSpot) }
+                if (user.uid == FirebaseAuth.getInstance().currentUser?.uid) {
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(
-                            text = "Edit"
-                        )
+                        CustomButton(onButtonClick = { onDeleteClicked(campSpot) }, textId = R.string.camp_spot_label_delete)
+                        CustomButton(onButtonClick = { onEditClicked(campSpot) }, textId = R.string.camp_spot_label_edit)
                     }
                 }
             }
@@ -308,6 +310,7 @@ fun TestAppComponent(
         campSpot = uiState.campSpotForm,
         campSpotImageUri = uiState.campSpotImageUri,
         campSpotFormErrors = uiState.campSpotFormErrors,
+        campSpotFormMode = CampSpotFormMode.Add,
         onStartDateSelected = { viewModel.updatePickedStartDate(it) },
         onEndDateSelected = { viewModel.updatePickedEndDate(it, context) },
         onTitleChanged = { viewModel.updateCampSpotTitle(it) },
@@ -325,13 +328,14 @@ fun CampSpotForm(
     campSpotImageUri: Uri,
     campSpotFormErrors: CampSpotFormErrors,
     errorColor: Color = MaterialTheme.colorScheme.error,
+    campSpotFormMode: CampSpotFormMode,
     onStartDateSelected: (LocalDate) -> Unit,
     onEndDateSelected: (LocalDate) -> Unit,
     onTitleChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onNumberOfPeopleChanged: (String) -> Unit,
-    onSaveSketchClicked: () -> Unit,
-    onPublishClicked: () -> Unit,
+    onSaveSketchClicked: (String) -> Unit,
+    onPublishClicked: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CampSpotterViewModel
 ){
@@ -349,7 +353,7 @@ fun CampSpotForm(
 
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
-            viewModel.updateUri(uri, context)
+            if(it) { viewModel.updateUri(uri, context) }
         }
 
     val launcherMultiplePermissions = rememberLauncherForActivityResult(
@@ -517,18 +521,20 @@ fun CampSpotForm(
                     )
                     Divider()
                     Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(dimensionResource(R.dimen.padding_small))
                     ) {
+                        if(campSpot.campSpotType == CampSpotType.Sketch.text) {
+                            CustomButton(
+                                onButtonClick = { onSaveSketchClicked(campSpot.campSpotType!!) },
+                                textId = campSpotFormMode.leftButtonLabelId
+                            )
+                        }
+                        Spacer(modifier = Modifier.weight(1f))
                         CustomButton(
-                            onButtonClick = onSaveSketchClicked,
-                            textId = R.string.label_save_sketch
-                        )
-                        CustomButton(
-                            onButtonClick = onPublishClicked,
-                            textId = R.string.label_publish
+                            onButtonClick = { onPublishClicked(campSpot.campSpotType!!) },
+                            textId = campSpotFormMode.rightButtonLabelId
                         )
                     }
                 }
@@ -646,11 +652,13 @@ fun CustomButton(
 ){
     Button(
         onClick = onButtonClick,
+        shape = RoundedCornerShape(dimensionResource(R.dimen.padding_small)),
+        elevation = ButtonDefaults.buttonElevation(),
         modifier = modifier
     ) {
         Text(
             text = stringResource( textId ),
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.titleSmall
         )
     }
 }
@@ -732,6 +740,7 @@ fun DetailCampSpotCardPreview(){
                 campSpot = LocalCampSpotDataProvider.getCampSpots()[0],
                 user = LocalUserDataProvider.getUsersData()[0],
                 onEditClicked = {},
+                onDeleteClicked = {},
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -757,6 +766,7 @@ fun CampSpotFormPreview(){
                 campSpot = LocalCampSpotDataProvider.defaultCampSpot,
                 campSpotImageUri = Uri.EMPTY,
                 campSpotFormErrors = CampSpotFormErrors(),
+                campSpotFormMode = CampSpotFormMode.Add,
                 onStartDateSelected = {},
                 onEndDateSelected = {},
                 onTitleChanged = {},

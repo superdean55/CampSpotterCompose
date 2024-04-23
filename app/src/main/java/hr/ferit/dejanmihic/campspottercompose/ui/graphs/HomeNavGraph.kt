@@ -1,5 +1,6 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.graphs
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +15,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.network.CampSpotsRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
@@ -27,7 +27,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotsList
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.DetailCampSpotCard
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.DetailProfileCard
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.EditProfileCard
-import java.util.Locale.filter
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 
 @Composable
 fun HomeNavGraph(
@@ -36,11 +36,15 @@ fun HomeNavGraph(
     campSpotterViewModel: CampSpotterViewModel,
     modifier: Modifier = Modifier
 ) {
+    val TAG = "HOME NAV GRAPH"
     val uiState by campSpotterViewModel.uiState.collectAsState()
     val singleUserRepositoryState by SingleUserRepository.repositoryState.collectAsState()
     val usersRepositoryState by UsersRepository.repositoryState.collectAsState()
     val campSpotsRepositoryState by CampSpotsRepository.repositoryState.collectAsState()
     val context = LocalContext.current
+    if(campSpotsRepositoryState.latestChangedCampSpot.id == uiState.currentlySelectedCampSpot.id){
+        campSpotterViewModel.updateCurrentlySelectedCampSpot(campSpotsRepositoryState.latestChangedCampSpot)
+    }
     NavHost(
         navController = navController,
         route = Graph.HOME,
@@ -111,18 +115,19 @@ fun HomeNavGraph(
                 campSpot = uiState.campSpotForm,
                 campSpotImageUri = uiState.campSpotImageUri,
                 campSpotFormErrors = uiState.campSpotFormErrors,
+                campSpotFormMode = CampSpotFormMode.Add,
                 onStartDateSelected = { campSpotterViewModel.updatePickedStartDate(it) },
                 onEndDateSelected = { campSpotterViewModel.updatePickedEndDate(it, context) },
                 onTitleChanged = { campSpotterViewModel.updateCampSpotTitle(it) },
                 onDescriptionChanged = { campSpotterViewModel.updateCampSpotDescription(it) },
                 onNumberOfPeopleChanged = { campSpotterViewModel.updateCampSpotNumberOfPeople(it, context) },
                 onSaveSketchClicked = {
-                    if(campSpotterViewModel.addCampSpot(CampSpotType.Sketch,context)){
+                    if(campSpotterViewModel.addAndUpdateCampSpot(CampSpotType.Sketch.text, context, CampSpotFormMode.Add)){
                         navController.popBackStack()
                     }
                 },
                 onPublishClicked = {
-                    if(campSpotterViewModel.addCampSpot(CampSpotType.Published,context)){
+                    if(campSpotterViewModel.addAndUpdateCampSpot(CampSpotType.Published.text,context, CampSpotFormMode.Add)){
                         navController.popBackStack()
                     }
                 },
@@ -135,12 +140,16 @@ fun HomeNavGraph(
         ){
             composable(route = CampSpotDetailScreen.CampSpotDetails.route){
                 DetailCampSpotCard(
-                    campSpot = campSpotsRepositoryState.campSpots.find { it.id == uiState.currentlySelectedCampSpot.id } ?: LocalCampSpotDataProvider.defaultCampSpot,
+                    campSpot = uiState.currentlySelectedCampSpot,
                     user = usersRepositoryState.users.find { it.uid == uiState.currentlySelectedCampSpot.userId } ?: LocalUserDataProvider.defaultUser,
                     onEditClicked = {
                         campSpotterViewModel.updateCampSpotForm(it)
                         navController.navigate(route = CampSpotDetailScreen.EditCampSpot.route)
                                     },
+                    onDeleteClicked = {
+                        campSpotterViewModel.deleteCampSpotFromDb(it)
+                        navController.popBackStack()
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -149,18 +158,32 @@ fun HomeNavGraph(
                     campSpot = uiState.campSpotForm,
                     campSpotImageUri = uiState.campSpotImageUri,
                     campSpotFormErrors = uiState.campSpotFormErrors,
+                    campSpotFormMode = CampSpotFormMode.Update,
                     onStartDateSelected = { campSpotterViewModel.updatePickedStartDate(it) },
                     onEndDateSelected = { campSpotterViewModel.updatePickedEndDate(it, context) },
                     onTitleChanged = { campSpotterViewModel.updateCampSpotTitle(it) },
                     onDescriptionChanged = { campSpotterViewModel.updateCampSpotDescription(it) },
                     onNumberOfPeopleChanged = { campSpotterViewModel.updateCampSpotNumberOfPeople(it, context) },
                     onSaveSketchClicked = {
-                        if(campSpotterViewModel.saveCampSpot(context)){
+                        Log.d(TAG,"camp spot type on save sketch: $it")
+                        if(campSpotterViewModel.addAndUpdateCampSpot(it, context, CampSpotFormMode.Update)){
                             navController.popBackStack(route = Graph.CAMP_SPOT_DETAILS, inclusive = true)
                             navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
                         }
                                           },
-                    onPublishClicked = {},
+                    onPublishClicked = {
+                        Log.d(TAG,"camp spot type on publish: $it")
+                        if(it == CampSpotType.Sketch.text){
+                            campSpotterViewModel.addAndUpdateCampSpot(it, context, CampSpotFormMode.Update, isTransfer = true)
+                            navController.popBackStack(route = Graph.CAMP_SPOT_DETAILS, inclusive = true)
+                            navController.navigate(route = Graph.HOME)
+                        }else{
+                            campSpotterViewModel.addAndUpdateCampSpot(it, context, CampSpotFormMode.Update)
+                            navController.popBackStack(route = Graph.CAMP_SPOT_DETAILS, inclusive = true)
+                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                        }
+
+                    },
                     viewModel = campSpotterViewModel
                 )
             }

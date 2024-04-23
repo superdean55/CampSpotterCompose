@@ -180,7 +180,9 @@ fun HomeScreen(
                     onLogOutClicked = onLogOutClicked,
                     navController = navController,
                     campSpotterViewModel = campSpotViewModel,
-                    modifier = Modifier.padding(it)
+                    modifier = Modifier
+                        .padding(it)
+                        .padding(dimensionResource(R.dimen.padding_small))
                 )
             }
 
@@ -372,7 +374,9 @@ fun UserImageItem(
                 placeholder = painterResource(R.drawable.blank_profile_picture),
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().align(Alignment.Center)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
             )
         }else{
             Image(
@@ -380,7 +384,9 @@ fun UserImageItem(
                 contentDescription = null,
                 alignment = Alignment.Center,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().align(Alignment.Center)
+                modifier = Modifier
+                    .fillMaxSize()
+                    .align(Alignment.Center)
                 )
         }
     }
@@ -417,7 +423,7 @@ fun CampSpotsList(
         verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
         modifier = modifier,
     ){
-        items(campSpots, key = { campSpot -> campSpot.id!! }) { campSpot ->
+        items(campSpots.reversed(), key = { campSpot -> campSpot.id!! }) { campSpot ->
             CampSpotItem(
                 campSpot = campSpot,
                 user = getUserById(users, campSpot.userId!!) ?: LocalUserDataProvider.getUsersData()[0],
@@ -425,6 +431,7 @@ fun CampSpotsList(
             )
         }
     }
+
 }
 fun getUserById(users: List<User>, userId: String): User? {
     return users.find { it.uid == userId }

@@ -1,7 +1,9 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.graphs
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -109,7 +111,8 @@ fun RootNavigationGraph(
                     viewModel.logOut()
                     navController.popBackStack(route = Graph.HOME, inclusive = true)
                     navController.navigate(route = Graph.AUTHENTICATION)
-                }
+                },
+                modifier = Modifier.background(MaterialTheme.colorScheme.background)
             )
         }
     }
