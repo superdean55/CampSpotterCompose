@@ -16,6 +16,7 @@ data class CampSpot(
     val publishDate: String? = null,
     val campSpotType: String? = null,
     val locationDetails: MutableMap<String,String?> = mutableMapOf("latitude" to "", "longitude" to ""),
+    val messages: MutableMap<String, Any?> = mutableMapOf()
     ){
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -32,6 +33,11 @@ data class CampSpot(
             "publishDate" to publishDate,
             "campSpotType" to campSpotType,
             "locationDetails" to locationDetails,
+            "messages" to messages
         )
     }
+    /*
+    init {
+        this.messages.put("1111", Message("1111","dsfsdf", "message", "01.01.2024. 11:00").toMap())
+    }*/
 }

@@ -21,7 +21,7 @@ object LocalUserDataProvider {
             User(
                 uid = "gx0K33TXlUSRZ8zjcj9XGn6tDqq1",
                 email = "dejan@gmail.com",
-                imageUrl = "",
+                imageUrl = "https://firebasestorage.googleapis.com/v0/b/camp-spotter-compose.appspot.com/o/images%2Fbitmap_20240421_170208.jpg?alt=media&token=7765590f-2237-47a9-a7f2-2c613076814e",
                 imageName = "bitmap_20240421_170208.jpg",
                 username = "deos",
                 firstName = "Dejan",
@@ -30,9 +30,9 @@ object LocalUserDataProvider {
                 creationDate = localDateToString(LocalDate.now()),
             ),
             User(
-                uid = "2",
+                uid = "RfJhfvj1OJXbh8F7TMqlnwm46bD2",
                 email = "marko@gmail.com",
-                imageUrl = "",
+                imageUrl = "https://firebasestorage.googleapis.com/v0/b/camp-spotter-compose.appspot.com/o/images%2Fbitmap_20240424_103730.jpg?alt=media&token=89935e09-59d4-4903-96ef-021f1a439d5d",
                 username = "maki",
                 firstName = "Marko",
                 lastName = "Dalić",

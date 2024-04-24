@@ -30,6 +30,7 @@ import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.LocationDetails
+import hr.ferit.dejanmihic.campspottercompose.model.Message
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
@@ -37,6 +38,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.mapToObject
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.stringToLocalDate
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -133,6 +135,34 @@ class CampSpotterViewModel : ViewModel() {
                 campSpotFormErrors = it.campSpotFormErrors.copy(
                     isLocationDetailsError = false
                 )
+            )
+        }
+    }
+    fun updateSendMassageText(sendMessageText: String){
+        _uiState.update {
+            it.copy(
+                sendMessageText = sendMessageText
+            )
+        }
+    }
+    fun addMessageToDb(context: Context){
+        Log.d(TAG,"CURRENT CAMP SPOT ID: ${uiState.value.currentlySelectedCampSpot.id}")
+        Log.d(TAG, "BUILDING MESSAGE\nmessage: ${uiState.value.sendMessageText}")
+        Log.d(TAG,"userId: ${FirebaseAuth.getInstance().currentUser?.uid}")
+        val campSpot = uiState.value.currentlySelectedCampSpot
+        val messageText = uiState.value.sendMessageText
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null && messageText.isNotEmpty()) {
+            resetSendMessageText()
+            CampSpotsRepository.addMessageToCampSpot(campSpot, messageText, userId)
+        }else{
+            toastMessage("MESSAGE IS EMPTY", context)
+        }
+    }
+    fun resetSendMessageText(){
+        _uiState.update {
+            it.copy(
+                sendMessageText = ""
             )
         }
     }
@@ -325,6 +355,7 @@ class CampSpotterViewModel : ViewModel() {
         }
         return false
     }
+
     fun deleteCampSpotFromDb(campSpot: CampSpot){
         if (campSpot.id != null && campSpot.campSpotType != null && campSpot.id != "") {
             CampSpotsRepository.removeCampSpot(campSpot.id, campSpot.campSpotType)

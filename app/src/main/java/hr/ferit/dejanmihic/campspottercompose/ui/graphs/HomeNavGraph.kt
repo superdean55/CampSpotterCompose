@@ -65,6 +65,7 @@ fun HomeNavGraph(
                                 onCampSpotClick = {
                                     campSpotterViewModel.updateBottomNavigationVisibility(false)
                                     campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                                    campSpotterViewModel.resetSendMessageText()
                                     navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
                                 }
                             )
@@ -83,6 +84,7 @@ fun HomeNavGraph(
                                 onCampSpotClick = {
                                     campSpotterViewModel.updateBottomNavigationVisibility(false)
                                     campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                                    campSpotterViewModel.resetSendMessageText()
                                     navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
                                 }
                             )
@@ -101,6 +103,7 @@ fun HomeNavGraph(
                                 onCampSpotClick = {
                                     campSpotterViewModel.updateBottomNavigationVisibility(false)
                                     campSpotterViewModel.updateCurrentlySelectedCampSpot(it)
+                                    campSpotterViewModel.resetSendMessageText()
                                     navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
                                 }
                             )
@@ -142,6 +145,10 @@ fun HomeNavGraph(
                 DetailCampSpotCard(
                     campSpot = uiState.currentlySelectedCampSpot,
                     user = usersRepositoryState.users.find { it.uid == uiState.currentlySelectedCampSpot.userId } ?: LocalUserDataProvider.defaultUser,
+                    users = usersRepositoryState.users,
+                    sendMessageText = uiState.sendMessageText,
+                    onSendMessageTextChanged = { campSpotterViewModel.updateSendMassageText(it)},
+                    onSendMessageClicked = { campSpotterViewModel.addMessageToDb(context) },
                     onEditClicked = {
                         campSpotterViewModel.updateCampSpotForm(it)
                         navController.navigate(route = CampSpotDetailScreen.EditCampSpot.route)

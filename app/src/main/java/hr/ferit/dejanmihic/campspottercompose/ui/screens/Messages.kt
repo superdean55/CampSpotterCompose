@@ -5,16 +5,26 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,6 +39,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import hr.ferit.dejanmihic.campspottercompose.R
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalMessageDataProvider
+import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.Message
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
@@ -270,9 +282,9 @@ fun CurrentUserMessageCard(
 @Composable
 fun MessageCard(
     messageDataWidth: Float = 0.8f,
-    @DimenRes imageSizeId: Int,
-    @DimenRes cornerRadiusId: Int,
-    @DimenRes messageDataPaddingId: Int,
+    @DimenRes imageSizeId: Int = R.dimen.message_user_image_size,
+    @DimenRes cornerRadiusId: Int = R.dimen.message_corner_radius,
+    @DimenRes messageDataPaddingId: Int = R.dimen.message_data_padding,
     user: User,
     message: Message,
     modifier: Modifier = Modifier
@@ -304,6 +316,81 @@ fun MessageCard(
             modifier = modifier
         )
     }
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MessagesCard(
+    messages: List<Message>,
+    users: List<User>,
+    sendMessageText: String,
+    onSendMessageTextChanged: (String) -> Unit,
+    onSendMessageClicked: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Column(
+        modifier = modifier
+    ) {
+        Row(modifier = Modifier.weight(1f)) {
+            MessagesList(
+                messages = messages,
+                users = users,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+        }
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(65.dp)
+        ) {
+            OutlinedTextField(
+                value = sendMessageText,
+                onValueChange = { onSendMessageTextChanged(it) },
+                label = {
+                    Text("enter message")
+                },
+                modifier = Modifier.weight(1f)
+            )
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_small)))
+            OutlinedButton(
+                onClick = onSendMessageClicked,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent
+                ),
+                modifier = Modifier.width(80.dp).height(55.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Send,
+                    contentDescription = null,
+                )
+            }
+        }
+    }
+
+}
+@Composable
+fun MessagesList(
+    messages: List<Message>,
+    users: List<User>,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    modifier: Modifier = Modifier
+){
+    LazyColumn(
+        contentPadding= contentPadding,
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        modifier = modifier
+    ){
+        items(messages, key = { message -> message.id!! }) { message ->
+            users.find { it.uid == message.userId }?.let {
+                MessageCard(
+                    user = it,
+                    message = message
+                )
+            }
+        }
+    }
+
 }
 @Preview(showBackground = true)
 @Composable
@@ -398,6 +485,45 @@ fun CurrentUserMessageCardPreview(){
                 messageText = "I am here...",
                 modifier = Modifier.fillMaxWidth()
             )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MessagesListPreview(){
+    CampSpotterComposeTheme {
+        Surface {
+            MessagesList(
+                messages = LocalMessageDataProvider.getMessages(),
+                users = LocalUserDataProvider.getUsersData(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = dimensionResource(R.dimen.padding_small))
+                    .clip(RoundedCornerShape(dimensionResource(R.dimen.padding_small)))
+                    .background(Color.Gray)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MessagesCardPreview(){
+    CampSpotterComposeTheme {
+        Surface {
+                MessagesCard(
+                    messages = LocalMessageDataProvider.getMessages(),
+                    users = LocalUserDataProvider.getUsersData(),
+                    sendMessageText = "",
+                    onSendMessageTextChanged = {},
+                    onSendMessageClicked = { /*TODO*/ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .background(MaterialTheme.colorScheme.inversePrimary)
+                        .padding(dimensionResource(R.dimen.padding_small))
+                )
         }
     }
 }

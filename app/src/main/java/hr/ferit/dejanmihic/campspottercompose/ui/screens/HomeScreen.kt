@@ -87,7 +87,6 @@ fun HomeScreen(
     val uiState by campSpotViewModel.uiState.collectAsState()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val campSpotRepositoryState by SingleUserRepository.repositoryState.collectAsState()
-
     val canNavigateBack = if(backStackEntry != null) backStackEntry!!.arguments != null else false
     val navigationItemContentList = listOf(
         NavigationItemContent(

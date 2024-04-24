@@ -14,6 +14,7 @@ import com.google.firebase.database.getValue
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
+import hr.ferit.dejanmihic.campspottercompose.model.Message
 import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_REALTIME_DB_URL
 import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_STORAGE_URL
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
@@ -21,6 +22,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import java.io.ByteArrayOutputStream
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 data class CampSpotsRepositoryState(
     val campSpots: MutableList<CampSpot> = mutableListOf(),
@@ -163,22 +166,27 @@ object CampSpotsRepository{
                 if (campSpot?.userId == FirebaseAuth.getInstance().currentUser?.uid) {
                     val myCampSpots = repositoryState.value.myCampSpots.toMutableList()
                     val campSpots = repositoryState.value.campSpots.toMutableList()
-                    val myOldCampSpot = myCampSpots.find { it.id == campSpot?.id }
-                    val oldCampSpot = campSpots.find { it.id == campSpot?.id }
-                    myOldCampSpot?.let { myCampSpots.remove(it) }
-                    oldCampSpot?.let { campSpots.remove(it) }
-                    campSpot?.let {
-                        myCampSpots.add(it)
-                        campSpots.add(it)
+                    val myOldCampSpotIndex = myCampSpots.indexOfFirst { it.id == campSpot?.id }
+                    val oldCampSpotIndex = campSpots.indexOfFirst { it.id == campSpot?.id }
+                    if (campSpot != null) {
+                        if (myOldCampSpotIndex != -1) {
+                            myCampSpots[myOldCampSpotIndex] = campSpot
+                        }
+                        if (oldCampSpotIndex != -1) {
+                            campSpots[oldCampSpotIndex] = campSpot
+                        }
                     }
                     updateMyCampSpots(myCampSpots)
                     updateCampSpots(campSpots)
                     Log.d(TAG,"CHILD CHANGED IN MY PUBLISHED LIST\nCHILD CHANGED IN CAMP SPOTS LIST")
                 }else{
                     val campSpots = repositoryState.value.campSpots.toMutableList()
-                    val oldCampSpot = campSpots.find { it.id == campSpot?.id }
-                    oldCampSpot?.let { campSpots.remove(it) }
-                    campSpot?.let { campSpots.add(it) }
+                    val oldCampSpotIndex = campSpots.indexOfFirst { it.id == campSpot?.id }
+                    if (campSpot != null) {
+                        if (oldCampSpotIndex != -1) {
+                            campSpots[oldCampSpotIndex] = campSpot
+                        }
+                    }
                     updateCampSpots(campSpots)
                     Log.d(TAG,"CHILD CHANGED IN CAMP SPOTS LIST")
                 }
@@ -280,7 +288,8 @@ object CampSpotsRepository{
                 endEventDate = campSpot.endEventDate,
                 publishDate = campSpot.publishDate,
                 campSpotType = campSpot.campSpotType,
-                locationDetails = campSpot.locationDetails
+                locationDetails = campSpot.locationDetails,
+                messages = campSpot.messages
             )
             Log.d(TAG,"CAMP_SPOT_TO_ADD_OR_UPDATE $campSpot")
             val postValues = campSpot.toMap()
@@ -305,7 +314,32 @@ object CampSpotsRepository{
             Log.e(TAG,"OLD_CAMP_SPOT_IMAGE_DELETING_ERROR")
         }
     }
+    fun addMessageToCampSpot(campSpot: CampSpot, messageText: String, userId: String){
+        val dataPath = if (campSpot.campSpotType == CampSpotType.Published.text) campSpotsPath else sketchesPath
+        val postDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm"))
+        val id = database.reference.child(dataPath).push().key
+        /*val id = database.reference.child(dataPath).child(campSpot.id!!).child("messages").push().key*/
+        if (id != null) {
+            val message = Message(
+                id = id,
+                userId = userId,
+                message = messageText,
+                postDate = postDate
+            )
+            val postValues = message.toMap()
+            Log.d(TAG, "postValues: $postValues")
+            val childUpdates = hashMapOf<String, Any>(
+                "$dataPath/${campSpot.id}/messages/$id" to postValues
+            )
+            database.reference.updateChildren(childUpdates)
+                .addOnCompleteListener { task ->
+                    if(task.isSuccessful) {
+                        Log.d(TAG,"MESSAGE IS POSTED")
+                    }
+                }
+        }
 
+    }
     private fun toastMessage(message: String, context: Context){
         Toast.makeText(
             context,

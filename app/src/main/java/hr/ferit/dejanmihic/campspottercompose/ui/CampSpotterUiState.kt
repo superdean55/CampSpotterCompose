@@ -22,4 +22,6 @@ data class CampSpotterUiState(
     val currentlySelectedNavType: CampSpotNavigationType = CampSpotNavigationType.ALL_CAMP_SPOTS,
     val isBottomNavigationVisible: Boolean = true,
     val isTopAppBarUserImageVisible: Boolean = true,
+
+    val sendMessageText: String = ""
 )

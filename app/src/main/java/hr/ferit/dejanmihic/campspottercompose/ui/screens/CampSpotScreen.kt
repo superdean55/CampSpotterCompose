@@ -88,6 +88,7 @@ import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.mapToObject
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -97,179 +98,210 @@ import java.util.Objects
 fun DetailCampSpotCard(
     campSpot: CampSpot,
     user: User,
+    users: List<User>,
+    sendMessageText: String,
+    onSendMessageTextChanged: (String) -> Unit,
+    onSendMessageClicked: () -> Unit,
     onEditClicked: (CampSpot) -> Unit,
     onDeleteClicked: (CampSpot) -> Unit,
     imageHeight: Dp = 100.dp,
     modifier: Modifier = Modifier
 ){
     var imageIsClicked by remember { mutableStateOf(false) }
-    Card (
-        elevation = CardDefaults.cardElevation(),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)),
-        modifier = modifier
-    ){
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+    ) {
+
+
+        Card(
+            elevation = CardDefaults.cardElevation(),
+            shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)),
+            modifier = modifier
         ) {
-            Row(
-                modifier =
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier =
                     if (!imageIsClicked) Modifier
                         .fillMaxWidth()
                         .height(imageHeight)
                     else Modifier
-                    .fillMaxWidth(),
+                        .fillMaxWidth(),
 
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-
-                ) {
-                    if(campSpot.imageUrl != ""){
-                        AsyncImage(
-                            model = campSpot.imageUrl,
-                            contentDescription = null,
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    imageIsClicked = !imageIsClicked
-                                }
-                        )
-                    }else{
-                        Image(
-                            painter = painterResource(R.drawable.no_image_available),
-                            contentDescription = null,
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    imageIsClicked = !imageIsClicked
-                                }
-                        )
-                    }
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = !imageIsClicked,
-                        enter = fadeIn(initialAlpha = 0.3f)+ slideInHorizontally(),
-                        exit = fadeOut()
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(dimensionResource(R.dimen.padding_small))
-                        ) {
-                            UsernameAndImage(
-                                user = user,
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+
+                    ) {
+                        if (campSpot.imageUrl != "") {
+                            AsyncImage(
+                                model = campSpot.imageUrl,
+                                contentDescription = null,
+                                alignment = Alignment.Center,
+                                contentScale = ContentScale.FillWidth,
                                 modifier = Modifier
-                                    .align(Alignment.TopEnd)
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        imageIsClicked = !imageIsClicked
+                                    }
                             )
+                        } else {
+                            Image(
+                                painter = painterResource(R.drawable.no_image_available),
+                                contentDescription = null,
+                                alignment = Alignment.Center,
+                                contentScale = ContentScale.FillWidth,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        imageIsClicked = !imageIsClicked
+                                    }
+                            )
+                        }
+                        androidx.compose.animation.AnimatedVisibility(
+                            visible = !imageIsClicked,
+                            enter = fadeIn(initialAlpha = 0.3f) + slideInHorizontally(),
+                            exit = fadeOut()
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensionResource(R.dimen.padding_small))
+                            ) {
+                                UsernameAndImage(
+                                    user = user,
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                )
+
+                            }
+
 
                         }
-
-
                     }
-                }
 
-            }
-            Column (
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_small))
-            ){
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = campSpot.title!!,
-                    style = MaterialTheme.typography.titleMedium,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 2,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                AnimatedVisibility(
-                    visible = imageIsClicked,
-                    enter = slideInHorizontally {
-                        -it/3
-                    },
-                    exit = shrinkVertically() + fadeOut()
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_small))
                 ) {
-                    Column {
-                        UsernameAndImage(
-                            user = user,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                    }
-                }
-                Divider()
-                TitleAndTwoDataInRow(
-                    titleId = R.string.label_gps,
-                    firstLabel = R.string.label_latitude,
-                    firstData = campSpot.locationDetails["latitude"],
-                    secondLabel = R.string.label_longitude,
-                    secondData = campSpot.locationDetails["longitude"],
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dimensionResource(R.dimen.padding_small))
-                )
-                Divider()
-                TitleAndTwoDataInRow(
-                    titleId = R.string.label_date_of_event,
-                    firstLabel = R.string.label_from,
-                    firstData = campSpot.startEventDate,
-                    secondLabel = R.string.label_to,
-                    secondData = campSpot.endEventDate,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dimensionResource(R.dimen.padding_small))
-                )
-                Divider()
-                HorizontalLabelTextInfo(
-                    labelId = R.string.label_numb_of_people,
-                    data = campSpot.numberOfPeople,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Divider()
-
-                Row(
-                    modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_small)),
-                    verticalAlignment = Alignment.Top,
-                ){
                     Text(
-                        text = stringResource(R.string.label_description),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
-                    Text(
-                        text = campSpot.description!!,
-                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.fillMaxWidth(),
+                        text = campSpot.title!!,
+                        style = MaterialTheme.typography.titleMedium,
                         overflow = TextOverflow.Ellipsis,
-                        maxLines = 3
+                        maxLines = 2,
+                        textAlign = TextAlign.Center
                     )
-                }
-                Divider()
-                HorizontalLabelTextInfo(
-                    labelId = R.string.label_reviews,
-                    data = "Bez komentara",
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Divider()
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                if (user.uid == FirebaseAuth.getInstance().currentUser?.uid) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                    AnimatedVisibility(
+                        visible = imageIsClicked,
+                        enter = slideInHorizontally {
+                            -it / 3
+                        },
+                        exit = shrinkVertically() + fadeOut()
                     ) {
-                        CustomButton(onButtonClick = { onDeleteClicked(campSpot) }, textId = R.string.camp_spot_label_delete)
-                        CustomButton(onButtonClick = { onEditClicked(campSpot) }, textId = R.string.camp_spot_label_edit)
+                        Column {
+                            UsernameAndImage(
+                                user = user,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                        }
+                    }
+                    Divider()
+                    TitleAndTwoDataInRow(
+                        titleId = R.string.label_gps,
+                        firstLabel = R.string.label_latitude,
+                        firstData = campSpot.locationDetails["latitude"],
+                        secondLabel = R.string.label_longitude,
+                        secondData = campSpot.locationDetails["longitude"],
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dimensionResource(R.dimen.padding_small))
+                    )
+                    Divider()
+                    TitleAndTwoDataInRow(
+                        titleId = R.string.label_date_of_event,
+                        firstLabel = R.string.label_from,
+                        firstData = campSpot.startEventDate,
+                        secondLabel = R.string.label_to,
+                        secondData = campSpot.endEventDate,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = dimensionResource(R.dimen.padding_small))
+                    )
+                    Divider()
+                    HorizontalLabelTextInfo(
+                        labelId = R.string.label_numb_of_people,
+                        data = campSpot.numberOfPeople,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Divider()
+
+                    Row(
+                        modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_small)),
+                        verticalAlignment = Alignment.Top,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.label_description),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
+                        Text(
+                            text = campSpot.description!!,
+                            style = MaterialTheme.typography.bodySmall,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 3
+                        )
+                    }
+                    Divider()
+                    HorizontalLabelTextInfo(
+                        labelId = R.string.label_reviews,
+                        data = "Bez komentara",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Divider()
+                    MessagesCard(
+                        messages = mapToObject(campSpot.messages),
+                        users = users,
+                        sendMessageText = sendMessageText,
+                        onSendMessageTextChanged = onSendMessageTextChanged,
+                        onSendMessageClicked = onSendMessageClicked,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .background(MaterialTheme.colorScheme.inversePrimary)
+                            .padding(dimensionResource(R.dimen.padding_small))
+                    )
+                    Divider()
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                    if (user.uid == FirebaseAuth.getInstance().currentUser?.uid) {
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            CustomButton(
+                                onButtonClick = { onDeleteClicked(campSpot) },
+                                textId = R.string.camp_spot_label_delete
+                            )
+                            CustomButton(
+                                onButtonClick = { onEditClicked(campSpot) },
+                                textId = R.string.camp_spot_label_edit
+                            )
+                        }
                     }
                 }
+
             }
 
         }
-
     }
 }
 
@@ -739,6 +771,10 @@ fun DetailCampSpotCardPreview(){
             DetailCampSpotCard(
                 campSpot = LocalCampSpotDataProvider.getCampSpots()[0],
                 user = LocalUserDataProvider.getUsersData()[0],
+                users = LocalUserDataProvider.getUsersData(),
+                sendMessageText = "",
+                onSendMessageTextChanged = {},
+                onSendMessageClicked = {},
                 onEditClicked = {},
                 onDeleteClicked = {},
                 modifier = Modifier.fillMaxWidth()
