@@ -67,5 +67,10 @@ val Typography = Typography(
         fontStyle = FontStyle.Italic,
         fontSize = 12.sp
     ),
+    headlineSmall = TextStyle(
+        fontFamily = MavenPro,
+        fontWeight = FontWeight.Normal,
+        fontSize = 10.sp
+    ),
     
 )
