@@ -292,7 +292,7 @@ fun UsernameAndImage(
         )
         Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
         UserImageItem(
-            userImageUrl = user.imageUrl,
+            userImageUrl = user.imageUrl!!,
             modifier = Modifier
                 .size(dimensionResource(R.dimen.card_account_image_height))
                 .clip(CircleShape)

@@ -292,7 +292,7 @@ fun CampSpotItem(
                     .fillMaxHeight()
             ) {
                 UserImageItem(
-                    userImageUrl = user.imageUrl,
+                    userImageUrl = user.imageUrl!!,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.card_account_image_height))
                         .clip(CircleShape)
@@ -343,6 +343,7 @@ fun ImageItem(
                     .crossfade(true)
                     .build(),
                 placeholder = painterResource(placeholderImageId),
+                alignment = Alignment.Center,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -360,36 +361,14 @@ fun ImageItem(
 }
 @Composable
 fun UserImageItem(
-    userImageUrl: String?,
+    userImageUrl: String,
     modifier: Modifier = Modifier
 ){
-    Box(modifier = modifier){
-        if(userImageUrl != "") {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(userImageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                placeholder = painterResource(R.drawable.blank_profile_picture),
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center)
-            )
-        }else{
-            Image(
-                painter = painterResource(R.drawable.blank_profile_picture),
-                contentDescription = null,
-                alignment = Alignment.Center,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .align(Alignment.Center)
-                )
-        }
-    }
+    ImageItem(
+        placeholderImageId = R.drawable.blank_profile_picture,
+        imageUrl = userImageUrl,
+        modifier = modifier
+    )
 }
 
 fun <T>dataToString(data: T) :String{

@@ -85,7 +85,7 @@ fun DetailProfileCard(
                     .padding(dimensionResource(R.dimen.spacer_small))
             ) {
                 UserImageItem(
-                    userImageUrl = user.imageUrl,
+                    userImageUrl = user.imageUrl!!,
                     modifier = Modifier
                         .size(dimensionResource(R.dimen.card_image_height))
                         .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
