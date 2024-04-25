@@ -330,6 +330,12 @@ fun MessagesCard(
     Column(
         modifier = modifier
     ) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.inversePrimary)
+        ){
+            Text(text = "Messages", style = MaterialTheme.typography.labelMedium)
+        }
         Row(modifier = Modifier.weight(1f)) {
             MessagesList(
                 messages = messages,

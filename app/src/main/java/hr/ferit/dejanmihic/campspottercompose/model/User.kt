@@ -5,17 +5,17 @@ import com.google.firebase.database.IgnoreExtraProperties
 
 @IgnoreExtraProperties
 data class User(
-    val uid: String? = null,
-    val imageUrl: String? = null,
-    val imageName: String? = null,
-    val username: String? = null,
-    val firstName: String? = null,
-    val lastName: String? = null,
-    val email: String? = null,
-    val birthDate: String? = null,
-    val creationDate: String? = null,
+    val uid: String? = "",
+    val imageUrl: String? = "",
+    val imageName: String? = "",
+    val username: String? = "",
+    val firstName: String? = "",
+    val lastName: String? = "",
+    val email: String? = "",
+    val birthDate: String? = "",
+    val creationDate: String? = "",
 ){
-    constructor() : this(null,null,null,null,null,null,null,null, null)
+    constructor() : this("","","","","","","","", "")
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(

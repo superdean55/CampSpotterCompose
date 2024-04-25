@@ -2,6 +2,7 @@ package hr.ferit.dejanmihic.campspottercompose.data.network
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -25,6 +26,7 @@ data class SingleUserRepositoryState(
     val user: User? = User(),
 )
 object SingleUserRepository{
+    private const val TAG = "SINGLE USER REPOSITORY"
     private val _repositoryState = MutableStateFlow(SingleUserRepositoryState())
     val repositoryState: StateFlow<SingleUserRepositoryState> = _repositoryState
 
@@ -38,6 +40,7 @@ object SingleUserRepository{
                 user = User()
             )
         }
+        Log.d(TAG, "RESET TO INITIAL STATE")
     }
     fun createUserData(email: String, uid: String, context: Context){
         var username = ""

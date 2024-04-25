@@ -145,7 +145,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(70.dp)
-                        .background(LightBlue)
+                        .background(MaterialTheme.colorScheme.inversePrimary)
                 )
             },
 
@@ -173,18 +173,14 @@ fun HomeScreen(
             },
             modifier = modifier
         ) {
-            Column {
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                HomeNavGraph(
-                    onLogOutClicked = onLogOutClicked,
-                    navController = navController,
-                    campSpotterViewModel = campSpotViewModel,
-                    modifier = Modifier
-                        .padding(it)
-                        .padding(dimensionResource(R.dimen.padding_small))
-                )
-            }
-
+            println("PADDING VALUES\ntop: ${it.calculateTopPadding()}\nbottom: ${it.calculateBottomPadding()}")
+            HomeNavGraph(
+                onLogOutClicked = onLogOutClicked,
+                navController = navController,
+                campSpotterViewModel = campSpotViewModel,
+                modifier = Modifier
+                    .padding(it)
+            )
         }
     }else{
         Box(modifier = Modifier.fillMaxSize()){
@@ -398,7 +394,7 @@ fun CampSpotsList(
 ){
     LazyColumn(
         contentPadding= contentPadding,
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_medium)),
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
         modifier = modifier,
     ){
         items(campSpots.reversed(), key = { campSpot -> campSpot.id!! }) { campSpot ->

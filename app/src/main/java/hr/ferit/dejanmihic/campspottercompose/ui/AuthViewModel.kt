@@ -1,6 +1,7 @@
 package hr.ferit.dejanmihic.campspottercompose.ui
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -16,27 +17,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 class AuthViewModel(): ViewModel() {
+    private val TAG = "AUTH VIEW MODEL"
     private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState
     private val firebaseAuth = FirebaseAuth.getInstance()
 
     fun logOut() {
         while (firebaseAuth.currentUser != null){
-            _uiState.update {
-                it.copy(
-                    isUserLoggedOutDuringRuntime = true
-                )
-            }
             firebaseAuth.signOut()
         }
     }
-    private fun updateIsUserLoggedOutDuringRuntime(){
-        _uiState.update {
-            it.copy(
-                isUserLoggedOutDuringRuntime = false
-            )
-        }
-    }
+
     fun resetUiToInitialState(){
         _uiState.update {
             it.copy(
@@ -47,6 +38,7 @@ class AuthViewModel(): ViewModel() {
                 visualTransformation = PasswordVisualTransformation()
             )
         }
+        Log.d(TAG, "RESET TO INITIAL STATE")
     }
     fun updatePassword(password: String){
         _uiState.update {
@@ -107,12 +99,9 @@ class AuthViewModel(): ViewModel() {
                     val uid = task.result.user?.uid
                     if (uid != null){
                         SingleUserRepository.getUserDataByUid(uid)
-                        if (uiState.value.isUserLoggedOutDuringRuntime){
-                            UsersRepository.getUsers()
-                            CampSpotsRepository.getPublishedCampSpots()
-                            CampSpotsRepository.getMyCampSpotSketches()
-                            updateIsUserLoggedOutDuringRuntime()
-                        }
+                        UsersRepository.getUsers()
+                        CampSpotsRepository.getPublishedCampSpots()
+                        CampSpotsRepository.getMyCampSpotSketches()
                         toastMessage("Login Successful",context)
                         setUiStateToDefault()
                         updateLoadingIndicator(false)

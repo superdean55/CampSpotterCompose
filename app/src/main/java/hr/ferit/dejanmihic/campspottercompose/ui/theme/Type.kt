@@ -1,5 +1,6 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
@@ -26,7 +27,7 @@ val Typography = Typography(
         fontFamily = MavenPro,
         fontWeight = FontWeight.Bold,
         fontSize = 28.sp,
-        lineHeight = 32.sp
+        lineHeight = 32.sp,
     ),
     titleMedium = TextStyle(
         fontFamily = MavenPro,

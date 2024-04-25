@@ -1,10 +1,12 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.graphs
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -157,7 +159,7 @@ fun HomeNavGraph(
                         campSpotterViewModel.deleteCampSpotFromDb(it)
                         navController.popBackStack()
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
                 )
             }
             composable(route = CampSpotDetailScreen.EditCampSpot.route){
@@ -243,7 +245,7 @@ fun LoadingData(
 ){
     Box(modifier = modifier){
         CircularProgressIndicator(
-            modifier.align(Alignment.Center)
+            modifier = Modifier.align(Alignment.Center)
         )
     }
 }

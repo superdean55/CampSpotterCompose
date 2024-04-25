@@ -87,6 +87,7 @@ class CampSpotterViewModel : ViewModel() {
                 isTopAppBarUserImageVisible = true
             )
         }
+        Log.d(TAG, "RESET TO INITIAL STATE")
     }
     fun updateUri(uri: Uri?, context: Context){
         _uiState.update {

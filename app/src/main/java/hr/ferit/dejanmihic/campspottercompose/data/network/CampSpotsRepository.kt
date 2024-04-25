@@ -63,6 +63,7 @@ object CampSpotsRepository{
             campSpotsReference.removeEventListener(campSpotsListener!!)
             Log.d(TAG,"CAMP_SPOTS_LISTENER_REMOVED")
         }
+        Log.d(TAG, "RESET TO INITIAL STATE")
     }
     fun updateLatestChangedCampSpot(campSpot: CampSpot){
         _repositoryState.update {

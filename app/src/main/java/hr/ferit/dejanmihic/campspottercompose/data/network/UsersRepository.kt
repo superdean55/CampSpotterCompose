@@ -37,7 +37,7 @@ object UsersRepository {
             usersRef.removeEventListener(usersListener!!)
             Log.d(TAG,"USERS_EVENT_LISTENER_REMOVED")
         }
-
+        Log.d(TAG, "RESET TO INITIAL STATE")
     }
 
     fun getUsers(){

@@ -52,6 +52,7 @@ fun RootNavigationGraph(
             startDestination = AuthScreen.Login.route
         ) {
             composable(route = AuthScreen.Login.route) {
+                println("IN LOG IN COMPOSE")
                 Background {
                     LoginScreenV2(
                         email = uiState.email,
@@ -109,8 +110,11 @@ fun RootNavigationGraph(
                 onLogOutClicked = {
                     viewModel.resetUiToInitialState()
                     viewModel.logOut()
+                    println("BEFORE POP BACK STACK HOME GRAPH INCLUSIVE")
                     navController.popBackStack(route = Graph.HOME, inclusive = true)
+                    println("AFTER NAVIGATE POP BACK STACK HOME GRAPH")
                     navController.navigate(route = Graph.AUTHENTICATION)
+                    println("AFTER NAVIGATE TO AUTH GRAPH")
                 },
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
             )
