@@ -146,6 +146,9 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
+    fun removeMessage(messageId: String){
+        Log.d(TAG,"REMOVE MESSAGE ON ID: $messageId")
+    }
     fun addMessageToDb(context: Context){
         Log.d(TAG,"CURRENT CAMP SPOT ID: ${uiState.value.currentlySelectedCampSpot.id}")
         Log.d(TAG, "BUILDING MESSAGE\nmessage: ${uiState.value.sendMessageText}")

@@ -2,6 +2,7 @@ package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
 import androidx.annotation.DimenRes
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -250,14 +252,18 @@ fun CurrentUserMessageCard(
     username: String,
     postDate: String,
     messageText: String,
+    messageId: String,
+    onRemoveClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
     Row (
         modifier = modifier
     ){
-        Box(modifier = Modifier.weight(1.0f - messageDataWidth)){
-
-        }
+        MessageRemoveButton(
+                onRemoveClicked = { onRemoveClicked(messageId) },
+                modifier = Modifier.weight(1.0f - messageDataWidth)
+                .padding(top = dimensionResource(R.dimen.message_user_image_size))
+        )
         Column(
             horizontalAlignment = Alignment.End,
             modifier = Modifier.weight(messageDataWidth)
@@ -280,13 +286,38 @@ fun CurrentUserMessageCard(
         }
     }
 }
+@Composable
+fun MessageRemoveButton(
+    onRemoveClicked: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+    ){
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(dimensionResource(R.dimen.message_user_image_size))
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .clickable(onClick = onRemoveClicked)
 
+        ) {
+            Icon(
+                imageVector = Icons.Default.Close,
+                contentDescription = null
+            )
+        }
+    }
+}
 @Composable
 fun MessageCard(
     messageDataWidth: Float = 0.8f,
     @DimenRes imageSizeId: Int = R.dimen.message_user_image_size,
     @DimenRes cornerRadiusId: Int = R.dimen.message_corner_radius,
     @DimenRes messageDataPaddingId: Int = R.dimen.message_data_padding,
+    onRemoveClicked: (String) -> Unit,
     user: User,
     message: Message,
     modifier: Modifier = Modifier
@@ -302,6 +333,8 @@ fun MessageCard(
             username = user.username!!,
             postDate = message.postDate!!,
             messageText = message.message!!,
+            messageId = message.id!!,
+            onRemoveClicked = onRemoveClicked,
             modifier = modifier
         )
     }else{
@@ -327,6 +360,7 @@ fun MessagesCard(
     sendMessageText: String,
     onSendMessageTextChanged: (String) -> Unit,
     onSendMessageClicked: () -> Unit,
+    onRemoveMessageClicked: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
     Column(
@@ -334,7 +368,9 @@ fun MessagesCard(
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.inversePrimary)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.inversePrimary)
         ){
             Text(text = "Messages", style = MaterialTheme.typography.labelMedium)
         }
@@ -342,6 +378,7 @@ fun MessagesCard(
             MessagesList(
                 messages = messages,
                 users = users,
+                onRemoveMessageClicked = onRemoveMessageClicked,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -366,7 +403,9 @@ fun MessagesCard(
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent
                 ),
-                modifier = Modifier.width(80.dp).height(55.dp)
+                modifier = Modifier
+                    .width(80.dp)
+                    .height(55.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.Send,
@@ -381,6 +420,7 @@ fun MessagesCard(
 fun MessagesList(
     messages: List<Message>,
     users: List<User>,
+    onRemoveMessageClicked: (String) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier = Modifier
 ){
@@ -393,7 +433,8 @@ fun MessagesList(
             users.find { it.uid == message.userId }?.let {
                 MessageCard(
                     user = it,
-                    message = message
+                    message = message,
+                    onRemoveClicked = onRemoveMessageClicked
                 )
             }
         }
@@ -491,6 +532,8 @@ fun CurrentUserMessageCardPreview(){
                 username = "dejan",
                 postDate = "22.02.2022. 14:00",
                 messageText = "I am here...",
+                messageId = "1",
+                onRemoveClicked = {},
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -505,6 +548,7 @@ fun MessagesListPreview(){
             MessagesList(
                 messages = LocalMessageDataProvider.getMessages(),
                 users = LocalUserDataProvider.getUsersData(),
+                onRemoveMessageClicked = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = dimensionResource(R.dimen.padding_small))
@@ -526,6 +570,7 @@ fun MessagesCardPreview(){
                     sendMessageText = "",
                     onSendMessageTextChanged = {},
                     onSendMessageClicked = { /*TODO*/ },
+                    onRemoveMessageClicked = {},
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(300.dp)

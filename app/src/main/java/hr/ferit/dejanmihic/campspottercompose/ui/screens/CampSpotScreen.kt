@@ -99,6 +99,7 @@ fun DetailCampSpotCard(
     sendMessageText: String,
     onSendMessageTextChanged: (String) -> Unit,
     onSendMessageClicked: () -> Unit,
+    onRemoveMessageClicked: (String) -> Unit,
     onEditClicked: (CampSpot) -> Unit,
     onDeleteClicked: (CampSpot) -> Unit,
     imageHeight: Dp = 100.dp,
@@ -248,6 +249,7 @@ fun DetailCampSpotCard(
                 sendMessageText = sendMessageText,
                 onSendMessageTextChanged = onSendMessageTextChanged,
                 onSendMessageClicked = onSendMessageClicked,
+                onRemoveMessageClicked = onRemoveMessageClicked,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(300.dp)
@@ -757,6 +759,7 @@ fun DetailCampSpotCardPreview(){
                 sendMessageText = "",
                 onSendMessageTextChanged = {},
                 onSendMessageClicked = {},
+                onRemoveMessageClicked = {},
                 onEditClicked = {},
                 onDeleteClicked = {},
                 modifier = Modifier.fillMaxWidth()

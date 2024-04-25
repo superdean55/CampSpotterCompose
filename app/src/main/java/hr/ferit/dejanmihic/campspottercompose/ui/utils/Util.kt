@@ -1,6 +1,5 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.utils
 
-import android.util.Log
 import androidx.annotation.StringRes
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.model.Message
@@ -42,11 +41,17 @@ fun mapToObject(messages: MutableMap<String,Any?>): List<Message>{
                 id = messageMap["id"],
                 userId = messageMap["userId"],
                 message = messageMap["message"],
-                postDate = messageMap["postDate"]
+                postDate = messageMap["postDate"],
+                status = messageMap["status"]
             )
             messageList.add(message)
         }
     }
     messageList.sortBy { it.id }
     return messageList
+}
+
+sealed class MessageStatus(val text: String){
+    object Deleted : MessageStatus(text = "DELETED")
+    object Viral : MessageStatus(text = "VIRAL")
 }
