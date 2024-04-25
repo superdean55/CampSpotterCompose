@@ -1,38 +1,41 @@
 <resources>
     <string name="app_name">Camp Spotter Compose</string>
 
-    <string name="camp_spot_title_1">Kamp Borovik</string>
-    <string name="label_location">Location:</string>
-    <string name="label_date">Date:</string>
-    <string name="label_username">Username:</string>
-    <string name="label_email">Email:</string>
-    <string name="label_firstname">First name:</string>
-    <string name="label_lastname">Last name:</string>
-    <string name="label_registration_date">Registration date:</string>
-    <string name="label_date_of_birth">Date of birth:</string>
-    <string name="label_numb_of_people">Numb. of people:</string>
-    <string name="label_description">Description:</string>
-    <string name="label_gps_coordinates">Coordinates:</string>
-    <string name="label_reviews">Reviews:</string>
+    <string name="label_participant">Participant</string>
+    <string name="label_publication_date">Publication date</string>
+
+    <string name="label_username">Username</string>
+    <string name="label_email">Email</string>
+    <string name="label_firstname">First name</string>
+    <string name="label_lastname">Last name</string>
+    <string name="label_registration_date">Registration date</string>
+    <string name="label_date_of_birth">Date of birth</string>
+    <string name="label_numb_of_people">Numb. of people</string>
+    <string name="label_description">Description</string>
+    <string name="label_gps_coordinates">Coordinates</string>
+    <string name="label_reviews">Reviews</string>
     <string name="label_gps">GPS</string>
-    <string name="label_latitude">Latitude:</string>
-    <string name="label_longitude">Longitude:</string>
-    <string name="label_title">Title:</string>
+    <string name="label_latitude">Latitude</string>
+    <string name="label_longitude">Longitude</string>
+    <string name="label_title">Title</string>
 
     <string name="camp_spot_edit_label_publish">Publish</string>
     <string name="camp_spot_edit_label_save_sketch">Save sketch</string>
     <string name="camp_spot_add_label_update_sketch">update Sketch</string>
-    <string name="camp_spot_add_label_save">Save</string>
+    <string name="camp_spot_add_label_save">Publish</string>
     <string name="camp_spot_label_edit">Edit</string>
     <string name="camp_spot_label_delete">Delete</string>
 
+    <string name="user_label_log_uot">Log out</string>
+    <string name="user_label_edit">Edit</string>
+
     <string name="label_save">Save</string>
-    <string name="label_date_of_publication">Date of publication:</string>
-    <string name="label_date_of_event">Date of event:</string>
-    <string name="label_from">From:</string>
-    <string name="label_to">To:</string>
-    <string name="label_event_starts">Events starts:</string>
-    <string name="label_event_ends">Event ends:</string>
+    <string name="label_date_of_publication">Date of publication</string>
+    <string name="label_date_of_event">Date of event</string>
+    <string name="label_from">From</string>
+    <string name="label_to">To</string>
+    <string name="label_event_starts">Events starts</string>
+    <string name="label_event_ends">Event ends</string>
     <string name="label_pick_date">Pick date</string>
 
     <string name="auth_title_app">Camp Spotter</string>
@@ -54,5 +57,4 @@
     <string name="nav_my_camp_spots">My Camp Spots</string>
     <string name="nav_my_sketches">My Sketches</string>
 
-    <string name="username_1">Deos</string>
 </resources>

@@ -34,12 +34,9 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -110,188 +107,201 @@ fun DetailCampSpotCard(
 ){
     var imageIsClicked by remember { mutableStateOf(false) }
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier =
-                if (!imageIsClicked) Modifier
-                    .fillMaxWidth()
-                    .height(imageHeight)
-                else Modifier
-                    .fillMaxWidth(),
-                ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    if (campSpot.imageUrl != "") {
-                        AsyncImage(
-                            model = campSpot.imageUrl,
-                            contentDescription = null,
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    imageIsClicked = !imageIsClicked
-                                }
-                        )
-                    } else {
-                        Image(
-                            painter = painterResource(R.drawable.no_image_available),
-                            contentDescription = null,
-                            alignment = Alignment.Center,
-                            contentScale = ContentScale.FillWidth,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    imageIsClicked = !imageIsClicked
-                                }
-                        )
-                    }
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = !imageIsClicked,
-                        enter = fadeIn(initialAlpha = 0.3f) + slideInHorizontally(),
-                        exit = fadeOut()
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(dimensionResource(R.dimen.padding_small))
-                        ) {
-                            UsernameAndImage(
-                                user = user,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                            )
-                        }
-                    }
-                }
-            }
-            Column(
+        Row(
+            modifier =
+            if (!imageIsClicked) Modifier
+                .fillMaxWidth()
+                .height(imageHeight)
+            else Modifier
+                .fillMaxWidth(),
+            ) {
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = dimensionResource(R.dimen.padding_small))
             ) {
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = campSpot.title!!,
-                    style = MaterialTheme.typography.titleMedium,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 2,
-                    textAlign = TextAlign.Center
-                )
-                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                AnimatedVisibility(
-                    visible = imageIsClicked,
-                    enter = slideInHorizontally {
-                        -it / 3
-                    },
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    Column {
-                        UsernameAndImage(
-                            user = user,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                    }
-                }
-                Divider(color = dividersColor)
-                TitleAndTwoDataInRow(
-                    titleId = R.string.label_gps,
-                    firstLabel = R.string.label_latitude,
-                    firstData = campSpot.locationDetails["latitude"],
-                    secondLabel = R.string.label_longitude,
-                    secondData = campSpot.locationDetails["longitude"],
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dimensionResource(R.dimen.padding_small))
-                )
-                Divider(color = dividersColor)
-                TitleAndTwoDataInRow(
-                    titleId = R.string.label_date_of_event,
-                    firstLabel = R.string.label_from,
-                    firstData = campSpot.startEventDate,
-                    secondLabel = R.string.label_to,
-                    secondData = campSpot.endEventDate,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = dimensionResource(R.dimen.padding_small))
-                )
-                Divider(color = dividersColor)
-                HorizontalLabelTextInfo(
-                    labelId = R.string.label_numb_of_people,
-                    data = campSpot.numberOfPeople,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Divider(color = dividersColor)
-
-                Row(
-                    modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_small)),
-                    verticalAlignment = Alignment.Top,
-                ) {
-                    Text(
-                        text = stringResource(R.string.label_description),
-                        style = MaterialTheme.typography.labelSmall
+                if (campSpot.imageUrl != "") {
+                    AsyncImage(
+                        model = campSpot.imageUrl,
+                        contentDescription = null,
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                imageIsClicked = !imageIsClicked
+                            }
                     )
-                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
-                    Text(
-                        text = campSpot.description!!,
-                        style = MaterialTheme.typography.bodySmall,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.no_image_available),
+                        contentDescription = null,
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                imageIsClicked = !imageIsClicked
+                            }
                     )
                 }
-                Divider(color = dividersColor)
-            }
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                MessagesCard(
-                    messages = mapToObject(campSpot.messages),
-                    users = users,
-                    sendMessageText = sendMessageText,
-                    onSendMessageTextChanged = onSendMessageTextChanged,
-                    onSendMessageClicked = onSendMessageClicked,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp)
-                        .background(MaterialTheme.colorScheme.inversePrimary)
-                        .padding(dimensionResource(R.dimen.padding_small))
-                )
-                if (user.uid == FirebaseAuth.getInstance().currentUser?.uid) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = !imageIsClicked,
+                    enter = fadeIn(initialAlpha = 0.3f) + slideInHorizontally(),
+                    exit = fadeOut()
+                ) {
+                    Box(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(dimensionResource(R.dimen.padding_small))
                     ) {
-                        CustomButton(
-                            onButtonClick = { onDeleteClicked(campSpot) },
-                            textId = R.string.camp_spot_label_delete
-                        )
-                        CustomButton(
-                            onButtonClick = { onEditClicked(campSpot) },
-                            textId = R.string.camp_spot_label_edit
+                        UsernameAndImage(
+                            user = user,
+                            usernameBackgroundColor = Color.LightGray,
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
                         )
                     }
                 }
             }
         }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = dimensionResource(R.dimen.padding_small))
+        ) {
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                text = campSpot.title!!,
+                style = MaterialTheme.typography.titleMedium,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 2,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+            AnimatedVisibility(
+                visible = imageIsClicked,
+                enter = slideInHorizontally {
+                    -it / 3
+                },
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column {
+                    UsernameAndImage(
+                        user = user,
+                        usernameBackgroundColor = Color.Transparent,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                }
+            }
+            TitleAndTwoInformationComponent(
+                titleLabelId = R.string.label_gps,
+                firstLabelId = R.string.label_latitude,
+                firstText = campSpot.locationDetails["latitude"]!!,
+                secondLabelId = R.string.label_longitude,
+                secondText = campSpot.locationDetails["longitude"]!!,
+                modifier = Modifier.fillMaxWidth()
+            )
+            TitleAndTwoInformationComponent(
+                titleLabelId = R.string.label_date_of_event,
+                firstLabelId = R.string.label_from,
+                firstText = campSpot.startEventDate!!,
+                secondLabelId = R.string.label_to,
+                secondText = campSpot.endEventDate!!,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Divider(color = dividersColor)
+            HorizontalLabelTextInfo(
+                labelId = R.string.label_numb_of_people,
+                data = campSpot.numberOfPeople,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Divider(color = dividersColor)
+
+            Row(
+                modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_small)),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Text(
+                    text = stringResource(R.string.label_description),
+                    style = MaterialTheme.typography.labelSmall
+                )
+                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
+                Text(
+                    text = campSpot.description!!,
+                    style = MaterialTheme.typography.bodySmall,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 3
+                )
+            }
+            Divider(color = dividersColor)
+        }
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            MessagesCard(
+                messages = mapToObject(campSpot.messages),
+                users = users,
+                sendMessageText = sendMessageText,
+                onSendMessageTextChanged = onSendMessageTextChanged,
+                onSendMessageClicked = onSendMessageClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(300.dp)
+                    .background(MaterialTheme.colorScheme.inversePrimary)
+                    .padding(dimensionResource(R.dimen.padding_small))
+            )
+            if (user.uid == FirebaseAuth.getInstance().currentUser?.uid) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_small))
+                ) {
+                    CustomButton(
+                        onButtonClick = { onDeleteClicked(campSpot) },
+                        textId = R.string.camp_spot_label_delete
+                    )
+                    CustomButton(
+                        onButtonClick = { onEditClicked(campSpot) },
+                        textId = R.string.camp_spot_label_edit
+                    )
+                }
+            }
+        }
     }
 }
-
+@Composable
+fun TitleAndTwoInformationComponent(
+    @StringRes titleLabelId: Int,
+    @StringRes firstLabelId: Int,
+    firstText: String,
+    @StringRes secondLabelId: Int,
+    secondText: String,
+    modifier: Modifier = Modifier
+){
+    Column (
+        modifier = modifier
+    ){
+        Text(text = stringResource(titleLabelId), style = MaterialTheme.typography.labelMedium)
+        TwoInformationComponentInRow(
+            firstLabelId = firstLabelId,
+            firstText = firstText,
+            secondLabelId = secondLabelId,
+            secondText = secondText,
+            rowHeight = R.dimen.information_row_height,
+            dividerHeight = R.dimen.information_divider_height,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
 @Composable
 fun UsernameAndImage(
     user: User,
+    usernameBackgroundColor: Color,
     modifier: Modifier = Modifier
 ){
     Row(
@@ -300,7 +310,7 @@ fun UsernameAndImage(
         modifier = modifier
     ){
         Text(
-            modifier = Modifier.background(Color.LightGray),
+            modifier = Modifier.background(usernameBackgroundColor),
             text = user.username!!,
             style = MaterialTheme.typography.bodyMedium,
             overflow = TextOverflow.Ellipsis,
@@ -352,6 +362,7 @@ fun CampSpotForm(
     onNumberOfPeopleChanged: (String) -> Unit,
     onSaveSketchClicked: (String) -> Unit,
     onPublishClicked: (String) -> Unit,
+    dividersColor: Color = MaterialTheme.colorScheme.scrim,
     modifier: Modifier = Modifier,
     viewModel: CampSpotterViewModel
 ){
@@ -391,168 +402,158 @@ fun CampSpotForm(
     )
 
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
 
-        Card(
-            elevation = CardDefaults.cardElevation(),
-            shape = RoundedCornerShape(
-                dimensionResource(R.dimen.card_corner_radius)
-            ),
-            modifier = modifier
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensionResource(R.dimen.padding_small))
         ) {
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                modifier = if (campSpotFormErrors.isImageUriError) Modifier
+                    .fillMaxWidth()
+                    .background(errorColor) else Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(200.dp)
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
+                        .clickable {
+                            if (permissions.all {
+                                    ContextCompat.checkSelfPermission(
+                                        context,
+                                        it
+                                    ) == PackageManager.PERMISSION_GRANTED
+                                }) {
+                                cameraLauncher.launch(uri)
+                            } else {
+                                launcherMultiplePermissions.launch(permissions)
+                            }
+                        }
+                ) {
+                    if (campSpotImageUri != Uri.EMPTY) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(campSpotImageUri)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else if (campSpot.imageUrl != "") {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(campSpot.imageUrl)
+                                .crossfade(true)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            placeholder = painterResource(R.drawable.no_image_available),
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.no_image_available),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                }
+            }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(dimensionResource(R.dimen.padding_small))
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = if (campSpotFormErrors.isImageUriError) Modifier
-                        .fillMaxWidth()
-                        .background(errorColor) else Modifier.fillMaxWidth()
-                ) {
 
-                    Box(
-                        modifier = Modifier
-                            .size(200.dp)
-                            .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
-                            .clickable {
-                                if (permissions.all {
-                                        ContextCompat.checkSelfPermission(
-                                            context,
-                                            it
-                                        ) == PackageManager.PERMISSION_GRANTED
-                                    }) {
-                                    cameraLauncher.launch(uri)
-                                } else {
-                                    launcherMultiplePermissions.launch(permissions)
-                                }
-                            }
-                    ) {
-                        if (campSpotImageUri != Uri.EMPTY) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(campSpotImageUri)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else if (campSpot.imageUrl != "") {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(campSpot.imageUrl)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                placeholder = painterResource(R.drawable.no_image_available),
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        } else {
-                            Image(
-                                painter = painterResource(R.drawable.no_image_available),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.fillMaxSize()
-                            )
-                        }
-                    }
-                }
-                Column(
+            ) {
+                Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+                TitleAndTwoDataInRow(
+                    isError = campSpotFormErrors.isLocationDetailsError,
+                    errorColor = errorColor,
+                    titleId = R.string.label_gps,
+                    firstLabel = R.string.label_latitude,
+                    firstData = campSpot.locationDetails["latitude"],
+                    secondLabel = R.string.label_longitude,
+                    secondData = campSpot.locationDetails["longitude"],
                     modifier = Modifier
                         .fillMaxWidth()
-
+                        .padding(vertical = dimensionResource(R.dimen.padding_small))
+                )
+                Divider(color = dividersColor)
+                UserInputField(
+                    text = campSpot.title!!,
+                    labelId = R.string.label_title,
+                    onValueChanged = onTitleChanged,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = campSpotFormErrors.isTitleError
+                )
+                UserInputField(
+                    text = campSpot.description!!,
+                    labelId = R.string.label_description,
+                    onValueChanged = onDescriptionChanged,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = campSpotFormErrors.isDescriptionError
+                )
+                UserInputField(
+                    text = campSpot.numberOfPeople!!,
+                    labelId = R.string.label_numb_of_people,
+                    onValueChanged = onNumberOfPeopleChanged,
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = campSpotFormErrors.isNumberOfPeopleError
+                )
+                ChooseDate(
+                    dateDialogState = startDateDialogState,
+                    labelId = R.string.label_event_starts,
+                    buttonLabelId = R.string.label_pick_date,
+                    date = campSpot.startEventDate!!,
+                    onDateSelected = onStartDateSelected,
+                    property = DateType.EVENT_DATE,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.padding_small))
+                )
+                Divider(color = dividersColor)
+                ChooseDate(
+                    dateDialogState = endDateDialogState,
+                    labelId = R.string.label_event_ends,
+                    buttonLabelId = R.string.label_pick_date,
+                    date = campSpot.endEventDate!!,
+                    onDateSelected = onEndDateSelected,
+                    property = DateType.EVENT_DATE,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = dimensionResource(R.dimen.padding_small))
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(dimensionResource(R.dimen.padding_small))
                 ) {
-                    Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
-                    TitleAndTwoDataInRow(
-                        isError = campSpotFormErrors.isLocationDetailsError,
-                        errorColor = errorColor,
-                        titleId = R.string.label_gps,
-                        firstLabel = R.string.label_latitude,
-                        firstData = campSpot.locationDetails["latitude"],
-                        secondLabel = R.string.label_longitude,
-                        secondData = campSpot.locationDetails["longitude"],
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = dimensionResource(R.dimen.padding_small))
-                    )
-                    Divider()
-                    UserInputField(
-                        text = campSpot.title!!,
-                        labelId = R.string.label_title,
-                        onValueChanged = onTitleChanged,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = campSpotFormErrors.isTitleError
-                    )
-                    UserInputField(
-                        text = campSpot.description!!,
-                        labelId = R.string.label_description,
-                        onValueChanged = onDescriptionChanged,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Text,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = campSpotFormErrors.isDescriptionError
-                    )
-                    UserInputField(
-                        text = campSpot.numberOfPeople!!,
-                        labelId = R.string.label_numb_of_people,
-                        onValueChanged = onNumberOfPeopleChanged,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Number,
-                            imeAction = ImeAction.Next
-                        ),
-                        isError = campSpotFormErrors.isNumberOfPeopleError
-                    )
-                    ChooseDate(
-                        dateDialogState = startDateDialogState,
-                        labelId = R.string.label_event_starts,
-                        buttonLabelId = R.string.label_pick_date,
-                        date = campSpot.startEventDate!!,
-                        onDateSelected = onStartDateSelected,
-                        property = DateType.EVENT_DATE,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.padding_small))
-                    )
-                    Divider()
-                    ChooseDate(
-                        dateDialogState = endDateDialogState,
-                        labelId = R.string.label_event_ends,
-                        buttonLabelId = R.string.label_pick_date,
-                        date = campSpot.endEventDate!!,
-                        onDateSelected = onEndDateSelected,
-                        property = DateType.EVENT_DATE,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.padding_small))
-                    )
-                    Divider()
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(dimensionResource(R.dimen.padding_small))
-                    ) {
-                        if(campSpot.campSpotType == CampSpotType.Sketch.text) {
-                            CustomButton(
-                                onButtonClick = { onSaveSketchClicked(campSpot.campSpotType!!) },
-                                textId = campSpotFormMode.leftButtonLabelId
-                            )
-                        }
-                        Spacer(modifier = Modifier.weight(1f))
+                    if(campSpot.campSpotType == CampSpotType.Sketch.text) {
                         CustomButton(
-                            onButtonClick = { onPublishClicked(campSpot.campSpotType!!) },
-                            textId = campSpotFormMode.rightButtonLabelId
+                            onButtonClick = { onSaveSketchClicked(campSpot.campSpotType!!) },
+                            textId = campSpotFormMode.leftButtonLabelId
                         )
                     }
+                    Spacer(modifier = Modifier.weight(1f))
+                    CustomButton(
+                        onButtonClick = { onPublishClicked(campSpot.campSpotType!!) },
+                        textId = campSpotFormMode.rightButtonLabelId
+                    )
                 }
             }
         }
@@ -605,7 +606,7 @@ fun <T>TitleAndTwoDataInRow(
 @Composable
 fun ChooseDate(
     dateDialogState: MaterialDialogState,
-    date : String,
+    date: String,
     onDateSelected: (LocalDate) -> Unit,
     @StringRes labelId: Int,
     @StringRes buttonLabelId: Int,
@@ -615,22 +616,15 @@ fun ChooseDate(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+
     ){
-        Text(
-            text = stringResource(labelId),
-            style = MaterialTheme.typography.labelSmall
-        )
-        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
-        Text(
-            text = date,
-            style = MaterialTheme.typography.bodySmall,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1
-        )
+        InformationComponent(labelId = labelId, text = date)
         Spacer(modifier = Modifier.weight(1f))
-        TextButton(onClick = {
-            dateDialogState.show()
-        }) {
+        TextButton(
+            onClick = {
+                dateDialogState.show()
+            }
+        ) {
             Text(
                 text = stringResource(buttonLabelId)
             )
@@ -669,7 +663,8 @@ fun CustomButton(
     Button(
         onClick = onButtonClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.inversePrimary
+            containerColor = MaterialTheme.colorScheme.inversePrimary,
+            contentColor = MaterialTheme.colorScheme.scrim
         ),
         shape = RoundedCornerShape(dimensionResource(R.dimen.padding_small)),
         elevation = ButtonDefaults.buttonElevation(),

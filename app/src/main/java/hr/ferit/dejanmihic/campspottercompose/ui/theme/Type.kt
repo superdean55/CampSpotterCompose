@@ -32,8 +32,8 @@ val Typography = Typography(
     titleMedium = TextStyle(
         fontFamily = MavenPro,
         fontWeight = FontWeight.Bold,
-        fontSize = 25.sp,
-        lineHeight = 29.sp
+        fontSize = 22.sp,
+        lineHeight = 26.sp
     ),
     titleSmall = TextStyle(
         fontFamily = MavenPro,

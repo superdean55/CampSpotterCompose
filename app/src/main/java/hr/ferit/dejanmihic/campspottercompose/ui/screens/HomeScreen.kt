@@ -244,32 +244,16 @@ fun CampSpotItem(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
-                Column(){
-                    Text(
-                        text = stringResource(R.string.label_location),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Text(
-                        text = dataToString("Borovik"),
-                        style = MaterialTheme.typography.bodySmall,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
-                    )
-                }
-                Column(){
-                    Text(
-                        text = stringResource(R.string.label_date),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                    Text(
-                        text = dataToString(campSpot.publishDate),
-                        style = MaterialTheme.typography.bodySmall,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 1
-                    )
-                }
-
-
+                InformationComponent(
+                    labelId = R.string.label_participant,
+                    text = campSpot.numberOfPeople!!,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                InformationComponent(
+                    labelId = R.string.label_publication_date,
+                    text = campSpot.publishDate!!,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             Divider(

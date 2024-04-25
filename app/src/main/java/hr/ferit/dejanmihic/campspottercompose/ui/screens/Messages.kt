@@ -255,7 +255,9 @@ fun CurrentUserMessageCard(
     Row (
         modifier = modifier
     ){
-        Spacer(modifier = Modifier.weight(1.0f - messageDataWidth))
+        Box(modifier = Modifier.weight(1.0f - messageDataWidth)){
+
+        }
         Column(
             horizontalAlignment = Alignment.End,
             modifier = Modifier.weight(messageDataWidth)

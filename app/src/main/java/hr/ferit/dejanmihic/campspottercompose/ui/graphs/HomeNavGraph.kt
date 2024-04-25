@@ -5,6 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -13,10 +16,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.data.network.CampSpotsRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
@@ -159,7 +164,9 @@ fun HomeNavGraph(
                         campSpotterViewModel.deleteCampSpotFromDb(it)
                         navController.popBackStack()
                     },
-                    modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.background)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.background)
                 )
             }
             composable(route = CampSpotDetailScreen.EditCampSpot.route){
@@ -214,7 +221,8 @@ fun HomeNavGraph(
                     onEditClicked = {
                         campSpotterViewModel.updateEditUserForm(singleUserRepositoryState.user!!)
                         navController.navigate(route = UserDetailsScreen.EditUser.route)
-                    }
+                    },
+                    modifier = Modifier.fillMaxSize()
                 )
             }
             composable(route = UserDetailsScreen.EditUser.route){
@@ -231,7 +239,8 @@ fun HomeNavGraph(
                                 navController.popBackStack(route = Graph.USER_DETAILS, inclusive = true)
                                 navController.navigate(route = Graph.USER_DETAILS)
                         }
-                    }
+                    },
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
