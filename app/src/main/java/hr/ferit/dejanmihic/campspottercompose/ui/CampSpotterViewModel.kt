@@ -146,8 +146,14 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
-    fun removeMessage(messageId: String){
-        Log.d(TAG,"REMOVE MESSAGE ON ID: $messageId")
+    fun removeMessage(message: Message){
+        Log.d(TAG,"REMOVE MESSAGE: $message")
+        val campSpot = uiState.value.currentlySelectedCampSpot
+        if(campSpot != null && message != null) {
+            if (message.id != null && message.id != "" && campSpot.id != null && campSpot.id != "") {
+                CampSpotsRepository.updateMessage(message, campSpot)
+            }
+        }
     }
     fun addMessageToDb(context: Context){
         Log.d(TAG,"CURRENT CAMP SPOT ID: ${uiState.value.currentlySelectedCampSpot.id}")

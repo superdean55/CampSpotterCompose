@@ -156,7 +156,9 @@ fun HomeNavGraph(
                     sendMessageText = uiState.sendMessageText,
                     onSendMessageTextChanged = { campSpotterViewModel.updateSendMassageText(it)},
                     onSendMessageClicked = { campSpotterViewModel.addMessageToDb(context) },
-                    onRemoveMessageClicked = { campSpotterViewModel.removeMessage(it) },
+                    onRemoveMessageClicked = {
+                        campSpotterViewModel.removeMessage(it)
+                                             },
                     onEditClicked = {
                         campSpotterViewModel.updateCampSpotForm(it)
                         navController.navigate(route = CampSpotDetailScreen.EditCampSpot.route)

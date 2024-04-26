@@ -18,6 +18,7 @@ import hr.ferit.dejanmihic.campspottercompose.model.Message
 import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_REALTIME_DB_URL
 import hr.ferit.dejanmihic.campspottercompose.privateData.FIREBASE_STORAGE_URL
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.MessageStatus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -340,6 +341,28 @@ object CampSpotsRepository{
                 }
         }
 
+    }
+    fun updateMessage(message: Message, campSpot: CampSpot){
+        val dataPath = if (campSpot.campSpotType == CampSpotType.Published.text) campSpotsPath else sketchesPath
+        val postDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy. HH:mm"))
+        val updatedMessage = Message(
+            id = message.id,
+            userId = message.userId,
+            message = message.message,
+            postDate = postDate,
+            status = MessageStatus.Deleted.text
+        )
+        val postValues = updatedMessage.toMap()
+        Log.d(TAG, "postValues: $postValues")
+        val childUpdates = hashMapOf<String, Any>(
+            "$dataPath/${campSpot.id}/messages/${message.id}" to postValues
+        )
+        database.reference.updateChildren(childUpdates)
+            .addOnCompleteListener { task ->
+                if(task.isSuccessful) {
+                    Log.d(TAG,"MESSAGE IS UPDATED LIKE DELETED")
+                }
+            }
     }
     private fun toastMessage(message: String, context: Context){
         Toast.makeText(

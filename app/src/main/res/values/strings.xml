@@ -57,4 +57,6 @@
     <string name="nav_my_camp_spots">My Camp Spots</string>
     <string name="nav_my_sketches">My Sketches</string>
 
+    <string name="message_removed">message has been removed</string>
+    <string name="message_label_enter_message">enter message</string>
 </resources>

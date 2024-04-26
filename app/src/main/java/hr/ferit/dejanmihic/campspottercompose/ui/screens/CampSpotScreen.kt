@@ -82,6 +82,7 @@ import hr.ferit.dejanmihic.campspottercompose.data.local.LocalCampSpotDataProvid
 import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpot
 import hr.ferit.dejanmihic.campspottercompose.model.CampSpotFormErrors
+import hr.ferit.dejanmihic.campspottercompose.model.Message
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
@@ -99,7 +100,7 @@ fun DetailCampSpotCard(
     sendMessageText: String,
     onSendMessageTextChanged: (String) -> Unit,
     onSendMessageClicked: () -> Unit,
-    onRemoveMessageClicked: (String) -> Unit,
+    onRemoveMessageClicked: (Message) -> Unit,
     onEditClicked: (CampSpot) -> Unit,
     onDeleteClicked: (CampSpot) -> Unit,
     imageHeight: Dp = 100.dp,

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -35,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,6 +49,7 @@ import hr.ferit.dejanmihic.campspottercompose.data.local.LocalUserDataProvider
 import hr.ferit.dejanmihic.campspottercompose.model.Message
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.MessageStatus
 
 @Composable
 fun MessageData(
@@ -60,32 +64,51 @@ fun MessageData(
     }
 }
 @Composable
+fun RemovedMessageData(
+    modifier: Modifier = Modifier
+){
+    Box(modifier = modifier){
+        Text(
+            text = stringResource(R.string.message_removed),
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.outline
+        )
+    }
+}
+@Composable
 fun AnotherUserMessageData(
     @DimenRes messageDataPaddingId : Int,
     @DimenRes leftPaddingId: Int,
     @DimenRes cornerRadiusId: Int,
     messageBackgroundColor: Color,
     messageText: String,
+    messageStatus: String,
     modifier: Modifier = Modifier
 ){
     Row (
         modifier = modifier
     ){
         Spacer(modifier = Modifier.width(dimensionResource(leftPaddingId)))
-        MessageData(
-            messageText = messageText,
-            modifier = Modifier
-                .clip(
-                    RoundedCornerShape(
-                        topStart = 0.dp,
-                        topEnd = dimensionResource(cornerRadiusId),
-                        bottomStart = dimensionResource(cornerRadiusId),
-                        bottomEnd = dimensionResource(cornerRadiusId)
+        if (messageStatus == MessageStatus.Viral.text) {
+            MessageData(
+                messageText = messageText,
+                modifier = Modifier
+                    .clip(
+                        RoundedCornerShape(
+                            topStart = 0.dp,
+                            topEnd = dimensionResource(cornerRadiusId),
+                            bottomStart = dimensionResource(cornerRadiusId),
+                            bottomEnd = dimensionResource(cornerRadiusId)
+                        )
                     )
-                )
-                .background(messageBackgroundColor)
-                .padding(dimensionResource(messageDataPaddingId))
-        )
+                    .background(messageBackgroundColor)
+                    .padding(dimensionResource(messageDataPaddingId))
+            )
+        }else{
+            RemovedMessageData(
+                modifier = Modifier
+            )
+        }
     }
 }
 @Composable
@@ -125,6 +148,7 @@ fun AnotherUserMessageCard(
     username: String,
     postDate: String,
     messageText: String,
+    messageStatus: String,
     modifier: Modifier = Modifier
 ){
     Row (
@@ -145,6 +169,7 @@ fun AnotherUserMessageCard(
                 leftPaddingId = imageSizeId,
                 cornerRadiusId = cornerRadiusId,
                 messageBackgroundColor = messageBackgroundColor,
+                messageStatus = messageStatus,
                 messageText = messageText
             )
         }
@@ -187,6 +212,7 @@ fun CurrentUserMessageData(
     @DimenRes cornerRadiusId: Int,
     messageBackgroundColor: Color,
     messageText: String,
+    messageStatus: String,
     modifier: Modifier = Modifier
 ){
     Row (
@@ -196,20 +222,26 @@ fun CurrentUserMessageData(
             horizontalArrangement = Arrangement.End,
             modifier = Modifier.weight(1f)
         ){
-            MessageData(
-                messageText = messageText,
-                modifier = Modifier
-                    .clip(
-                        RoundedCornerShape(
-                            topStart = dimensionResource(cornerRadiusId),
-                            topEnd = 0.dp,
-                            bottomStart = dimensionResource(cornerRadiusId),
-                            bottomEnd = dimensionResource(cornerRadiusId)
+            if (messageStatus == MessageStatus.Viral.text) {
+                MessageData(
+                    messageText = messageText,
+                    modifier = Modifier
+                        .clip(
+                            RoundedCornerShape(
+                                topStart = dimensionResource(cornerRadiusId),
+                                topEnd = 0.dp,
+                                bottomStart = dimensionResource(cornerRadiusId),
+                                bottomEnd = dimensionResource(cornerRadiusId)
+                            )
                         )
-                    )
-                    .background(messageBackgroundColor)
-                    .padding(dimensionResource(messageDataPaddingId))
-            )
+                        .background(messageBackgroundColor)
+                        .padding(dimensionResource(messageDataPaddingId))
+                )
+            } else {
+                RemovedMessageData(
+                    modifier = Modifier
+                )
+            }
         }
         Spacer(modifier = Modifier.width(dimensionResource(rightPaddingId)))
     }
@@ -252,16 +284,18 @@ fun CurrentUserMessageCard(
     username: String,
     postDate: String,
     messageText: String,
-    messageId: String,
-    onRemoveClicked: (String) -> Unit,
+    messageStatus: String,
+    onRemoveClicked: () -> Unit,
     modifier: Modifier = Modifier
 ){
     Row (
         modifier = modifier
     ){
         MessageRemoveButton(
-                onRemoveClicked = { onRemoveClicked(messageId) },
-                modifier = Modifier.weight(1.0f - messageDataWidth)
+            onRemoveClicked = onRemoveClicked,
+            messageStatus = messageStatus,
+            modifier = Modifier
+                .weight(1.0f - messageDataWidth)
                 .padding(top = dimensionResource(R.dimen.message_user_image_size))
         )
         Column(
@@ -280,6 +314,7 @@ fun CurrentUserMessageCard(
                 rightPaddingId = imageSizeId,
                 cornerRadiusId = cornerRadiusId,
                 messageBackgroundColor = messageBackgroundColor,
+                messageStatus = messageStatus,
                 messageText = messageText,
 
             )
@@ -288,6 +323,7 @@ fun CurrentUserMessageCard(
 }
 @Composable
 fun MessageRemoveButton(
+    messageStatus: String,
     onRemoveClicked: () -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -295,19 +331,21 @@ fun MessageRemoveButton(
         contentAlignment = Alignment.Center,
         modifier = modifier
     ){
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .size(dimensionResource(R.dimen.message_user_image_size))
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .clickable(onClick = onRemoveClicked)
+        if (messageStatus == MessageStatus.Viral.text) {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(dimensionResource(R.dimen.message_user_image_size))
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable(onClick = onRemoveClicked)
 
-        ) {
-            Icon(
-                imageVector = Icons.Default.Close,
-                contentDescription = null
-            )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = null
+                )
+            }
         }
     }
 }
@@ -317,7 +355,7 @@ fun MessageCard(
     @DimenRes imageSizeId: Int = R.dimen.message_user_image_size,
     @DimenRes cornerRadiusId: Int = R.dimen.message_corner_radius,
     @DimenRes messageDataPaddingId: Int = R.dimen.message_data_padding,
-    onRemoveClicked: (String) -> Unit,
+    onRemoveClicked: (Message) -> Unit,
     user: User,
     message: Message,
     modifier: Modifier = Modifier
@@ -333,8 +371,8 @@ fun MessageCard(
             username = user.username!!,
             postDate = message.postDate!!,
             messageText = message.message!!,
-            messageId = message.id!!,
-            onRemoveClicked = onRemoveClicked,
+            messageStatus = message.status!!,
+            onRemoveClicked = {onRemoveClicked(message)},
             modifier = modifier
         )
     }else{
@@ -348,6 +386,7 @@ fun MessageCard(
             username = user.username!!,
             postDate = message.postDate!!,
             messageText = message.message!!,
+            messageStatus = message.status!!,
             modifier = modifier
         )
     }
@@ -360,7 +399,7 @@ fun MessagesCard(
     sendMessageText: String,
     onSendMessageTextChanged: (String) -> Unit,
     onSendMessageClicked: () -> Unit,
-    onRemoveMessageClicked: (String) -> Unit,
+    onRemoveMessageClicked: (Message) -> Unit,
     modifier: Modifier = Modifier
 ){
     Column(
@@ -387,29 +426,32 @@ fun MessagesCard(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(65.dp)
+                .height(dimensionResource(R.dimen.message_input_message_height))
         ) {
             OutlinedTextField(
                 value = sendMessageText,
                 onValueChange = { onSendMessageTextChanged(it) },
                 label = {
-                    Text("enter message")
+                    Text(
+                        text = stringResource(R.string.message_label_enter_message),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 },
-                modifier = Modifier.weight(1f)
+                textStyle = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
             )
             Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_small)))
-            OutlinedButton(
-                onClick = onSendMessageClicked,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.Transparent
-                ),
+            Box(
                 modifier = Modifier
-                    .width(80.dp)
-                    .height(55.dp)
+                    .size(dimensionResource(R.dimen.message_send_icon_size))
+                    .clickable(onClick = onSendMessageClicked)
             ) {
                 Icon(
                     imageVector = Icons.Default.Send,
                     contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
@@ -420,7 +462,7 @@ fun MessagesCard(
 fun MessagesList(
     messages: List<Message>,
     users: List<User>,
-    onRemoveMessageClicked: (String) -> Unit,
+    onRemoveMessageClicked: (Message) -> Unit,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     modifier: Modifier = Modifier
 ){
@@ -501,18 +543,35 @@ fun CurrentMessageUserInformationPreview(){
 fun AnotherUSerMessageCardPreview(){
     CampSpotterComposeTheme {
         Surface {
-            AnotherUserMessageCard(
-                messageDataWidth = 0.8f,
-                imageSizeId = R.dimen.message_user_image_size,
-                messageDataPaddingId = R.dimen.message_data_padding,
-                cornerRadiusId = R.dimen.message_corner_radius,
-                messageBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                userImageUrl = "",
-                username = "dejan",
-                postDate = "01.01.2024. 12:00",
-                messageText = "Where are you?",
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column (modifier = Modifier.background(MaterialTheme.colorScheme.inversePrimary)){
+                AnotherUserMessageCard(
+                    messageDataWidth = 0.8f,
+                    imageSizeId = R.dimen.message_user_image_size,
+                    messageDataPaddingId = R.dimen.message_data_padding,
+                    cornerRadiusId = R.dimen.message_corner_radius,
+                    messageBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                    userImageUrl = "",
+                    username = "dejan",
+                    postDate = "01.01.2024. 12:00",
+                    messageText = "Where are you?",
+                    messageStatus = MessageStatus.Viral.text,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                AnotherUserMessageCard(
+                    messageDataWidth = 0.8f,
+                    imageSizeId = R.dimen.message_user_image_size,
+                    messageDataPaddingId = R.dimen.message_data_padding,
+                    cornerRadiusId = R.dimen.message_corner_radius,
+                    messageBackgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                    userImageUrl = "",
+                    username = "dejan",
+                    postDate = "01.01.2024. 12:00",
+                    messageText = "Where are you?",
+                    messageStatus = MessageStatus.Deleted.text,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            
         }
     }
 }
@@ -522,20 +581,37 @@ fun AnotherUSerMessageCardPreview(){
 fun CurrentUserMessageCardPreview(){
     CampSpotterComposeTheme {
         Surface {
-            CurrentUserMessageCard(
-                messageDataWidth = 0.8f,
-                imageSizeId = R.dimen.message_user_image_size,
-                messageDataPaddingId = R.dimen.message_data_padding,
-                cornerRadiusId = R.dimen.message_corner_radius,
-                messageBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
-                userImageUrl = "",
-                username = "dejan",
-                postDate = "22.02.2022. 14:00",
-                messageText = "I am here...",
-                messageId = "1",
-                onRemoveClicked = {},
-                modifier = Modifier.fillMaxWidth()
-            )
+            Column(modifier = Modifier.background(MaterialTheme.colorScheme.inversePrimary)) {
+                CurrentUserMessageCard(
+                    messageDataWidth = 0.8f,
+                    imageSizeId = R.dimen.message_user_image_size,
+                    messageDataPaddingId = R.dimen.message_data_padding,
+                    cornerRadiusId = R.dimen.message_corner_radius,
+                    messageBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                    userImageUrl = "",
+                    username = "dejan",
+                    postDate = "22.02.2022. 14:00",
+                    messageText = "I am here...",
+                    onRemoveClicked = {},
+                    messageStatus = MessageStatus.Viral.text,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                CurrentUserMessageCard(
+                    messageDataWidth = 0.8f,
+                    imageSizeId = R.dimen.message_user_image_size,
+                    messageDataPaddingId = R.dimen.message_data_padding,
+                    cornerRadiusId = R.dimen.message_corner_radius,
+                    messageBackgroundColor = MaterialTheme.colorScheme.secondaryContainer,
+                    userImageUrl = "",
+                    username = "dejan",
+                    postDate = "22.02.2022. 14:00",
+                    messageText = "I am here...",
+                    onRemoveClicked = {},
+                    messageStatus = MessageStatus.Deleted.text,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
         }
     }
 }
