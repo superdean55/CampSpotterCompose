@@ -24,6 +24,12 @@
     <dimen name="message_padding_for_removed_message">8dp</dimen>
     <dimen name="message_send_icon_size">35dp</dimen>
     <dimen name="message_input_message_height">60dp</dimen>
+    <dimen name="messages_container_height">300dp</dimen>
+
+    <dimen name="edit_user_image_size">200dp</dimen>
+    <dimen name="edit_user_image_corner_radius">20dp</dimen>
+
+    <dimen name="detail_user_image_size">200dp</dimen>
 
     <dimen name="information_row_height">50dp</dimen>
     <dimen name="information_divider_height">20dp</dimen>

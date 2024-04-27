@@ -61,6 +61,7 @@ import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.CampSpotterViewModel
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.dataToString
 import java.time.LocalDate
 
 @Composable
@@ -90,7 +91,7 @@ fun DetailProfileCard(
                 UserImageItem(
                     userImageUrl = user.imageUrl!!,
                     modifier = Modifier
-                        .size(dimensionResource(R.dimen.card_image_height))
+                        .size(dimensionResource(R.dimen.detail_user_image_size))
                         .clip(RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius)))
                 )
             }
@@ -206,8 +207,8 @@ fun EditProfileCard(
             ){
                 Box(
                     modifier = Modifier
-                        .size(200.dp)
-                        .clip(RoundedCornerShape(20.dp))
+                        .size(dimensionResource(R.dimen.edit_user_image_size))
+                        .clip(RoundedCornerShape(dimensionResource(R.dimen.edit_user_image_corner_radius)))
                         .clickable {
                             singlePhoto.launch(
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
@@ -317,6 +318,7 @@ fun <T>VerticalLabelTextInfo(
 @Composable
 fun InformationComponent(
     @StringRes labelId: Int,
+    maxLines: Int = 1,
     text: String,
     modifier: Modifier = Modifier
 ){
@@ -324,13 +326,13 @@ fun InformationComponent(
         Text(
             text = stringResource(labelId),
             style = MaterialTheme.typography.bodySmall,
-            maxLines = 1,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = text,
             style = MaterialTheme.typography.labelMedium,
-            maxLines = 1,
+            maxLines = maxLines,
             overflow = TextOverflow.Ellipsis
         )
     }

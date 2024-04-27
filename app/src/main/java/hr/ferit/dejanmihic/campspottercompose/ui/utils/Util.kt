@@ -3,8 +3,10 @@ package hr.ferit.dejanmihic.campspottercompose.ui.utils
 import androidx.annotation.StringRes
 import hr.ferit.dejanmihic.campspottercompose.R
 import hr.ferit.dejanmihic.campspottercompose.model.Message
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.dateToString
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Date
 
 fun stringToLocalDate(dateString: String): LocalDate {
     val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy.")
@@ -50,7 +52,18 @@ fun mapToObject(messages: MutableMap<String,Any?>): List<Message>{
     messageList.sortBy { it.id }
     return messageList
 }
-
+fun <T>dataToString(data: T) :String{
+    val text = when(data){
+        is LocalDate -> localDateToString(data)
+        is Date -> dateToString(data)
+        is Int -> data.toString()
+        is Float -> data.toString()
+        is Double -> data.toString()
+        is String -> data
+        else -> "unknown"
+    }
+    return text
+}
 sealed class MessageStatus(val text: String){
     object Deleted : MessageStatus(text = "DELETED")
     object Viral : MessageStatus(text = "VIRAL")

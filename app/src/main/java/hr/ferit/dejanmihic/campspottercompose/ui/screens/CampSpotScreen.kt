@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -86,6 +87,7 @@ import hr.ferit.dejanmihic.campspottercompose.model.Message
 import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.dataToString
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.mapToObject
 import java.io.File
 import java.text.SimpleDateFormat
@@ -172,7 +174,7 @@ fun DetailCampSpotCard(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = dimensionResource(R.dimen.padding_small))
+                .padding(dimensionResource(R.dimen.padding_small))
         ) {
             Text(
                 modifier = Modifier.fillMaxWidth(),
@@ -215,31 +217,18 @@ fun DetailCampSpotCard(
                 secondText = campSpot.endEventDate!!,
                 modifier = Modifier.fillMaxWidth()
             )
-            Divider(color = dividersColor)
-            HorizontalLabelTextInfo(
+            InformationComponent(
                 labelId = R.string.label_numb_of_people,
-                data = campSpot.numberOfPeople,
-                modifier = Modifier.fillMaxWidth()
+                text = campSpot.numberOfPeople!!,
+                modifier = Modifier.padding(start = dimensionResource(R.dimen.information_left_padding))
             )
-            Divider(color = dividersColor)
-
-            Row(
-                modifier = Modifier.padding(vertical = dimensionResource(id = R.dimen.padding_small)),
-                verticalAlignment = Alignment.Top,
-            ) {
-                Text(
-                    text = stringResource(R.string.label_description),
-                    style = MaterialTheme.typography.labelSmall
-                )
-                Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
-                Text(
-                    text = campSpot.description!!,
-                    style = MaterialTheme.typography.bodySmall,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 3
-                )
-            }
-            Divider(color = dividersColor)
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.padding_small)))
+            InformationComponent(
+                labelId = R.string.label_description,
+                text = campSpot.description!!,
+                maxLines = 5,
+                modifier = Modifier.padding(start = dimensionResource(R.dimen.information_left_padding))
+            )
         }
         Column(
             modifier = Modifier.fillMaxWidth()
@@ -253,7 +242,7 @@ fun DetailCampSpotCard(
                 onRemoveMessageClicked = onRemoveMessageClicked,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp)
+                    .height(dimensionResource(R.dimen.messages_container_height))
                     .background(MaterialTheme.colorScheme.inversePrimary)
                     .padding(dimensionResource(R.dimen.padding_small))
             )

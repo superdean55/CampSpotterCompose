@@ -407,9 +407,7 @@ fun MessagesCard(
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.inversePrimary)
+            modifier = Modifier.fillMaxWidth()
         ){
             Text(text = "Messages", style = MaterialTheme.typography.labelMedium)
         }

@@ -40,6 +40,10 @@ object UsersRepository {
         Log.d(TAG, "RESET TO INITIAL STATE")
     }
 
+    fun isUsersEmpty(): Boolean{
+        return repositoryState.value.users.isEmpty()
+    }
+
     fun getUsers(){
         Log.d(TAG,"GET_USERS")
         usersListener = object : ValueEventListener {

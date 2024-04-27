@@ -1,6 +1,7 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
@@ -39,7 +40,10 @@ fun CampSpotterBottomNavigationBar(
     navigationItemContentList: List<NavigationItemContent>,
     modifier: Modifier = Modifier
 ) {
-    NavigationBar(modifier = modifier) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.inversePrimary,
+        modifier = modifier
+    ) {
         for (navItem in navigationItemContentList) {
             NavigationBarItem(
                 selected = currentTab == navItem.campSpotType,

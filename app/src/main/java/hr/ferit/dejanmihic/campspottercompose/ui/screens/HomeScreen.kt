@@ -350,18 +350,7 @@ fun UserImageItem(
     )
 }
 
-fun <T>dataToString(data: T) :String{
-    val text = when(data){
-        is LocalDate -> localDateToString(data)
-        is Date -> dateToString(data)
-        is Int -> data.toString()
-        is Float -> data.toString()
-        is Double -> data.toString()
-        is String -> data
-        else -> "unknown"
-    }
-    return text
-}
+
 
 fun dateToString(date: Date, format: String = "dd.MM.yyyy."): String {
     val dateFormat = SimpleDateFormat(format, Locale.getDefault())
