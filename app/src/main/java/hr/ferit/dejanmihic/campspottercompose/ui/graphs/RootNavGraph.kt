@@ -32,7 +32,6 @@ fun RootNavigationGraph(
     viewModel: AuthViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
     val context = LocalContext.current
     var starDestination = Graph.AUTHENTICATION
     if (FirebaseAuth.getInstance().currentUser != null){

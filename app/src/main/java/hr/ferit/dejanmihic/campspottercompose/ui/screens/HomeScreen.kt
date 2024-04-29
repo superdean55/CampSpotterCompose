@@ -3,6 +3,7 @@ package hr.ferit.dejanmihic.campspottercompose.ui.screens
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,7 +24,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Drafts
+import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Inbox
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -91,17 +95,17 @@ fun HomeScreen(
     val navigationItemContentList = listOf(
         NavigationItemContent(
             campSpotType = CampSpotNavigationType.ALL_CAMP_SPOTS,
-            icon = Icons.Default.Inbox,
+            icon = Icons.Default.Group,
             text = stringResource(id = R.string.nav_all_camp_spots)
         ),
         NavigationItemContent(
             campSpotType = CampSpotNavigationType.MY_CAMP_SPOTS,
-            icon = Icons.Default.Send,
+            icon = Icons.Default.Person,
             text = stringResource(id = R.string.nav_my_camp_spots)
         ),
         NavigationItemContent(
             campSpotType = CampSpotNavigationType.SKETCHES,
-            icon = Icons.Default.Drafts,
+            icon = Icons.Default.EditNote,
             text = stringResource(id = R.string.nav_my_sketches)
         ),
     )
@@ -198,8 +202,8 @@ fun AddCampSpot(
 ) {
     SmallFloatingActionButton(
         onClick = { onClick() },
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-        contentColor = MaterialTheme.colorScheme.secondary,
+        containerColor = MaterialTheme.colorScheme.inversePrimary,
+        contentColor = MaterialTheme.colorScheme.scrim,
         modifier = modifier
     ) {
         Icon(Icons.Filled.Add, "Small floating action button.")
@@ -213,76 +217,64 @@ fun CampSpotItem(
     onCardClick: () -> Unit,
     modifier: Modifier = Modifier
 ){
-    Card (
-        elevation = CardDefaults.cardElevation(),
-        shape = RoundedCornerShape(
-            topStart = dimensionResource(R.dimen.card_corner_radius),
-            bottomEnd = dimensionResource(R.dimen.card_corner_radius)
-        ),
-        onClick = onCardClick,
-        modifier = modifier
-    ){
-        Row(
+    Row(
+        modifier = modifier.clickable(onClick = onCardClick)
+    ) {
+        CampSpotImageItem(
+            imageUrl = campSpot.imageUrl!!,
+            modifier = Modifier.size(dimensionResource(R.dimen.card_image_height))
+        )
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .size(dimensionResource(R.dimen.card_image_height))
+                .fillMaxHeight()
+                .padding(dimensionResource(R.dimen.padding_small))
+                .weight(1f),
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
-            CampSpotImageItem(
-                imageUrl = campSpot.imageUrl!!,
-                modifier = Modifier.size(dimensionResource(R.dimen.card_image_height))
+            Text(
+                text = campSpot.title!!,
+                style = MaterialTheme.typography.titleMedium,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .weight(1f),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = campSpot.title!!,
-                    style = MaterialTheme.typography.titleMedium,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
-                )
-                InformationComponent(
-                    labelId = R.string.label_participant,
-                    text = campSpot.numberOfPeople!!,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                InformationComponent(
-                    labelId = R.string.label_publication_date,
-                    text = campSpot.publishDate!!,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
+            InformationComponent(
+                labelId = R.string.label_participant,
+                text = campSpot.numberOfPeople!!,
+                modifier = Modifier.fillMaxWidth()
+            )
+            InformationComponent(
+                labelId = R.string.label_publication_date,
+                text = campSpot.publishDate!!,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
 
-            Divider(
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        Divider(
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(1.dp)
+        )
+        Column(
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .width(dimensionResource(R.dimen.card_account_image_container_width))
+                .padding(dimensionResource(R.dimen.padding_small))
+                .fillMaxHeight()
+        ) {
+            UserImageItem(
+                userImageUrl = user.imageUrl!!,
                 modifier = Modifier
-                    .fillMaxHeight()
-                    .width(1.dp)
+                    .size(dimensionResource(R.dimen.card_account_image_height))
+                    .clip(CircleShape)
             )
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .width(dimensionResource(R.dimen.card_account_image_container_width))
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .fillMaxHeight()
-            ) {
-                UserImageItem(
-                    userImageUrl = user.imageUrl!!,
-                    modifier = Modifier
-                        .size(dimensionResource(R.dimen.card_account_image_height))
-                        .clip(CircleShape)
-                )
-                Text(
-                    text = user.username!!,
-                    style = MaterialTheme.typography.bodySmall,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1
-                )
-            }
+            Text(
+                text = user.username!!,
+                style = MaterialTheme.typography.bodySmall,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
+            )
         }
     }
 }
@@ -374,7 +366,11 @@ fun CampSpotsList(
             CampSpotItem(
                 campSpot = campSpot,
                 user = getUserById(users, campSpot.userId!!) ?: LocalUserDataProvider.getUsersData()[0],
-                onCardClick = { onCampSpotClick(campSpot) }
+                onCardClick = { onCampSpotClick(campSpot) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .size(dimensionResource(R.dimen.card_image_height))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             )
         }
     }
@@ -393,6 +389,7 @@ fun CampSpotItemPreview(){
                 user = LocalUserDataProvider.getUsersData()[0],
                 onCardClick = {  },
                 modifier = Modifier.fillMaxWidth()
+                    .size(dimensionResource(R.dimen.card_image_height))
             )
         }
     }
