@@ -38,8 +38,9 @@ import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
-import hr.ferit.dejanmihic.campspottercompose.ui.utils.mapToObject
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.stringToLocalDate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -139,6 +140,27 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
+    fun updateAdditionalOptionsVisibility(){
+        _uiState.update {
+            it.copy(
+                isAdditionalOptionsVisible = !uiState.value.isAdditionalOptionsVisible
+            )
+        }
+    }
+    fun updateDeleteAccountDialogVisibility(visible: Boolean){
+        _uiState.update {
+            it.copy(
+                isDeleteDialogVisible = !uiState.value.isDeleteDialogVisible
+            )
+        }
+    }
+    fun deleteUserAccount(){
+        Log.d(TAG,"DELETING USER ACCOUNT")
+        viewModelScope.launch(Dispatchers.Default) {
+
+        }
+    }
+
     fun updateSendMassageText(sendMessageText: String){
         _uiState.update {
             it.copy(
@@ -367,12 +389,7 @@ class CampSpotterViewModel : ViewModel() {
     }
 
     fun deleteCampSpotFromDb(campSpot: CampSpot){
-        if (campSpot.id != null && campSpot.campSpotType != null && campSpot.id != "") {
-            CampSpotsRepository.removeCampSpot(campSpot.id, campSpot.campSpotType)
-        }
-        if (campSpot.imageName != null && campSpot.imageName != "") {
-            CampSpotsRepository.deleteImageFromStorage(campSpot.imageName)
-        }
+        CampSpotsRepository.deleteCampSpotRecord(campSpot)
     }
     fun addAndUpdateCampSpot(campSpotType: String, context: Context, campSpotFormMode: CampSpotFormMode, isTransfer: Boolean = false) :Boolean{
         if(isValidCampSpotFormData(context)){

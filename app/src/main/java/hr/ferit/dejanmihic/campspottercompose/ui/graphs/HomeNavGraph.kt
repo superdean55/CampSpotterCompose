@@ -225,6 +225,15 @@ fun HomeNavGraph(
                         campSpotterViewModel.updateEditUserForm(singleUserRepositoryState.user!!)
                         navController.navigate(route = UserDetailsScreen.EditUser.route)
                     },
+                    isAdditionalOptionsVisible = uiState.isAdditionalOptionsVisible,
+                    isDeleteDialogVisible = uiState.isDeleteDialogVisible,
+                    onAdditionalOptionsClicked = { campSpotterViewModel.updateAdditionalOptionsVisibility() },
+                    onDeleteAccountClicked = { campSpotterViewModel.updateDeleteAccountDialogVisibility(true) },
+                    onConfirmDeletionClicked = {
+                        campSpotterViewModel.deleteUserAccount()
+                        campSpotterViewModel.updateDeleteAccountDialogVisibility(false)
+                                               },
+                    onRejectDeletionClicked = { campSpotterViewModel.updateDeleteAccountDialogVisibility(false) },
                     modifier = Modifier.fillMaxSize()
                 )
             }

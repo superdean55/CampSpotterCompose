@@ -28,6 +28,11 @@
 
     <string name="user_label_log_uot">Log out</string>
     <string name="user_label_edit">Edit</string>
+    <string name="user_label_delete_account">Delete Account</string>
+    <string name="user_label_additional_options">Additional options</string>
+    <string name="user_label_delete_dialog_confirm">Yes</string>
+    <string name="user_label_delete_dialog_reject">Cancel</string>
+    <string name="user_delete_dialog_alert_message">Are you sure you want to delete the account?</string>
 
     <string name="label_save">Save</string>
     <string name="label_date_of_publication">Date of publication</string>

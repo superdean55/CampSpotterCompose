@@ -23,5 +23,8 @@ data class CampSpotterUiState(
     val isBottomNavigationVisible: Boolean = true,
     val isTopAppBarUserImageVisible: Boolean = true,
 
-    val sendMessageText: String = ""
+    val sendMessageText: String = "",
+
+    val isAdditionalOptionsVisible: Boolean = false,
+    val isDeleteDialogVisible: Boolean = false
 )

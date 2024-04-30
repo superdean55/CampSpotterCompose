@@ -23,12 +23,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -69,6 +76,12 @@ fun DetailProfileCard(
     user: User,
     onLogOutClicked: () -> Unit,
     onEditClicked: () -> Unit,
+    isAdditionalOptionsVisible: Boolean,
+    isDeleteDialogVisible: Boolean,
+    onAdditionalOptionsClicked: () -> Unit,
+    onDeleteAccountClicked: () -> Unit,
+    onConfirmDeletionClicked: () -> Unit,
+    onRejectDeletionClicked: () -> Unit,
     modifier: Modifier = Modifier
 ){
     Box(
@@ -122,6 +135,19 @@ fun DetailProfileCard(
                 dividerHeight = R.dimen.information_divider_height,
                 modifier = Modifier.fillMaxWidth()
             )
+            UserAdditionalOptions(
+                isAdditionalOptionsVisible = isAdditionalOptionsVisible,
+                isDeleteDialogVisible = isDeleteDialogVisible,
+                onAdditionalOptionsClicked = onAdditionalOptionsClicked,
+                onDeleteAccountClicked = onDeleteAccountClicked,
+                onConfirmDeletionClicked = onConfirmDeletionClicked,
+                onRejectDeletionClicked = onRejectDeletionClicked,
+                modifier = Modifier
+                    .padding(
+                        start = dimensionResource(R.dimen.padding_small),
+                        top = dimensionResource(R.dimen.padding_small)
+                    )
+            )
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
@@ -145,30 +171,97 @@ fun DetailProfileCard(
 }
 
 @Composable
-fun <T>HorizontalLabelTextInfo(
-    lineHeight: Dp = 30.dp,
-    @StringRes labelId: Int,
-    data: T,
+fun UserAdditionalOptions(
+    isAdditionalOptionsVisible: Boolean,
+    isDeleteDialogVisible: Boolean,
+    onAdditionalOptionsClicked: () -> Unit,
+    onDeleteAccountClicked: () -> Unit,
+    onConfirmDeletionClicked: () -> Unit,
+    onRejectDeletionClicked: () -> Unit,
     modifier: Modifier = Modifier
 ){
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.height(lineHeight)
+    Column (
+        modifier = modifier
     ){
-        Text(
-            text = stringResource(labelId),
-            style = MaterialTheme.typography.labelSmall
-        )
-        Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacer_small)))
-        Text(
-            text = dataToString(data),
-            style = MaterialTheme.typography.bodySmall,
-            overflow = TextOverflow.Ellipsis,
-            maxLines = 1
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(bottom = dimensionResource(R.dimen.padding_small))
+                .clickable(onClick = onAdditionalOptionsClicked)
+        ) {
+            Text(
+                text = stringResource(R.string.user_label_additional_options),
+                style = MaterialTheme.typography.labelMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.padding_small)))
+            Box(modifier = Modifier
+                .size(dimensionResource(R.dimen.user_additional_options_box_icon_size))
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.inversePrimary)) {
+                Icon(
+                    imageVector =
+                    if (isAdditionalOptionsVisible) {
+                        Icons.Default.ExpandLess
+                    }else{
+                        Icons.Default.ExpandMore
+                        },
+                    contentDescription = null
+                )
+            }
+        }
+        if(isAdditionalOptionsVisible){
+            CustomButton(
+                onButtonClick = onDeleteAccountClicked,
+                textId = R.string.user_label_delete_account
+            )
+            if (isDeleteDialogVisible){
+                DeleteAccountDialog(
+                    onConfirm = onConfirmDeletionClicked,
+                    onReject = onRejectDeletionClicked
+                )
+            }
+        }
     }
 }
+@Composable
+fun DeleteAccountDialog(
+    onConfirm: () -> Unit,
+    onReject: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    AlertDialog(
+        title = {
+            Text(
+                text = stringResource(R.string.user_label_delete_account),
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(R.string.user_delete_dialog_alert_message),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        onDismissRequest = onReject,
+        confirmButton = {
+            CustomButton(
+                onButtonClick = onConfirm,
+                textId = R.string.user_label_delete_dialog_confirm
+            )
+        },
+        dismissButton = {
+            CustomButton(
+                onButtonClick = onReject,
+                textId = R.string.user_label_delete_dialog_reject
+            )
+        },
+        modifier = modifier
+    )
+}
+
 @Composable
 fun EditProfileCard(
     user: User,
@@ -420,6 +513,12 @@ fun DetailProfileCardPreview(){
                 user = LocalUserDataProvider.getUsersData()[0],
                 onLogOutClicked = {},
                 onEditClicked = {},
+                isAdditionalOptionsVisible = true,
+                isDeleteDialogVisible = false,
+                onAdditionalOptionsClicked = {},
+                onDeleteAccountClicked = {},
+                onConfirmDeletionClicked = {},
+                onRejectDeletionClicked = {},
                 modifier = Modifier
                     .fillMaxWidth()
             )

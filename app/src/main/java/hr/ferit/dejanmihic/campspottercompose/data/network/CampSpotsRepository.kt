@@ -262,7 +262,16 @@ object CampSpotsRepository{
                 Log.e(TAG,"IMAGE_URI_EXCEPTION: ${exception.message}")
             }
     }
-    fun removeCampSpot(id: String, campSpotType: String){
+    fun deleteCampSpotRecord(campSpot: CampSpot){
+        if (campSpot.id != null && campSpot.campSpotType != null && campSpot.id != "") {
+            removeCampSpotData(campSpot.id, campSpot.campSpotType)
+        }
+        if (campSpot.imageName != null && campSpot.imageName != "") {
+            deleteImageFromStorage(campSpot.imageName)
+        }
+    }
+
+    private fun removeCampSpotData(id: String, campSpotType: String){
         val dataPath = if (campSpotType == CampSpotType.Published.text) campSpotsPath else sketchesPath
         database.getReference(dataPath).child(id).removeValue()
             .addOnCompleteListener {
@@ -274,7 +283,7 @@ object CampSpotsRepository{
     private fun pushCampSpotData(campSpot: CampSpot, imageName: String, imageUrl: String, dataPath: String, isTransfer: Boolean, context: Context){
         Log.d(TAG,"CAMP SPOT IN PUSH FUN: $campSpot")
         if (isTransfer && campSpot.id != ""){
-            removeCampSpot(campSpot.id!!, sketchesPath)
+            removeCampSpotData(campSpot.id!!, sketchesPath)
         }
         val id = if ( isTransfer || campSpot.id == "" ) { database.reference.child(dataPath).push().key } else { campSpot.id }
         if (id != null) {
@@ -308,7 +317,7 @@ object CampSpotsRepository{
         }
     }
 
-    fun deleteImageFromStorage(imageName: String) {
+    private fun deleteImageFromStorage(imageName: String) {
         val storageRef = storage.reference.child("$campSpotImages/$imageName")
         storageRef.delete().addOnSuccessListener {
             Log.d(TAG,"OLD_CAMP_SPOT_IMAGE_SUCCESSFULLY_DELETED")

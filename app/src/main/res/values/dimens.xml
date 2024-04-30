@@ -35,4 +35,6 @@
     <dimen name="information_divider_height">20dp</dimen>
     <dimen name="information_left_padding">10dp</dimen>
 
+    <dimen name="user_additional_options_box_icon_size">20dp</dimen>
+
 </resources>
