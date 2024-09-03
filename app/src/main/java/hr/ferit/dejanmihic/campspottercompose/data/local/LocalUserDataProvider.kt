@@ -16,6 +16,17 @@ object LocalUserDataProvider {
         birthDate = localDateToString(LocalDate.now()),
         creationDate = localDateToString(LocalDate.now()),
     )
+    val removedUser = User(
+        uid = "",
+        email = "",
+        imageUrl = "",
+        imageName = "",
+        username = "user is removed",
+        firstName = "",
+        lastName = "",
+        birthDate = "",
+        creationDate = "",
+    )
     fun getUsersData(): MutableList<User>{
         return mutableListOf(
             User(

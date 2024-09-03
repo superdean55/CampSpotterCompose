@@ -8,6 +8,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavHostController
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthException
 import hr.ferit.dejanmihic.campspottercompose.data.network.CampSpotsRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.SingleUserRepository
 import hr.ferit.dejanmihic.campspottercompose.data.network.UsersRepository
@@ -27,7 +28,26 @@ class AuthViewModel(): ViewModel() {
             firebaseAuth.signOut()
         }
     }
-
+    fun deleteUser(){
+        val user = firebaseAuth.currentUser
+        if (user != null){
+            firebaseAuth.signOut()
+            Log.d(TAG,"CURRENT USER IS ${user.email}")
+            user.delete().addOnCompleteListener {
+                if (it.isSuccessful){
+                    Log.d(TAG, "USER SUCCESSFULLY DELETED FROM AUTH")
+                }else{
+                    Log.d(TAG, "USER DELETION ERROR")
+                }
+            }.addOnFailureListener { exception ->
+                if (exception is FirebaseAuthException) {
+                    Log.e(TAG, "USER DELETION ERROR: ${exception.errorCode}, ${exception.message}")
+                } else {
+                    Log.e(TAG, "USER DELETION ERROR: ${exception.message}")
+                }
+            }
+        }
+    }
     fun resetUiToInitialState(){
         _uiState.update {
             it.copy(
@@ -35,7 +55,8 @@ class AuthViewModel(): ViewModel() {
                 password = "",
                 isPasswordVisible = false,
                 isLoadingData = false,
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
+                isUserRecentlyLoggedIn = false
             )
         }
         Log.d(TAG, "RESET TO INITIAL STATE")
@@ -104,6 +125,7 @@ class AuthViewModel(): ViewModel() {
                         CampSpotsRepository.getMyCampSpotSketches()
                         toastMessage("Login Successful",context)
                         setUiStateToDefault()
+                        updateIsUserRecentlyLoggedIn(true)
                         updateLoadingIndicator(false)
                         navController.navigate(route = Graph.HOME){
                             popUpTo(navController.graph.startDestinationId) //removes login back stack
@@ -122,6 +144,13 @@ class AuthViewModel(): ViewModel() {
         _uiState.update {
             it.copy(
                 isLoadingData = boolean
+            )
+        }
+    }
+    private fun updateIsUserRecentlyLoggedIn(boolean: Boolean){
+        _uiState.update {
+            it.copy(
+                isUserRecentlyLoggedIn = boolean
             )
         }
     }

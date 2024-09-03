@@ -1,6 +1,8 @@
 package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -35,6 +38,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -42,11 +47,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -70,6 +79,7 @@ import hr.ferit.dejanmihic.campspottercompose.ui.theme.CampSpotterComposeTheme
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.DateType
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.dataToString
 import java.time.LocalDate
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.languages
 
 @Composable
 fun DetailProfileCard(
@@ -78,12 +88,16 @@ fun DetailProfileCard(
     onEditClicked: () -> Unit,
     isAdditionalOptionsVisible: Boolean,
     isDeleteDialogVisible: Boolean,
+    isDeleteButtonEnabled: Boolean,
     onAdditionalOptionsClicked: () -> Unit,
     onDeleteAccountClicked: () -> Unit,
     onConfirmDeletionClicked: () -> Unit,
     onRejectDeletionClicked: () -> Unit,
+    onLanguageSelected: (String) -> Unit,
+    selectedLanguage: String,
     modifier: Modifier = Modifier
 ){
+    Log.d("DETAIL PROFILE CARD", "selected language = $selectedLanguage")
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
@@ -142,6 +156,9 @@ fun DetailProfileCard(
                 onDeleteAccountClicked = onDeleteAccountClicked,
                 onConfirmDeletionClicked = onConfirmDeletionClicked,
                 onRejectDeletionClicked = onRejectDeletionClicked,
+                isDeleteButtonEnabled = isDeleteButtonEnabled,
+                onLanguageSelected = onLanguageSelected,
+                selectedLanguage = selectedLanguage,
                 modifier = Modifier
                     .padding(
                         start = dimensionResource(R.dimen.padding_small),
@@ -174,10 +191,13 @@ fun DetailProfileCard(
 fun UserAdditionalOptions(
     isAdditionalOptionsVisible: Boolean,
     isDeleteDialogVisible: Boolean,
+    isDeleteButtonEnabled: Boolean,
     onAdditionalOptionsClicked: () -> Unit,
     onDeleteAccountClicked: () -> Unit,
     onConfirmDeletionClicked: () -> Unit,
     onRejectDeletionClicked: () -> Unit,
+    onLanguageSelected: (String) -> Unit,
+    selectedLanguage: String,
     modifier: Modifier = Modifier
 ){
 
@@ -213,8 +233,15 @@ fun UserAdditionalOptions(
             }
         }
         if(isAdditionalOptionsVisible){
+            if(!isDeleteButtonEnabled){
+                Text(
+                    text = "To delete your account, you must log out and log in again",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
             CustomButton(
                 onButtonClick = onDeleteAccountClicked,
+                isEnabled = isDeleteButtonEnabled,
                 textId = R.string.user_label_delete_account
             )
             if (isDeleteDialogVisible){
@@ -223,8 +250,56 @@ fun UserAdditionalOptions(
                     onReject = onRejectDeletionClicked
                 )
             }
+            ChooseLanguage(selectedLanguage = selectedLanguage, onLanguageSelected = onLanguageSelected)
         }
     }
+}
+@Composable
+fun ChooseLanguage(
+    selectedLanguage: String,
+    onLanguageSelected: (String) -> Unit,
+    modifier: Modifier = Modifier
+){
+
+    var expanded by remember { mutableStateOf(false) }
+    Log.d("CHOSE LANGUAGE", "selected language = $selectedLanguage")
+    Column( modifier = modifier ){
+        Text(
+            text = stringResource(R.string.select_language),
+            style = MaterialTheme.typography.bodySmall,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true }
+                .padding(8.dp),
+
+            ) {
+            Text(
+                text = selectedLanguage,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            languages.forEach { (languageName, languageCode) ->
+                DropdownMenuItem(
+                    text = {
+                        Text(text = languageName)
+                    },
+                    onClick = {
+                        expanded = false
+                        onLanguageSelected(languageCode)
+                    })
+            }
+        }
+    }
+
 }
 @Composable
 fun DeleteAccountDialog(
@@ -515,10 +590,13 @@ fun DetailProfileCardPreview(){
                 onEditClicked = {},
                 isAdditionalOptionsVisible = true,
                 isDeleteDialogVisible = false,
+                isDeleteButtonEnabled = true,
                 onAdditionalOptionsClicked = {},
                 onDeleteAccountClicked = {},
                 onConfirmDeletionClicked = {},
                 onRejectDeletionClicked = {},
+                onLanguageSelected = {},
+                selectedLanguage = "English",
                 modifier = Modifier
                     .fillMaxWidth()
             )

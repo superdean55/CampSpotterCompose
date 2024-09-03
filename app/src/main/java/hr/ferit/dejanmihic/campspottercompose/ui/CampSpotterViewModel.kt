@@ -2,17 +2,25 @@ package hr.ferit.dejanmihic.campspottercompose.ui
 
 import android.Manifest
 import android.R.id.message
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.PorterDuff
+import android.location.LocationManager
 import android.net.Uri
+import android.os.LocaleList
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -35,8 +43,10 @@ import hr.ferit.dejanmihic.campspottercompose.model.User
 import hr.ferit.dejanmihic.campspottercompose.model.UserFormErrors
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotNavigationType
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.CampSpotType
+import hr.ferit.dejanmihic.campspottercompose.ui.screens.dateToString
 import hr.ferit.dejanmihic.campspottercompose.ui.theme.md_theme_light_error
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
+import hr.ferit.dejanmihic.campspottercompose.ui.utils.languages
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.stringToLocalDate
 import kotlinx.coroutines.Dispatchers
@@ -102,7 +112,7 @@ class CampSpotterViewModel : ViewModel() {
         startLocationUpdates(context)
     }
     fun startLocationUpdates(
-        context: Context
+        context: Context,
     ) {
         this.fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
 
@@ -115,6 +125,11 @@ class CampSpotterViewModel : ViewModel() {
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
+            val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val isLocationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            if (!isLocationEnabled) {
+                updateLocationDialogVisibility(true)
+            }
             val locationRequest = LocationRequest.create().apply {
                 interval = 10000
                 fastestInterval = 5000
@@ -129,7 +144,13 @@ class CampSpotterViewModel : ViewModel() {
 
         }
     }
-
+    fun updateLocationDialogVisibility(visible: Boolean){
+        _uiState.update {
+            it.copy(
+                isLocationDialogVisible = visible
+            )
+        }
+    }
     fun stopLocationUpdates() {
         locationCallback?.let { fusedLocationClient?.removeLocationUpdates(it) }
         _uiState.update {
@@ -154,11 +175,16 @@ class CampSpotterViewModel : ViewModel() {
             )
         }
     }
-    fun deleteUserAccount(){
+    fun deleteUserAccount():Boolean{
         Log.d(TAG,"DELETING USER ACCOUNT")
+        val myPublishedCampSpots = CampSpotsRepository.repositoryState.value.myCampSpots
+        val mySketches = CampSpotsRepository.repositoryState.value.myCampSpotSketches
+        val myAccountData = SingleUserRepository.repositoryState.value.user
         viewModelScope.launch(Dispatchers.Default) {
-
+            CampSpotsRepository.deleteAllCurrentUserCampSpotRecords(myPublishedCampSpots, mySketches)
+            SingleUserRepository.deleteUserRecords(myAccountData)
         }
+        return true
     }
 
     fun updateSendMassageText(sendMessageText: String){
@@ -349,12 +375,7 @@ class CampSpotterViewModel : ViewModel() {
             }
         }
         if(errors != "") {
-            val toast = Toast.makeText(context, errors, Toast.LENGTH_LONG)
-            val view = toast.view
-            view!!.background.setColorFilter(md_theme_light_error.toArgb(), PorterDuff.Mode.SRC_IN)
-            val text = view!!.findViewById<TextView>(message)
-            text.setTextColor(Color.BLACK)
-            toast.show()
+            toastMessage(errors, context)
             return false
         }else {
             return true
@@ -393,6 +414,7 @@ class CampSpotterViewModel : ViewModel() {
     }
     fun addAndUpdateCampSpot(campSpotType: String, context: Context, campSpotFormMode: CampSpotFormMode, isTransfer: Boolean = false) :Boolean{
         if(isValidCampSpotFormData(context)){
+            Log.d(TAG,"IS USER ALREADY ADDED SPOT IN RANGE =  ${isUserAlreadyAddedCampSpotInThatDateRange()}")
             Log.d(TAG,"CAMP SPOT BEFORE ADDING USER DATA: ${uiState.value.campSpotForm}")
 
             if(campSpotFormMode == CampSpotFormMode.Add) {
@@ -448,6 +470,26 @@ class CampSpotterViewModel : ViewModel() {
             return false
         }
         return true
+    }
+    private fun isUserAlreadyAddedCampSpotInThatDateRange(): Boolean{
+        val currentUserCampSpots = CampSpotsRepository.repositoryState.value.myCampSpots
+        val campSpotFormData = uiState.value.campSpotForm
+        val newStartEventDate = stringToLocalDate(campSpotFormData.startEventDate!!)
+        val newEndEventDate = stringToLocalDate(campSpotFormData.endEventDate!!)
+        if (currentUserCampSpots.isNotEmpty()) {
+            for (campSpot in currentUserCampSpots) {
+                val startEventDate = stringToLocalDate(campSpot.startEventDate!!)
+                val endEventDate = stringToLocalDate(campSpot.endEventDate!!)
+                Log.d(TAG,"OLD START EVENT DATE = $startEventDate\nNEW START EVENT DATE = $newStartEventDate\n" +
+                        "OLD END EVENT DATE = $endEventDate\nNEW END EVENT DATE = $newEndEventDate")
+                Log.d(TAG,"START EVENT DATE > NEW END EVENT DATE ${startEventDate > newEndEventDate}\n" +
+                        "END EVENT DATE > NEW START EVENT DATE ${endEventDate < newStartEventDate}")
+                if (!(startEventDate > newEndEventDate || endEventDate < newStartEventDate)){
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     fun updateBirthDate(date: LocalDate){
@@ -620,18 +662,23 @@ class CampSpotterViewModel : ViewModel() {
     private fun resizeImage(bitmap: Bitmap): Bitmap {
         val width = bitmap.width.toFloat()
         val height = bitmap.height.toFloat()
-        val aspectRatio: Float= width / height
-
+        var aspectRatio: Float
+        Log.d(TAG, "IMAGE RESOLUTION\nwidth = $width" +
+                "\nheight = $height")
         var scaledWidth: Int
         var scaledHeight: Int
 
         if(width > height) {
+            aspectRatio = height / width
             scaledWidth = 400
             scaledHeight = (scaledWidth * aspectRatio).toInt()
         }else{
+            aspectRatio = width / height
             scaledHeight = 400
             scaledWidth = (scaledHeight * aspectRatio).toInt()
         }
+        Log.d(TAG, "IMAGE SCALE \nscaled width = $scaledWidth" +
+                "\nscaled height = $scaledHeight\naspectRatio = $aspectRatio")
         return Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, false)
     }
     private fun generateFileNameForBitmap(): String {
@@ -644,5 +691,57 @@ class CampSpotterViewModel : ViewModel() {
             message,
             Toast.LENGTH_LONG,
         ).show()
+    }
+    private fun saveLanguagePreference(context: Context, languageCode: String) {
+        val sharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        with(sharedPreferences.edit()) {
+            putString("selected_language", languageCode)
+            apply()
+        }
+    }
+    fun loadLanguagePreference(context: Context): String {
+        val sharedPreferences = context.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
+        return sharedPreferences.getString("selected_language", "en") ?: "en"
+    }
+    fun setLocale(context: Context, languageCode: String) {
+        Log.d(TAG, "language code = $languageCode")
+
+        var selectedLanguage = getLanguageName(languages, languageCode)
+        Log.d(TAG, "selected language = $selectedLanguage")
+        _uiState.update {
+            it.copy(
+                selectedLanguage = selectedLanguage
+            )
+        }
+        Log.d(TAG, "selected language after update = ${_uiState.value.selectedLanguage}")
+        context.resources.apply {
+            val locale = Locale(languageCode)
+            val config = Configuration(configuration)
+
+            context.createConfigurationContext(configuration)
+            Locale.setDefault(locale)
+            config.setLocale(locale)
+            context.resources.updateConfiguration(config, displayMetrics)
+        }
+        /*val locale = Locale(languageCode)
+        Locale.setDefault(locale)
+
+        val config = Configuration(context.resources.configuration)
+        config.setLocales(LocaleList(locale))
+        context.resources.updateConfiguration(config, context.resources.displayMetrics)*/
+
+        saveLanguagePreference(context, languageCode)
+
+    }
+    private fun getLanguageName(map: Map<String, String>, target: String): String {
+        Log.d(TAG, "language code = $target")
+        for (key in map.keys)
+        {
+            if (target == map[key]) {
+                return key
+            }
+        }
+        Log.d(TAG, "language code not found")
+        return "English"
     }
 }

@@ -68,3 +68,8 @@ sealed class MessageStatus(val text: String){
     object Deleted : MessageStatus(text = "DELETED")
     object Viral : MessageStatus(text = "VIRAL")
 }
+
+val languages = mapOf(
+    "Hrvatski" to "hr",
+    "English" to "en"
+)

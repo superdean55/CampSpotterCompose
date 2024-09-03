@@ -11,4 +11,5 @@ data class AuthUiState (
     val isPasswordVisible: Boolean = false,
     val isLoadingData: Boolean = false,
     val visualTransformation: VisualTransformation = PasswordVisualTransformation(),
+    val isUserRecentlyLoggedIn: Boolean = false
 )

@@ -25,6 +25,10 @@
     <string name="camp_spot_add_label_save">Publish</string>
     <string name="camp_spot_label_edit">Edit</string>
     <string name="camp_spot_label_delete">Delete</string>
+    <string name="camp_spot_alert_title">Location is disabled</string>
+    <string name="camp_spot_alert_text">you need to turn on a location in order to reserve a camp spot!</string>
+    <string name="camp_spot_alert_on_confirm">Ok</string>
+    <string name="camp_spot_alert_on_reject">Cancel</string>
 
     <string name="user_label_log_uot">Log out</string>
     <string name="user_label_edit">Edit</string>
@@ -64,4 +68,6 @@
 
     <string name="message_removed">message has been removed</string>
     <string name="message_label_enter_message">enter message</string>
+
+    <string name="select_language">Select language:</string>
 </resources>

@@ -84,6 +84,8 @@ import hr.ferit.dejanmihic.campspottercompose.ui.utils.localDateToString
 @Composable
 fun HomeScreen(
     onLogOutClicked: () -> Unit,
+    onConfirmUserDeletion: () -> Unit,
+    isDeleteButtonEnabled: Boolean,
     campSpotViewModel: CampSpotterViewModel = viewModel(),
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier
@@ -92,6 +94,11 @@ fun HomeScreen(
     val backStackEntry by navController.currentBackStackEntryAsState()
     val campSpotRepositoryState by SingleUserRepository.repositoryState.collectAsState()
     val canNavigateBack = if(backStackEntry != null) backStackEntry!!.arguments != null else false
+    val context = LocalContext.current
+
+    val selectedLanguageCode = campSpotViewModel.loadLanguagePreference(context)
+    campSpotViewModel.setLocale(context, selectedLanguageCode)
+
     val navigationItemContentList = listOf(
         NavigationItemContent(
             campSpotType = CampSpotNavigationType.ALL_CAMP_SPOTS,
@@ -139,10 +146,7 @@ fun HomeScreen(
                     onUserIconClicked = {
                         println("TOP_APP_BAR")
                         println(backStackEntry?.destination?.route)
-
                         navController.navigate(route = Graph.USER_DETAILS)
-
-
                     },
                     titleId = R.string.auth_title_app,
                     user = campSpotRepositoryState.user!!,
@@ -182,6 +186,8 @@ fun HomeScreen(
                 onLogOutClicked = onLogOutClicked,
                 navController = navController,
                 campSpotterViewModel = campSpotViewModel,
+                onConfirmUserDeletion = onConfirmUserDeletion,
+                isDeleteButtonEnabled = isDeleteButtonEnabled,
                 modifier = Modifier
                     .padding(it)
             )

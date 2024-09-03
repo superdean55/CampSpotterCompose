@@ -2,8 +2,10 @@ package hr.ferit.dejanmihic.campspottercompose.ui.screens
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -33,6 +35,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
@@ -336,6 +339,8 @@ fun TestAppComponent(
         onNumberOfPeopleChanged = { viewModel.updateCampSpotNumberOfPeople(it, context) },
         onSaveSketchClicked = { viewModel.saveCampSpot(context)},
         onPublishClicked = {},
+        isLocationDialogVisible = false,
+        hideDialog = {},
         viewModel = viewModel,
         modifier = modifier
     )
@@ -354,6 +359,8 @@ fun CampSpotForm(
     onNumberOfPeopleChanged: (String) -> Unit,
     onSaveSketchClicked: (String) -> Unit,
     onPublishClicked: (String) -> Unit,
+    isLocationDialogVisible: Boolean,
+    hideDialog: () -> Unit,
     dividersColor: Color = MaterialTheme.colorScheme.scrim,
     modifier: Modifier = Modifier,
     viewModel: CampSpotterViewModel
@@ -369,7 +376,9 @@ fun CampSpotForm(
         Objects.requireNonNull(context),
         BuildConfig.APPLICATION_ID + ".provider", file
     )
+    val locationEnableResultLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {
 
+    }
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) {
             if(it) { viewModel.updateUri(uri, context) }
@@ -398,7 +407,16 @@ fun CampSpotForm(
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-
+        if (isLocationDialogVisible){
+            LocationRequestDialog(
+                onConfirm = {
+                    val enableLocationIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    locationEnableResultLauncher.launch(enableLocationIntent)
+                    hideDialog()
+                            },
+                onReject = hideDialog
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -551,7 +569,41 @@ fun CampSpotForm(
         }
     }
 }
-
+@Composable
+fun LocationRequestDialog(
+    onConfirm: () -> Unit,
+    onReject: () -> Unit,
+    modifier: Modifier = Modifier
+){
+    AlertDialog(
+        title = {
+            Text(
+                text = stringResource(R.string.camp_spot_alert_title),
+                style = MaterialTheme.typography.titleMedium
+            )
+        },
+        text = {
+            Text(
+                text = stringResource(R.string.camp_spot_alert_text),
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        onDismissRequest = onReject,
+        confirmButton = {
+            CustomButton(
+                onButtonClick = onConfirm,
+                textId = R.string.camp_spot_alert_on_confirm
+            )
+        },
+        dismissButton = {
+            CustomButton(
+                onButtonClick = onReject,
+                textId = R.string.camp_spot_alert_on_reject
+            )
+        },
+        modifier = modifier
+    )
+}
 fun Context.createImageFile(): File {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
     val imageFileName = "JPEG_" + timeStamp + "_"
@@ -650,6 +702,7 @@ fun ChooseDate(
 fun CustomButton(
     onButtonClick: () -> Unit,
     @StringRes textId: Int,
+    isEnabled: Boolean = true,
     modifier: Modifier = Modifier
 ){
     Button(
@@ -660,6 +713,7 @@ fun CustomButton(
         ),
         shape = RoundedCornerShape(dimensionResource(R.dimen.padding_small)),
         elevation = ButtonDefaults.buttonElevation(),
+        enabled = isEnabled,
         modifier = modifier
     ) {
         Text(
@@ -785,6 +839,8 @@ fun CampSpotFormPreview(){
                 onNumberOfPeopleChanged = {},
                 onSaveSketchClicked = {},
                 onPublishClicked = {},
+                isLocationDialogVisible = false,
+                hideDialog = {},
                 viewModel = CampSpotterViewModel()
             )
         }

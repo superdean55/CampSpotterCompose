@@ -33,6 +33,7 @@ fun RootNavigationGraph(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
     var starDestination = Graph.AUTHENTICATION
     if (FirebaseAuth.getInstance().currentUser != null){
         println("CURRENT_USER_IS: ${FirebaseAuth.getInstance().currentUser?.email}")
@@ -120,6 +121,14 @@ fun RootNavigationGraph(
                     navController.navigate(route = Graph.AUTHENTICATION)
                     println("AFTER NAVIGATE TO AUTH GRAPH")
                 },
+                onConfirmUserDeletion = {
+                    viewModel.resetUiToInitialState()
+                    viewModel.deleteUser()
+                    navController.popBackStack(route = Graph.HOME, inclusive = true)
+                    navController.navigate(route = Graph.AUTHENTICATION)
+                    println("AFTER USER DELETION")
+                },
+                isDeleteButtonEnabled = uiState.isUserRecentlyLoggedIn,
                 modifier = Modifier.background(MaterialTheme.colorScheme.background)
             )
         }

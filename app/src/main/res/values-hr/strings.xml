@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <string name="label_participant">Sudionici</string>
+    <string name="label_publication_date">Datum objave</string>
+
+    <string name="label_username">Korisničko ime</string>
+    <string name="label_email">Email</string>
+    <string name="label_firstname">Ime</string>
+    <string name="label_lastname">Prezime</string>
+    <string name="label_registration_date">Datum registracije</string>
+    <string name="label_date_of_birth">Datum rođenja</string>
+    <string name="label_numb_of_people">Broj ljudi</string>
+    <string name="label_description">Opis</string>
+    <string name="label_gps_coordinates">Koordinate</string>
+    <string name="label_reviews">Recenzije</string>
+    <string name="label_gps">GPS</string>
+    <string name="label_latitude">Zemljopisna širina</string>
+    <string name="label_longitude">Zemljopisna dužina</string>
+    <string name="label_title">Naslov</string>
+
+    <string name="camp_spot_edit_label_publish">Objavi</string>
+    <string name="camp_spot_edit_label_save_sketch">Spremi skicu</string>
+    <string name="camp_spot_add_label_update_sketch">Ažuriraj skicu</string>
+    <string name="camp_spot_add_label_save">Objavi</string>
+    <string name="camp_spot_label_edit">Izmjeni</string>
+    <string name="camp_spot_label_delete">Obriši</string>
+    <string name="camp_spot_alert_title">Lokacija je isključena</string>
+    <string name="camp_spot_alert_text">Potrebno je da uključite lokaciju da bi ste mogli rezervirati mjesto za kamp!</string>
+    <string name="camp_spot_alert_on_confirm">Prihvati</string>
+    <string name="camp_spot_alert_on_reject">Izađi</string>
+
+    <string name="user_label_log_uot">Odjava</string>
+    <string name="user_label_edit">Izmjeni</string>
+    <string name="user_label_delete_account">Obriši račun</string>
+    <string name="user_label_additional_options">Dodatne opcije</string>
+    <string name="user_label_delete_dialog_confirm">Prihvati</string>
+    <string name="user_label_delete_dialog_reject">Izađi</string>
+    <string name="user_delete_dialog_alert_message">Jeste li sigurni da želite obrisati račun?</string>
+
+    <string name="label_save">Spremi</string>
+    <string name="label_date_of_publication">Datum objave</string>
+    <string name="label_date_of_event">Datum događaja</string>
+    <string name="label_from">Od</string>
+    <string name="label_to">Do</string>
+    <string name="label_event_starts">Događaj počinje</string>
+    <string name="label_event_ends">Događaj završava</string>
+    <string name="label_pick_date">Odaberi datum</string>
+
+    <string name="auth_title_app">Camp Spotter</string>
+    <string name="auth_label_email">Email</string>
+    <string name="auth_label_password">Lozinka</string>
+    <string name="auth_log_in_label_confirm">Prijavi se</string>
+    <string name="auth_log_in_message_title">Dobro došli nazad</string>
+    <string name="auth_log_in_bottom_message">Nemate račun?</string>
+    <string name="auth_log_in_label_navigate">Kreirajte ga</string>
+
+    <string name="auth_sign_up_label_confirm">Registracija</string>
+    <string name="auth_sign_up_message_title">Kreiraj račun</string>
+    <string name="auth_sign_up_bottom_message">Već imate račun?</string>
+    <string name="auth_sign_up_label_navigate">Prijavi se</string>
+
+    <string name="top_app_bar_navigation_back">Vrati nazad</string>
+
+    <string name="nav_all_camp_spots">Sva kampirna mjesta</string>
+    <string name="nav_my_camp_spots">Moja kampirna mjesta</string>
+    <string name="nav_my_sketches">Moje skice</string>
+
+    <string name="message_removed">poruka obrisana</string>
+    <string name="message_label_enter_message">unesi poruku</string>
+
+    <string name="select_language">Odaberi jezik:</string>
+</resources>

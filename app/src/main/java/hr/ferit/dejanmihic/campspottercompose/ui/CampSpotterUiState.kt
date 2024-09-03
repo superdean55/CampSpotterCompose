@@ -26,5 +26,8 @@ data class CampSpotterUiState(
     val sendMessageText: String = "",
 
     val isAdditionalOptionsVisible: Boolean = false,
-    val isDeleteDialogVisible: Boolean = false
+    val isDeleteDialogVisible: Boolean = false,
+    val isLocationDialogVisible: Boolean = false,
+
+    val selectedLanguage: String = ""
 )

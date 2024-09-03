@@ -271,6 +271,21 @@ object CampSpotsRepository{
         }
     }
 
+    fun deleteAllCurrentUserCampSpotRecords(myCampSpots: MutableList<CampSpot>, mySketches: MutableList<CampSpot>){
+        Log.d(TAG,"START DELETING CAMP SPOTS")
+
+        if (myCampSpots.isNotEmpty()) {
+            myCampSpots.forEach {
+                deleteCampSpotRecord(it)
+            }
+        }
+        if (mySketches.isNotEmpty()){
+            mySketches.forEach {
+                deleteCampSpotRecord(it)
+            }
+        }
+    }
+
     private fun removeCampSpotData(id: String, campSpotType: String){
         val dataPath = if (campSpotType == CampSpotType.Published.text) campSpotsPath else sketchesPath
         database.getReference(dataPath).child(id).removeValue()

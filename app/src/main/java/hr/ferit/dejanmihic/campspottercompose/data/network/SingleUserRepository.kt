@@ -186,6 +186,24 @@ object SingleUserRepository{
             println("OLD_USER_IMAGE_DELETING_ERROR")
         }
     }
+    fun deleteUserRecords(user: User?){
+        Log.d(TAG,"START DELETING USER DATA")
+        if (user != null && user.uid != ""){
+            if (user.imageName != "") {
+                deleteOldImageFromDb(user.imageName!!)
+            }
+            database.reference.child("users").child(user.uid!!).removeValue()
+                .addOnCompleteListener { task ->
+                    if(task.isSuccessful){
+                        println("USER RECORDS DELETED")
+                    }else{
+                        println("USER RECORDS DELETION ERROR")
+                    }
+                }
+        }else{
+            Log.d(TAG,"USER IS NULL OR UID IS EMPTY")
+        }
+    }
     private fun toastMessage(message: String, context: Context){
         Toast.makeText(
             context,

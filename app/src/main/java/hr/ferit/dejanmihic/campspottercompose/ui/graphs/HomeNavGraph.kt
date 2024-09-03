@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,10 +36,13 @@ import hr.ferit.dejanmihic.campspottercompose.ui.screens.DetailCampSpotCard
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.DetailProfileCard
 import hr.ferit.dejanmihic.campspottercompose.ui.screens.EditProfileCard
 import hr.ferit.dejanmihic.campspottercompose.ui.utils.CampSpotFormMode
+import kotlinx.coroutines.Dispatchers
 
 @Composable
 fun HomeNavGraph(
     onLogOutClicked: () -> Unit,
+    onConfirmUserDeletion: () -> Unit,
+    isDeleteButtonEnabled: Boolean,
     navController: NavHostController,
     campSpotterViewModel: CampSpotterViewModel,
     modifier: Modifier = Modifier
@@ -52,6 +56,7 @@ fun HomeNavGraph(
     if(campSpotsRepositoryState.latestChangedCampSpot.id == uiState.currentlySelectedCampSpot.id){
         campSpotterViewModel.updateCurrentlySelectedCampSpot(campSpotsRepositoryState.latestChangedCampSpot)
     }
+    Log.d(TAG, "selected language = ${uiState.selectedLanguage}")
     NavHost(
         navController = navController,
         route = Graph.HOME,
@@ -141,6 +146,8 @@ fun HomeNavGraph(
                         navController.popBackStack()
                     }
                 },
+                isLocationDialogVisible = uiState.isLocationDialogVisible,
+                hideDialog = { campSpotterViewModel.updateLocationDialogVisibility(false) },
                 viewModel = campSpotterViewModel
             )
         }
@@ -203,6 +210,8 @@ fun HomeNavGraph(
                         }
 
                     },
+                    isLocationDialogVisible = uiState.isLocationDialogVisible,
+                    hideDialog = { campSpotterViewModel.updateLocationDialogVisibility(false) },
                     viewModel = campSpotterViewModel
                 )
             }
@@ -219,6 +228,7 @@ fun HomeNavGraph(
                             CampSpotsRepository.resetRepositoryToInitialState()
                             UsersRepository.resetRepositoryToInitialState()
                             SingleUserRepository.resetRepositoryToInitialState()
+                            navController.popBackStack(route = Graph.USER_DETAILS, inclusive = true)
                             onLogOutClicked()
                                       },
                     onEditClicked = {
@@ -230,10 +240,21 @@ fun HomeNavGraph(
                     onAdditionalOptionsClicked = { campSpotterViewModel.updateAdditionalOptionsVisibility() },
                     onDeleteAccountClicked = { campSpotterViewModel.updateDeleteAccountDialogVisibility(true) },
                     onConfirmDeletionClicked = {
-                        campSpotterViewModel.deleteUserAccount()
+                        if (campSpotterViewModel.deleteUserAccount()) {
+                            println("AFTER VIEW MODEL SCOPE LAUNCH")
+                            onConfirmUserDeletion()
+                            campSpotterViewModel.resetUiToInitialState()
+                            CampSpotsRepository.resetRepositoryToInitialState()
+                            UsersRepository.resetRepositoryToInitialState()
+                            SingleUserRepository.resetRepositoryToInitialState()
+                        }
+                        navController.popBackStack(route = Graph.USER_DETAILS, inclusive = true)
                         campSpotterViewModel.updateDeleteAccountDialogVisibility(false)
                                                },
                     onRejectDeletionClicked = { campSpotterViewModel.updateDeleteAccountDialogVisibility(false) },
+                    onLanguageSelected = { campSpotterViewModel.setLocale(context, it) },
+                    isDeleteButtonEnabled = isDeleteButtonEnabled,
+                    selectedLanguage = uiState.selectedLanguage,
                     modifier = Modifier.fillMaxSize()
                 )
             }
