@@ -200,13 +200,21 @@ fun HomeNavGraph(
                     onPublishClicked = {
                         Log.d(TAG,"camp spot type on publish: $it")
                         if(it == CampSpotType.Sketch.text){
-                            campSpotterViewModel.addAndUpdateCampSpot(it, context, CampSpotFormMode.Update, isTransfer = true)
-                            navController.popBackStack(route = Graph.CAMP_SPOT_DETAILS, inclusive = true)
-                            navController.navigate(route = Graph.HOME)
+                            if(campSpotterViewModel.addAndUpdateCampSpot(it, context, CampSpotFormMode.Update, isTransfer = true)) {
+                                navController.popBackStack(
+                                    route = Graph.CAMP_SPOT_DETAILS,
+                                    inclusive = true
+                                )
+                                navController.navigate(route = Graph.HOME)
+                            }
                         }else{
-                            campSpotterViewModel.addAndUpdateCampSpot(it, context, CampSpotFormMode.Update)
-                            navController.popBackStack(route = Graph.CAMP_SPOT_DETAILS, inclusive = true)
-                            navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                            if(campSpotterViewModel.addAndUpdateCampSpot(it, context, CampSpotFormMode.Update)) {
+                                navController.popBackStack(
+                                    route = Graph.CAMP_SPOT_DETAILS,
+                                    inclusive = true
+                                )
+                                navController.navigate(route = Graph.CAMP_SPOT_DETAILS)
+                            }
                         }
 
                     },

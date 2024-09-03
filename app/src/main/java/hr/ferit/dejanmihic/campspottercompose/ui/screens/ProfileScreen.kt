@@ -235,7 +235,7 @@ fun UserAdditionalOptions(
         if(isAdditionalOptionsVisible){
             if(!isDeleteButtonEnabled){
                 Text(
-                    text = "To delete your account, you must log out and log in again",
+                    text = stringResource(R.string.user_account_delete_message),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }

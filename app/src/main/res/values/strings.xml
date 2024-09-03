@@ -34,6 +34,7 @@
     <string name="user_label_edit">Edit</string>
     <string name="user_label_delete_account">Delete Account</string>
     <string name="user_label_additional_options">Additional options</string>
+    <string name="user_account_delete_message">To delete your account, you must log out and log in again</string>
     <string name="user_label_delete_dialog_confirm">Yes</string>
     <string name="user_label_delete_dialog_reject">Cancel</string>
     <string name="user_delete_dialog_alert_message">Are you sure you want to delete the account?</string>
@@ -68,6 +69,7 @@
 
     <string name="message_removed">message has been removed</string>
     <string name="message_label_enter_message">enter message</string>
+    <string name="messages_card_name">Messages</string>
 
     <string name="select_language">Select language:</string>
 </resources>

@@ -407,7 +407,7 @@ fun MessagesCard(
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ){
-            Text(text = "Messages", style = MaterialTheme.typography.labelMedium)
+            Text(text = stringResource(R.string.messages_card_name), style = MaterialTheme.typography.labelMedium)
         }
         Row(modifier = Modifier.weight(1f)) {
             MessagesList(
